@@ -97,13 +97,12 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
            });
         },
         onEachFeature: function(feature, layer) {
-          layer.on('click', function(e) {
-            alert("Library: " + feature.properties.BUSINESS_1 + "\nName: " + feature.properties.BUSINESS_N);
-          });
+            layer.on('click', function(e) {
+                alert("Library: " + feature.properties.BUSINESS_1 + "\nName: " + feature.properties.BUSINESS_N);
+            });
         }
-      }).addTo(map);
-    });
-
+    }).addTo(map);
+});
   </script>
 </body>
 
