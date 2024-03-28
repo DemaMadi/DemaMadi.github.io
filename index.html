@@ -84,26 +84,26 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     });
 
 
-  $.getJSON("Libraries_P.json", function(LP) {
-      L.geoJson(LP, {
+  // Define a separate function to handle the click event
+function onLibraryClick(e) {
+    alert("Library: " + e.target.feature.properties.BUSINESS_1);
+}
+
+// Inside the onEachFeature function, attach the click event listener to the layer
+function onEachLibraryFeature(feature, layer) {
+    layer.on('click', onLibraryClick);
+}
+
+// Load GeoJSON data and add it to the map with event handling
+$.getJSON("Libraries_P.json", function(WC) {
+    L.geoJson(WC, {
         pointToLayer: function(feature, latlng) {
-          return L.circleMarker(latlng, {
-            radius: 5,
-            fillColor: "orange",
-            color: "red",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-           });
+            return L.marker(latlng);
         },
-         onEachFeature: function(feature, layer) {
-            layer.on('click', function(e) {
-                alert("Name: " + feature.properties.BUSINESS_1);
-              
-            });
-        }
+        onEachFeature: onEachLibraryFeature // Using the separate function for event handling
     }).addTo(map);
 });
+
   </script>
 </body>
 
