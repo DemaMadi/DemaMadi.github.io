@@ -100,17 +100,19 @@ $.getJSON("Libraries_P.json", function(LP) {
         onEachFeature: onEachLibraryFeature // Using the separate function for event handling
     }).addTo(map);
 });
+// Add Legend
 var legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML += '<h4>Legend</h4>';
-    div.innerHTML += '<i style="background: orange"></i><span>Library</span><br>';
-    div.innerHTML += '<i style="background: blue"></i><span>Zone</span><br>';
+    div.innerHTML += '<div class="legend-item"><i style="background: orange"></i><span>Library</span></div>';
+    div.innerHTML += '<div class="legend-item"><i style="background: blue"></i><span>Zone</span></div>';
     return div;
 };
 
 legend.addTo(map);
+
   </script>
 </body>
 
