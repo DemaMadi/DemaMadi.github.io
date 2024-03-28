@@ -84,8 +84,8 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     });
 
 
-  $.getJSON("Libraries_P.json", function(WC) {
-      L.geoJson(WC, {
+  $.getJSON("Libraries_P.json", function(LP) {
+      L.geoJson(LP, {
         pointToLayer: function(feature, latlng) {
           return L.circleMarker(latlng, {
             radius: 5,
@@ -96,9 +96,10 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             fillOpacity: 0.8
            });
         },
-        onEachFeature: function(feature, layer) {
+         onEachFeature: function(feature, layer) {
             layer.on('click', function(e) {
-                alert("Library: " + feature.properties.BUSINESS_1 + "\nName: " + feature.properties.BUSINESS_N);
+                alert("Library: " + feature.properties.BUSINESS_1);ties.BUSINESS_N);
+              
             });
         }
     }).addTo(map);
