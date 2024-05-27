@@ -45,8 +45,8 @@
     // define map options
     const mapOptions = {
       zoomSnap: 0.5,  // this allows fractional zooming
-      center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Ramallah
-      zoom: 10.5, // set the initial zoom
+      center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Alquds
+      zoom: 40.5, // set the initial zoom
     };
 
     // define the map with the options above
@@ -99,13 +99,13 @@
             fillColor: "",
             fillOpacity: 0.0,
             color: "black",
-            weight: 1.0,
+            weight: 1.5,
             opacity: 0.7
           };
         },
         onEachFeature: function(feature, layer) {
           layer.on('click', function(e) {
-            alert("Governorate: " + feature.properties.NAME);
+            alert("Governorate: " + feature.properties.Name);
           });
         }
       }).addTo(map);
