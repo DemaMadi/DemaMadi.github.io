@@ -92,6 +92,25 @@
       layer.setIcon(icon);
     }
 
+     $.getJSON("GoverW.json", function(GW) {
+      L.geoJson(GW, {
+        style: function(feature) {
+          return {
+            fillColor: "",
+            fillOpacity: 0.0,
+            color: "black",
+            weight: 1.0,
+            opacity: 0.7
+          };
+        },
+        onEachFeature: function(feature, layer) {
+          layer.on('click', function(e) {
+            alert("Governorate: " + feature.properties.NAME);
+          });
+        }
+      }).addTo(map);
+    });
+
     // Load GeoJSON data with custom icons
     $.getJSON("FastCharing24kw.json", function(data) {
       L.geoJson(data, {
