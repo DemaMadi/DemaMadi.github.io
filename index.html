@@ -171,4 +171,43 @@
     regularCharging22Layer.addTo(map);
 
     // Add layer control to the map
-    const overlay
+    const overlayMaps = {
+      "Fast Charging 24kW": fastCharging24Layer,
+      "Fast Charging 50kW": fastCharging50Layer,
+      "Regular Charging 11kW": regularCharging11Layer,
+      "Regular Charging 22kW": regularCharging22Layer
+    };
+
+    L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
+
+    // Add locate control to the map
+    L.control.locate({
+      position: 'topleft',
+      drawCircle: false,
+      follow: true,
+      setView: true,
+      keepCurrentZoomLevel: true,
+      markerStyle: {
+        weight: 1,
+        opacity: 0.8,
+        fillOpacity: 0.8
+      },
+      icon: 'fa fa-location-arrow',
+      metric: true,
+      strings: {
+        title: "Show location ",
+        popup: "You are within {distance} {unit} from this point",
+        outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
+      },
+      locateOptions: {
+        maxZoom: 10,
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 10000
+      }
+    }).addTo(map);
+
+  </script>
+</body>
+
+</html>
