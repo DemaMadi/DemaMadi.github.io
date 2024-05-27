@@ -183,7 +183,7 @@
     // Add locate control to the map
     L.control.locate({
       position: 'topleft',
-      drawCircle: true,
+      drawCircle: false,
       follow: true,
       setView: true,
       keepCurrentZoomLevel: true,
@@ -192,14 +192,10 @@
         opacity: 0.8,
         fillOpacity: 0.8
       },
-      circleStyle: {
-        weight: 1,
-        clickable: false
-      },
       icon: 'fa fa-location-arrow',
       metric: true,
       strings: {
-        title: "Show me where I am",
+        title: "Show location ",
         popup: "You are within {distance} {unit} from this point",
         outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
       },
