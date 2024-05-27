@@ -45,7 +45,7 @@
     // define map options
     const mapOptions = {
       zoomSnap: 0.5,  // this allows fractional zooming
-      center: [31.982557354426543, 35.298426827589175], // center the map on the coordinates for Ramallah
+      center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Ramallah
       zoom: 25.5, // set the initial zoom
     };
 
@@ -55,7 +55,7 @@
     // add a base map to the map
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 20
+      maxZoom: 30
     }).addTo(map);
 
     // Define custom icons for each type of charging station
