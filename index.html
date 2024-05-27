@@ -10,7 +10,6 @@
 
   <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.css" />
 
   <!-- All the CSS code goes inside the style tags below -->
   <style>
@@ -37,8 +36,9 @@
 
   <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+
+  <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.min.js"></script>
 
   <!-- All JavaScript goes inside the script tags below -->
   <script>
@@ -65,30 +65,39 @@
       imperial: false // Do not display the imperial scale
     }).addTo(map);
 
-    // Define custom icons for each type of charging station using Leaflet.AwesomeMarkers
-    const fastCharging24Icon = L.AwesomeMarkers.icon({
-      icon: 'bolt',
-      markerColor: 'green',
-      prefix: 'fa'
+    // Define custom icons for each type of charging station
+    const fastCharging24Icon = L.icon({
+      iconUrl: 'Green.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
     });
 
-    const fastCharging50Icon = L.AwesomeMarkers.icon({
-      icon: 'bolt',
-      markerColor: 'blue',
-      prefix: 'fa'
+    const fastCharging50Icon = L.icon({
+      iconUrl: 'blue.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
     });
 
-    const regularCharging11Icon = L.AwesomeMarkers.icon({
-      icon: 'bolt',
-      markerColor: 'red',
-      prefix: 'fa'
+    const regularCharging11Icon = L.icon({
+      iconUrl: 'Red.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
     });
 
-    const regularCharging22Icon = L.AwesomeMarkers.icon({
-      icon: 'bolt',
-      markerColor: 'gray',
-      prefix: 'fa'
+    const regularCharging22Icon = L.icon({
+      iconUrl: 'Gry.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
     });
+
+    // Function to apply the correct icon based on the feature
+    function onEachFeature(feature, layer, icon) {
+      layer.setIcon(icon);
+    }
 
     // Create layer groups for each type of charging station
     const fastCharging24Layer = L.layerGroup();
@@ -151,18 +160,12 @@
       }).addTo(regularCharging22Layer);
     });
 
-    // Add all layers to the map initially
-    fastCharging24Layer.addTo(map);
-    fastCharging50Layer.addTo(map);
-    regularCharging11Layer.addTo(map);
-    regularCharging22Layer.addTo(map);
-
-    // Add layer control to the map with icons
+    // Add layer control to the map
     const overlayMaps = {
-      "<i class='fa fa-bolt' style='color: green'></i> Fast Charging 24kW": fastCharging24Layer,
-      "<i class='fa fa-bolt' style='color: blue'></i> Fast Charging 50kW": fastCharging50Layer,
-      "<i class='fa fa-bolt' style='color: red'></i> Regular Charging 11kW": regularCharging11Layer,
-      "<i class='fa fa-bolt' style='color: gray'></i> Regular Charging 22kW": regularCharging22Layer
+      "Fast Charging 24kW": fastCharging24Layer,
+      "Fast Charging 50kW": fastCharging50Layer,
+      "Regular Charging 11kW": regularCharging11Layer,
+      "Regular Charging 22kW": regularCharging22Layer
     };
 
     L.control.layers(null, overlayMaps).addTo(map);
