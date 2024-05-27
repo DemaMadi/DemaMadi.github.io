@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
 
   <!-- Give the page a title -->
-  <title>Ramallah Waste Containers</title>
+  <title>Map of Electric car charging stations in West Bank </title>
 
   <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
@@ -52,17 +52,13 @@
     // define the map with the options above
     const map = L.map("map", mapOptions);
 
-// add a base map to the map
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains: 'abcd',
-  maxZoom: 20
-}).addTo(map);
+    // add a base map to the map
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 20
+    }).addTo(map);
 
-
-// use jquery to load GeoJSON data
-
-
+    // use jquery to load GeoJSON data
     $.getJSON("FastCharing24kw.json", function(FC) {
       L.geoJson(FC).addTo(map);
     });
@@ -78,7 +74,6 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     $.getJSON("ReqularCharging22kw.json", function(RC) {
       L.geoJson(RC).addTo(map);
     });
-    
 
   </script>
 </body>
