@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
 
   <!-- Give the page a title -->
-  <title>Map of Electric car charging stations in West Bank </title>
+  <title>Map of Electric car charging stations in West Bank</title>
 
   <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
@@ -58,6 +58,13 @@
       maxZoom: 20
     }).addTo(map);
 
+    // Add scale control to the map
+    L.control.scale({
+      position: 'bottomright', // Position of the scale control
+      metric: true, // Display only the metric scale
+      imperial: false // Do not display the imperial scale
+    }).addTo(map);
+
     // Define custom icons for each type of charging station
     const fastCharging24Icon = L.icon({
       iconUrl: 'Green.png',
@@ -92,8 +99,9 @@
       layer.setIcon(icon);
     }
 
-     $.getJSON("GoverW.json", function(GW) {
-      L.geoJson(GW, {
+    // Load GeoJSON data for Governorate boundaries and fit map to its bounds
+    $.getJSON("GoverW.json", function(GW) {
+      const goverLayer = L.geoJson(GW, {
         style: function(feature) {
           return {
             fillColor: "",
@@ -109,6 +117,8 @@
           });
         }
       }).addTo(map);
+
+      map.fitBounds(goverLayer.getBounds());
     });
 
     // Load GeoJSON data with custom icons
