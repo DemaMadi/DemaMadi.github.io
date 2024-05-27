@@ -53,7 +53,7 @@
     const map = L.map("map", mapOptions);
 
     // add a base map to the map
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 20
     }).addTo(map);
@@ -99,6 +99,12 @@
       layer.setIcon(icon);
     }
 
+    // Create layer groups for each type of charging station
+    const fastCharging24Layer = L.layerGroup();
+    const fastCharging50Layer = L.layerGroup();
+    const regularCharging11Layer = L.layerGroup();
+    const regularCharging22Layer = L.layerGroup();
+
     // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
@@ -127,7 +133,7 @@
         pointToLayer: function(feature, latlng) {
           return L.marker(latlng, { icon: fastCharging24Icon });
         }
-      }).addTo(map);
+      }).addTo(fastCharging24Layer);
     });
 
     $.getJSON("FastCharing50kw.json", function(data) {
@@ -135,7 +141,7 @@
         pointToLayer: function(feature, latlng) {
           return L.marker(latlng, { icon: fastCharging50Icon });
         }
-      }).addTo(map);
+      }).addTo(fastCharging50Layer);
     });
 
     $.getJSON("ReqularCharging11kw.json", function(data) {
@@ -143,7 +149,7 @@
         pointToLayer: function(feature, latlng) {
           return L.marker(latlng, { icon: regularCharging11Icon });
         }
-      }).addTo(map);
+      }).addTo(regularCharging11Layer);
     });
 
     $.getJSON("ReqularCharging22kw.json", function(data) {
@@ -151,8 +157,18 @@
         pointToLayer: function(feature, latlng) {
           return L.marker(latlng, { icon: regularCharging22Icon });
         }
-      }).addTo(map);
+      }).addTo(regularCharging22Layer);
     });
+
+    // Add layer control to the map
+    const overlayMaps = {
+      "Fast Charging 24kW": fastCharging24Layer,
+      "Fast Charging 50kW": fastCharging50Layer,
+      "Regular Charging 11kW": regularCharging11Layer,
+      "Regular Charging 22kW": regularCharging22Layer
+    };
+
+    L.control.layers(null, overlayMaps).addTo(map);
 
   </script>
 </body>
