@@ -30,16 +30,23 @@
       left: 10px;
       z-index: 1000;
     }
+    /* Style for the map icon */
+    .map-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      background-color: #fff;
+      padding: 5px;
+      border-radius: 5px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <!-- Map container -->
   <div id="map"></div>
-  <!-- Map toggle buttons -->
-  <div class="map-toggle">
-    <button onclick="switchToOpenStreetMap()">OpenStreetMap</button>
-    <button onclick="switchToOpenTopoMap()">OpenTopoMap</button>
-  </div>
   <!-- Leaflet JavaScript -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
   <!-- Leaflet Locate JavaScript -->
@@ -79,6 +86,15 @@
       });
       baseMapOpenTopoMap.addTo(map);
     }
+    // Create the map icon
+    const mapIcon = L.divIcon({
+      className: 'map-icon',
+      html: '<i class="fas fa-map-marked-alt"></i>',
+    });
+    // Add the map icon to the map
+    L.marker([0, 0], {
+      icon: mapIcon,
+    }).addTo(map);
     // Define the map layers
     const mapLayers = {
       "OpenStreetMap": baseMapOpenStreetMap,
