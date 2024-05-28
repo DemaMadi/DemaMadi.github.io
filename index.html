@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <!-- Give the page a title -->
@@ -18,6 +19,7 @@
       height: 100%;
       width: 100%;
     }
+
     /* style the map */
     #map {
       position: absolute;
@@ -25,25 +27,12 @@
       top: 0px;
       bottom: 0;
     }
-    /* style the map toggle buttons */
-    .map-toggle {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 1000;
-    }
   </style>
 </head>
+
 <body>
   <!-- the map -->
   <div id="map"></div>
-  <!-- Add map toggle buttons -->
-  <div class="map-toggle">
-    <button onclick="switchToOpenStreetMap()">OpenStreetMap</button>
-    <button onclick="switchToOpenTopoMap()">OpenTopoMap</button>
-    <!-- Add Font Awesome icon for map toggle -->
-    <i id="map-toggle-icon" class="fas fa-globe"></i>
-  </div>
   <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
   <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
@@ -54,44 +43,27 @@
   <script>
     // define map options
     const mapOptions = {
-      zoomSnap: 0.5, // this allows fractional zooming
+      zoomSnap: 0.5,  // this allows fractional zooming
       center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Alquds
       zoom: 8, // set the initial zoom
     };
+
     // define the map with the options above
     const map = L.map("map", mapOptions);
-    // Add OpenStreetMap as a base map
-    const baseMapOpenStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+    // add a base map to the map
+    const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 20
-    });
-    // Add OpenTopoMap as a base map
-    const baseMapOpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://opentopomap.org/about#verwendung">OpenTopoMap</a> contributors',
-      maxZoom: 17
-    });
-    // Function to switch to OpenStreetMap
-    function switchToOpenStreetMap() {
-      baseMapOpenStreetMap.addTo(map);
-      baseMapOpenTopoMap.remove();
-      // Update map toggle icon
-      document.getElementById('map-toggle-icon').classList.remove('fa-globe');
-      document.getElementById('map-toggle-icon').classList.add('fa-mountain');
-    }
-    // Function to switch to OpenTopoMap
-    function switchToOpenTopoMap() {
-      baseMapOpenTopoMap.addTo(map);
-      baseMapOpenStreetMap.remove();
-      // Update map toggle icon
-      document.getElementById('map-toggle-icon').classList.remove('fa-mountain');
-      document.getElementById('map-toggle-icon').classList.add('fa-globe');
-    }
+    }).addTo(map);
+
     // Add scale control to the map
     L.control.scale({
       position: 'bottomright', // Position of the scale control
       metric: true, // Display only the metric scale
       imperial: false // Do not display the imperial scale
     }).addTo(map);
+
     // Define custom icons for each type of charging station
     const fastCharging24Icon = L.icon({
       iconUrl: 'Green.png',
@@ -99,29 +71,34 @@
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
+
     const fastCharging50Icon = L.icon({
       iconUrl: 'blue.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
+
     const regularCharging11Icon = L.icon({
       iconUrl: 'Red.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
+
     const regularCharging22Icon = L.icon({
       iconUrl: 'Gry.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
+
     // Create layer groups for each type of charging station
     const fastCharging24Layer = L.layerGroup();
     const fastCharging50Layer = L.layerGroup();
     const regularCharging11Layer = L.layerGroup();
     const regularCharging22Layer = L.layerGroup();
+
     // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
@@ -140,13 +117,15 @@
           });
         }
       }).addTo(map);
+
       map.fitBounds(goverLayer.getBounds());
     });
+
     // Load GeoJSON data with custom icons
     $.getJSON("FastCharing24kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
-          return L        .marker(latlng, { icon: fastCharging24Icon });
+          return L.marker(latlng, { icon: fastCharging24Icon });
         }
       }).addTo(fastCharging24Layer);
     });
@@ -186,6 +165,7 @@
       "Fast Charging 24kW": fastCharging24Layer,
       "Fast Charging 50kW": fastCharging50Layer,
       "Regular Charging 11kW": regularCharging11Layer,
+      "Regular Charging 22kW": regularCharging,
       "Regular Charging 22kW": regularCharging22Layer
     };
 
@@ -221,5 +201,6 @@
 
   </script>
 </body>
+
 </html>
 
