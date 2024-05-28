@@ -17,9 +17,6 @@
   <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
-  <!-- Add a link to the turf.js library for geospatial calculations -->
-  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-
   <!-- All the CSS code goes inside the style tags below -->
   <style>
     /* style the body */
@@ -112,19 +109,6 @@
     const regularCharging11Layer = L.layerGroup();
     const regularCharging22Layer = L.layerGroup();
 
-    // Store all charging stations in a single array
-    const allChargingStations = [];
-
-    // Function to add charging stations to the map and the array
-    function addChargingStations(data, icon, layer) {
-      L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          allChargingStations.push(latlng);
-          return L.marker(latlng, { icon: icon });
-        }
-      }).addTo(layer);
-    }
-
     // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
@@ -149,19 +133,35 @@
 
     // Load GeoJSON data with custom icons
     $.getJSON("FastCharing24kw.json", function(data) {
-      addChargingStations(data, fastCharging24Icon, fastCharging24Layer);
+      L.geoJson(data, {
+        pointToLayer: function(feature, latlng) {
+          return L.marker(latlng, { icon: fastCharging24Icon });
+        }
+      }).addTo(fastCharging24Layer);
     });
 
     $.getJSON("FastCharing50kw.json", function(data) {
-      addChargingStations(data, fastCharging50Icon, fastCharging50Layer);
+      L.geoJson(data, {
+        pointToLayer: function(feature, latlng) {
+          return L.marker(latlng, { icon: fastCharging50Icon });
+        }
+      }).addTo(fastCharging50Layer);
     });
 
     $.getJSON("ReqularCharging11kw.json", function(data) {
-      addChargingStations(data, regularCharging11Icon, regularCharging11Layer);
+      L.geoJson(data, {
+        pointToLayer: function(feature, latlng) {
+          return L.marker(latlng, { icon: regularCharging11Icon });
+        }
+      }).addTo(regularCharging11Layer);
     });
 
     $.getJSON("ReqularCharging22kw.json", function(data) {
-      addChargingStations(data, regularCharging22Icon, regularCharging22Layer);
+      L.geoJson(data, {
+        pointToLayer: function(feature, latlng) {
+          return L.marker(latlng, { icon: regularCharging22Icon });
+        }
+      }).addTo(regularCharging22Layer);
     });
 
     // Add all layers to the map initially
@@ -179,37 +179,6 @@
     };
 
     L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
-
-    // Function to draw line to the nearest charging station
-    function drawLineToNearestStation(userLocation) {
-      const userPoint = turf.point([userLocation.lng, userLocation.lat]);
-
-      // Find the nearest charging station
-      let nearestStation = null;
-      let minDistance = Infinity;
-      allChargingStations.forEach(station => {
-        const stationPoint = turf.point([station.lng, station.lat]);
-        const distance = turf.distance(userPoint, stationPoint, { units: 'kilometers' });
-        if (distance < minDistance) {
-          minDistance = distance;
-          nearestStation = station;
-        }
-      });
-
-      if (nearestStation) {
-        const line = turf.lineString([
-          [userLocation.lng, userLocation.lat],
-          [nearestStation.lng, nearestStation.lat]
-        ]);
-        L.geoJson(line, {
-          style: {
-            color: 'red',
-            weight: 2,
-            opacity: 0.7
-          }
-        }).addTo(map);
-      }
-    }
 
     // Add locate control to the map
     L.control.locate({
@@ -237,8 +206,6 @@
         maximumAge: 10000,
         timeout: 10000
       }
-    }).on('locationfound', function(e) {
-      drawLineToNearestStation(e.latlng);
     }).addTo(map);
 
   </script>
