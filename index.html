@@ -1,8 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
   <meta charset="utf-8" />
+
   <!-- Give the page a title -->
   <title>Map of Electric car charging stations in West Bank</title>
 
@@ -14,9 +16,6 @@
 
   <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-
-  <!-- Add a link to Leaflet Control Panel library -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-panel/dist/leaflet-panel.min.css" />
 
   <!-- All the CSS code goes inside the style tags below -->
   <style>
@@ -35,31 +34,12 @@
       bottom: 0;
     }
 
-    /* style the legend panel */
-    .legend {
-      background-color: white;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .legend h3 {
-      margin-top: 0;
-    }
-
-    .legend ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .legend ul li {
-      margin-bottom: 5px;
-    }
-
-    .legend ul li img {
-      width: 20px;
-      height: auto;
-      margin-right: 5px;
+    /* style the map toggle buttons */
+    .map-toggle {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
     }
   </style>
 </head>
@@ -68,14 +48,17 @@
   <!-- the map -->
   <div id="map"></div>
 
+  <!-- Add map toggle buttons -->
+  <div class="map-toggle">
+    <button onclick="switchToOpenStreetMap()">OpenStreetMap</button>
+    <button onclick="switchToOpenTopoMap()">OpenTopoMap</button>
+  </div>
+
   <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
 
   <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
-
-  <!-- Add a link to the Leaflet Control Panel library -->
-  <script src="https://unpkg.com/leaflet-control-panel/dist/leaflet-panel.min.js"></script>
 
   <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -92,11 +75,29 @@
     // define the map with the options above
     const map = L.map("map", mapOptions);
 
-    // add a base map to the map
-    const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Add OpenStreetMap as a base map
+    const baseMapOpenStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 20
-    }).addTo(map);
+    });
+
+    // Add OpenTopoMap as a base map
+    const baseMapOpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://opentopomap.org/about#verwendung">OpenTopoMap</a> contributors',
+      maxZoom: 17
+    });
+
+    // Function to switch to OpenStreetMap
+    function switchToOpenStreetMap() {
+      baseMapOpenStreetMap.addTo(map);
+      baseMapOpenTopoMap.remove();
+    }
+
+    // Function to switch to OpenTopoMap
+    function switchToOpenTopoMap() {
+      baseMapOpenTopoMap.addTo(map);
+      baseMapOpenStreetMap.remove();
+    }
 
     // Add scale control to the map
     L.control.scale({
@@ -174,7 +175,9 @@
     $.getJSON("FastCharing50kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: fastCharging50 Icon });
+          return L.marker(latlng, { icon: fastCharging50Icon });
+        }
+      }).addTo(fastCharging50Layer);
     });
 
     $.getJSON("ReqularCharging11kw.json", function(data) {
@@ -237,44 +240,7 @@
       }
     }).addTo(map);
 
-    // Define legend and its icon
-    const legendIcon = L.divIcon({
-      className: 'legend-icon',
-      html: '<i class="fas fa-list"></i>',
-      iconSize: [30, 30],
-    });
-
-    const legendContent = '<h3>Legend</h3>' +
-      '<ul>' +
-      '<li><img src="Green.png"> Fast Charging 24kW</li>' +
-      '<li><img src="blue.png"> Fast Charging 50kW</li>' +
-      '<li><img src="Red.png"> Regular Charging 11kW</li>' +
-      '<li><img src="Gry.png"> Regular Charging 22kW</li>' +
-      '</ul>';
-
-    // Create panel for legend
-    const legendPanel = L.control.panel({
-      position: 'topleft',
-    }).addTo(map);
-
-    // Add legend to the panel
-    legendPanel.addPanel({
-      id: 'legend-panel',
-      tab: legendIcon,
-      position: 'topright',
-      content: legendContent,
-      closeButton: false,
-    });
-
-    // Add click event to toggle the legend panel
-    legendIcon.on('click', function() {
-      legendPanel.togglePanel('legend-panel');
-    });
-
   </script>
 </body>
 
 </html>
-
-            
-                                   
