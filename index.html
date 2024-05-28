@@ -1,22 +1,17 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
-
   <!-- Give the page a title -->
   <title>Map of Electric car charging stations in West Bank</title>
-
   <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
-
   <!-- Add a link to the Leaflet Locate CSS library for the locate control -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-
   <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-
+  <!-- Add link to Leaflet Control Panel library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-panel/dist/leaflet-panel.min.css" />
   <!-- All the CSS code goes inside the style tags below -->
   <style>
     /* style the body */
@@ -25,7 +20,6 @@
       height: 100%;
       width: 100%;
     }
-
     /* style the map */
     #map {
       position: absolute;
@@ -35,20 +29,17 @@
     }
   </style>
 </head>
-
 <body>
   <!-- the map -->
   <div id="map"></div>
-
   <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
-
   <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
-
   <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
+  <!-- Add link to Leaflet Control Panel library -->
+  <script src="https://unpkg.com/leaflet-control-panel/dist/leaflet-panel.min.js"></script>
   <!-- All JavaScript goes inside the script tags below -->
   <script>
     // define map options
@@ -57,23 +48,19 @@
       center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Alquds
       zoom: 8, // set the initial zoom
     };
-
     // define the map with the options above
     const map = L.map("map", mapOptions);
-
     // add a base map to the map
     const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 20
     }).addTo(map);
-
     // Add scale control to the map
     L.control.scale({
       position: 'bottomright', // Position of the scale control
       metric: true, // Display only the metric scale
       imperial: false // Do not display the imperial scale
     }).addTo(map);
-
     // Define custom icons for each type of charging station
     const fastCharging24Icon = L.icon({
       iconUrl: 'Green.png',
@@ -81,34 +68,29 @@
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
     const fastCharging50Icon = L.icon({
       iconUrl: 'blue.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
     const regularCharging11Icon = L.icon({
       iconUrl: 'Red.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
     const regularCharging22Icon = L.icon({
       iconUrl: 'Gry.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
     // Create layer groups for each type of charging station
     const fastCharging24Layer = L.layerGroup();
     const fastCharging50Layer = L.layerGroup();
     const regularCharging11Layer = L.layerGroup();
     const regularCharging22Layer = L.layerGroup();
-
     // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
@@ -127,10 +109,8 @@
           });
         }
       }).addTo(map);
-
       map.fitBounds(goverLayer.getBounds());
     });
-
     // Load GeoJSON data with custom icons
     $.getJSON("FastCharing24kw.json", function(data) {
       L.geoJson(data, {
@@ -139,7 +119,6 @@
         }
       }).addTo(fastCharging24Layer);
     });
-
     $.getJSON("FastCharing50kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -147,7 +126,6 @@
         }
       }).addTo(fastCharging50Layer);
     });
-
     $.getJSON("ReqularCharging11kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -155,7 +133,6 @@
         }
       }).addTo(regularCharging11Layer);
     });
-
     $.getJSON("ReqularCharging22kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -163,13 +140,11 @@
         }
       }).addTo(regularCharging22Layer);
     });
-
     // Add all layers to the map initially
     fastCharging24Layer.addTo(map);
     fastCharging50Layer.addTo(map);
     regularCharging11Layer.addTo(map);
     regularCharging22Layer.addTo(map);
-
     // Add layer control to the map
     const overlayMaps = {
       "Fast Charging 24kW": fastCharging24Layer,
@@ -178,7 +153,31 @@
       "Regular Charging 22kW": regularCharging22Layer
     };
 
-    L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
+    // Create base maps object for layer control
+    const baseMaps = {
+      "Base Map": baseMap,
+    };
+
+    // Create panel for map controls
+    const mapControlPanel = L.control.panel({
+      position: 'topleft', // Position the panel in the top left
+    }).addTo(map);
+
+    // Create button to toggle layers control
+    const layersButton = L.DomUtil.create('button', 'leaflet-panel-layers-button', mapControlPanel.container);
+    layersButton.innerHTML = '<i class="fas fa-layer-group"></i>';
+
+    // Add click event to toggle layers control
+    layersButton.addEventListener('click', function () {
+      mapControlPanel.togglePanel('layers-panel');
+    });
+
+    // Add layers control to the panel
+    mapControlPanel.addPanel({
+      id: 'layers-panel',
+      content: L.control.layers(baseMaps, overlayMaps).getContainer(),
+      closeButton: false,
+    });
 
     // Add locate control to the map
     L.control.locate({
@@ -210,5 +209,4 @@
 
   </script>
 </body>
-
 </html>
