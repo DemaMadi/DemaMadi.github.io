@@ -1,10 +1,8 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
   <meta charset="utf-8" />
-
   <!-- Give the page a title -->
   <title>Map of Electric car charging stations in West Bank</title>
 
@@ -33,6 +31,17 @@
       top: 0px;
       bottom: 0;
     }
+
+    /* style the legend */
+    #legend {
+      position: absolute;
+      top: 50px;
+      left: 10px;
+      background-color: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      display: none;
+    }
   </style>
 </head>
 
@@ -44,10 +53,13 @@
   <button id="legendToggle" style="position: absolute; top: 10px; left: 10px;">Toggle Legend</button>
 
   <!-- Legend -->
-  <div id="legend" style="position: absolute; top: 50px; left: 10px; background-color: white; padding: 10px; border: 1px solid #ccc; display: none;">
+  <div id="legend">
     <!-- Content of the legend goes here -->
     <h3>Legend</h3>
-    <p>Insert legend content here...</p>
+    <p><img src="Green.png" alt="Fast Charging 24kW" style="vertical-align: middle;"> Fast Charging 24kW</p>
+    <p><img src="blue.png" alt="Fast Charging 50kW" style="vertical-align: middle;"> Fast Charging 50kW</p>
+    <p><img src="Red.png" alt="Regular Charging 11kW" style="vertical-align: middle;"> Regular Charging 11kW</p>
+    <p><img src="Gry.png" alt="Regular Charging 22kW" style="vertical-align: middle;"> Regular Charging 22kW</p>
   </div>
 
   <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
@@ -63,7 +75,7 @@
   <script>
     // define map options
     const mapOptions = {
-      zoomSnap: 0.5,  // this allows fractional zooming
+      zoomSnap: 0.5, // this allows fractional zooming
       center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Alquds
       zoom: 8, // set the initial zoom
     };
@@ -145,7 +157,9 @@
     $.getJSON("FastCharing24kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: fastCharging24Icon });
+          return L.marker(latlng, {
+            icon: fastCharging24Icon
+          });
         }
       }).addTo(fastCharging24Layer);
     });
@@ -153,7 +167,9 @@
     $.getJSON("FastCharing50kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: fastCharging50Icon });
+          return L.marker(latlng, {
+            icon: fastCharging50
+          });
         }
       }).addTo(fastCharging50Layer);
     });
@@ -161,7 +177,9 @@
     $.getJSON("ReqularCharging11kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: regularCharging11Icon });
+          return L.marker(latlng, {
+            icon: regularCharging11Icon
+          });
         }
       }).addTo(regularCharging11Layer);
     });
@@ -169,12 +187,13 @@
     $.getJSON("ReqularCharging22kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: regularCharging22Icon });
+          return L.marker(latlng, {
+            icon: regularCharging22Icon
+          });
         }
       }).addTo(regularCharging22Layer);
     });
 
-    // Add all layers
     // Add all layers to the map initially
     fastCharging24Layer.addTo(map);
     fastCharging50Layer.addTo(map);
@@ -189,7 +208,9 @@
       "Regular Charging 22kW": regularCharging22Layer
     };
 
-    L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
+    L.control.layers(null, overlayMaps, {
+      position: 'topleft'
+    }).addTo(map);
 
     // Add locate control to the map
     L.control.locate({
@@ -227,3 +248,4 @@
 </body>
 
 </html>
+
