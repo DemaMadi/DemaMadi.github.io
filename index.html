@@ -1,16 +1,22 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
   <meta charset="utf-8" />
+
   <!-- Give the page a title -->
   <title>Map of Electric car charging stations in West Bank</title>
+
   <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+
   <!-- Add a link to the Leaflet Locate CSS library for the locate control -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+
   <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
   <!-- All the CSS code goes inside the style tags below -->
   <style>
     /* style the body */
@@ -33,12 +39,16 @@
 <body>
   <!-- the map -->
   <div id="map"></div>
+
   <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+
   <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+
   <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
   <!-- All JavaScript goes inside the script tags below -->
   <script>
     // define map options
@@ -165,7 +175,6 @@
       "Fast Charging 24kW": fastCharging24Layer,
       "Fast Charging 50kW": fastCharging50Layer,
       "Regular Charging 11kW": regularCharging11Layer,
-      "Regular Charging 22kW": regularCharging,
       "Regular Charging 22kW": regularCharging22Layer
     };
 
@@ -203,4 +212,3 @@
 </body>
 
 </html>
-
