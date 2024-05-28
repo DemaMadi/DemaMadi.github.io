@@ -186,7 +186,7 @@
       drawCircle: false,
       follow: true,
       setView: true,
-      keepCurrentZoomLevel: true,
+      keepCurrentZoomLevel: false, // Change to false to allow zooming
       markerStyle: {
         weight: 1,
         opacity: 0.8,
@@ -201,6 +201,7 @@
       },
       locateOptions: {
         maxZoom: 15,
+        initialZoomLevel: 15, // Set the initial zoom level
         enableHighAccuracy: true,
         maximumAge: 10000,
         timeout: 10000
