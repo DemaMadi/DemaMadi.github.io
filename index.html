@@ -40,6 +40,16 @@
   <!-- the map -->
   <div id="map"></div>
 
+  <!-- Button to toggle legend -->
+  <button id="legendToggle" style="position: absolute; top: 10px; left: 10px;">Toggle Legend</button>
+
+  <!-- Legend -->
+  <div id="legend" style="position: absolute; top: 50px; left: 10px; background-color: white; padding: 10px; border: 1px solid #ccc; display: none;">
+    <!-- Content of the legend goes here -->
+    <h3>Legend</h3>
+    <p>Insert legend content here...</p>
+  </div>
+
   <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
 
@@ -164,6 +174,7 @@
       }).addTo(regularCharging22Layer);
     });
 
+    // Add all layers
     // Add all layers to the map initially
     fastCharging24Layer.addTo(map);
     fastCharging50Layer.addTo(map);
@@ -208,6 +219,10 @@
       }
     }).addTo(map);
 
+    // Function to toggle legend visibility
+    $("#legendToggle").click(function() {
+      $("#legend").toggle();
+    });
   </script>
 </body>
 
