@@ -180,22 +180,26 @@
 
     L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
 
-    // Function to draw lines to the nearest charging stations
-    function drawLinesToNearestStations(userLocation) {
+    // Function to draw line to the nearest charging station
+    function drawLineToNearestStation(userLocation) {
       const userPoint = turf.point([userLocation.lng, userLocation.lat]);
 
-      // Find the nearest charging stations
-      const nearestStations = allChargingStations.map(station => {
+      // Find the nearest charging station
+      let nearestStation = null;
+      let minDistance = Infinity;
+      allChargingStations.forEach(station => {
         const stationPoint = turf.point([station.lng, station.lat]);
         const distance = turf.distance(userPoint, stationPoint, { units: 'kilometers' });
-        return { station, distance };
-      }).sort((a, b) => a.distance - b.distance).slice(0, 3); // Get 3 nearest stations
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestStation = station;
+        }
+      });
 
-      // Draw lines to the nearest charging stations
-      nearestStations.forEach(nearest => {
+      if (nearestStation) {
         const line = turf.lineString([
           [userLocation.lng, userLocation.lat],
-          [nearest.station.lng, nearest.station.lat]
+          [nearestStation.lng, nearestStation.lat]
         ]);
         L.geoJson(line, {
           style: {
@@ -204,7 +208,7 @@
             opacity: 0.7
           }
         }).addTo(map);
-      });
+      }
     }
 
     // Add locate control to the map
@@ -234,7 +238,7 @@
         timeout: 10000
       }
     }).on('locationfound', function(e) {
-      drawLinesToNearestStations(e.latlng);
+      drawLineToNearestStation(e.latlng);
     }).addTo(map);
 
   </script>
