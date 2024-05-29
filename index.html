@@ -17,9 +17,6 @@
   <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
-  <!-- Add a link to Leaflet.awesome-markers CSS library for custom markers -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
-
   <!-- All the CSS code goes inside the style tags below -->
   <style>
     /* style the body */
@@ -52,9 +49,6 @@
   <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-  <!-- Add a link to Leaflet.awesome-markers JavaScript library for custom markers -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
-
   <!-- All JavaScript goes inside the script tags below -->
   <script>
     // define map options
@@ -81,37 +75,41 @@
     }).addTo(map);
 
     // Define custom icons for each type of charging station
-    const arrowRedIcon = L.AwesomeMarkers.icon({
-      icon: 'arrow-up',
-      markerColor: 'red'
+    const fastCharging24Icon = L.icon({
+      iconUrl: 'Green.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
     });
 
-    const arrowBlueIcon = L.AwesomeMarkers.icon({
-      icon: 'arrow-down',
-      markerColor: 'blue'
+    const fastCharging50Icon = L.icon({
+      iconUrl: 'blue.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+    });
+
+    const regularCharging11Icon = L.icon({
+      iconUrl: 'Red.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+    });
+
+    const regularCharging22Icon = L.icon({
+      iconUrl: 'Gry.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
     });
 
     // Create layer groups for each type of charging station
-    const redArrowsLayer = L.layerGroup();
-    const blueArrowsLayer = L.layerGroup();
+    const fastCharging24Layer = L.layerGroup();
+    const fastCharging50Layer = L.layerGroup();
+    const regularCharging11Layer = L.layerGroup();
+    const regularCharging22Layer = L.layerGroup();
 
-    // Load GeoJSON data with custom icons
-    $.getJSON("redArrows.json", function(data) {
-      L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: arrowRedIcon });
-        }
-      }).addTo(redArrowsLayer);
-    });
-
-    $.getJSON("blueArrows.json", function(data) {
-      L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: arrowBlueIcon });
-        }
-      }).addTo(blueArrowsLayer);
-    });
-// Load GeoJSON data for Governorate boundaries and fit map to its bounds
+    // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
         style: function(feature) {
@@ -172,14 +170,12 @@
     regularCharging11Layer.addTo(map);
     regularCharging22Layer.addTo(map);
 
-    // Add all layers to the map initially
-    redArrowsLayer.addTo(map);
-    blueArrowsLayer.addTo(map);
-
     // Add layer control to the map
     const overlayMaps = {
-      "Red Arrows": redArrowsLayer,
-      "Blue Arrows": blueArrowsLayer
+      "Fast Charging 24kW": fastCharging24Layer,
+      "Fast Charging 50kW": fastCharging50Layer,
+      "Regular Charging 11kW": regularCharging11Layer,
+      "Regular Charging 22kW": regularCharging22Layer
     };
 
     L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
