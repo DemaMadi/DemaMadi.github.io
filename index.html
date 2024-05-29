@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -33,10 +32,41 @@
       top: 0px;
       bottom: 0;
     }
+
+    /* style the fieldset and legend */
+    fieldset {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      z-index: 1000; /* Ensure it appears above the map */
+    }
+
+    legend {
+      display: flex;
+      align-items: center;
+    }
+
+    .legend-image {
+      width: 30px; /* Adjust size as needed */
+      height: 30px; /* Adjust size as needed */
+      margin-right: 8px; /* Space between image and text */
+    }
   </style>
 </head>
 
 <body>
+  <!-- Legend fieldset -->
+  <fieldset>
+    <legend>
+      <img src="legend.jpg" alt="legend" class="legend-image">
+      Legend
+    </legend>
+  </fieldset>
+
   <!-- the map -->
   <div id="map"></div>
 
