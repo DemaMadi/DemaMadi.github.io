@@ -17,6 +17,9 @@
   <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
+  <!-- Add a link to the Leaflet Arrowheads CSS library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-arrowheads/dist/leaflet-arrowheads.css" />
+
   <!-- All the CSS code goes inside the style tags below -->
   <style>
     /* style the body */
@@ -72,6 +75,9 @@
 
   <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+
+  <!-- Add a link to the Leaflet Arrowheads JavaScript library -->
+  <script src="https://unpkg.com/leaflet-arrowheads/dist/leaflet-arrowheads.min.js"></script>
 
   <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -248,7 +254,18 @@
     };
 
     legend.addTo(map);
+
+    // Add arrows to the map
+    const arrowLayer = L.layerGroup();
+
+    // Example arrow
+    const arrowCoords = [[31.778081556189452, 35.23535263863638], [31.8, 35.3]]; // Example coordinates for the arrow
+    L.polyline(arrowCoords, { arrowheads: { fill: true } }).addTo(arrowLayer);
+
+    // Add arrow layer to the map
+    arrowLayer.addTo(map);
   </script>
 </body>
 
 </html>
+
