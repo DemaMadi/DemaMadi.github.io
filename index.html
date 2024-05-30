@@ -1,32 +1,17 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
-
-  <!-- Give the page a title -->
   <title>Map of Electric car charging stations in West Bank</title>
-
-  <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
-
-  <!-- Add a link to the Leaflet Locate CSS library for the locate control -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-
-  <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-
-  <!-- All the CSS code goes inside the style tags below -->
   <style>
-    /* style the body */
     body {
       margin: 0px;
       height: 100%;
       width: 100%;
     }
-
-    /* style the map */
     #map {
       position: absolute;
       width: 100%;
@@ -35,46 +20,29 @@
     }
   </style>
 </head>
-
 <body>
-  <!-- the map -->
   <div id="map"></div>
-
-  <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
-
-  <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
-
-  <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-  <!-- All JavaScript goes inside the script tags below -->
   <script>
-    // define map options
     const mapOptions = {
-      zoomSnap: 0.5,  // this allows fractional zooming
-      center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Alquds
-      zoom: 8, // set the initial zoom
+      zoomSnap: 0.5,
+      center: [31.778081556189452, 35.23535263863638],
+      zoom: 8,
     };
-
-    // define the map with the options above
     const map = L.map("map", mapOptions);
-
-    // add a base map to the map
     const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 20
     }).addTo(map);
 
-    // Add scale control to the map
     L.control.scale({
-      position: 'bottomright', // Position of the scale control
-      metric: true, // Display only the metric scale
-      imperial: false // Do not display the imperial scale
+      position: 'bottomright',
+      metric: true,
+      imperial: false
     }).addTo(map);
 
-    // Define custom icons for each type of charging station
     const fastCharging24Icon = L.icon({
       iconUrl: 'Green.png',
       iconSize: [25, 41],
@@ -103,13 +71,11 @@
       popupAnchor: [1, -34],
     });
 
-    // Create layer groups for each type of charging station
     const fastCharging24Layer = L.layerGroup();
     const fastCharging50Layer = L.layerGroup();
     const regularCharging11Layer = L.layerGroup();
     const regularCharging22Layer = L.layerGroup();
 
-    // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
         style: function(feature) {
@@ -127,11 +93,9 @@
           });
         }
       }).addTo(map);
-
       map.fitBounds(goverLayer.getBounds());
     });
 
-    // Load GeoJSON data with custom icons
     $.getJSON("FastCharing24kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -164,13 +128,11 @@
       }).addTo(regularCharging22Layer);
     });
 
-    // Add all layers to the map initially
     fastCharging24Layer.addTo(map);
     fastCharging50Layer.addTo(map);
     regularCharging11Layer.addTo(map);
     regularCharging22Layer.addTo(map);
 
-    // Add layer control to the map
     const overlayMaps = {
       "Fast Charging 24kW": fastCharging24Layer,
       "Fast Charging 50kW": fastCharging50Layer,
@@ -180,13 +142,12 @@
 
     L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
 
-    // Add locate control to the map
     L.control.locate({
       position: 'topleft',
       drawCircle: false,
       follow: true,
       setView: true,
-      keepCurrentZoomLevel: false, // Change to false to allow zooming
+      keepCurrentZoomLevel: false,
       markerStyle: {
         weight: 1,
         opacity: 0.8,
@@ -201,14 +162,47 @@
       },
       locateOptions: {
         maxZoom: 15,
-        initialZoomLevel: 15, // Set the initial zoom level
+        initialZoomLevel: 15,
         enableHighAccuracy: true,
         maximumAge: 10000,
         timeout: 10000
       }
     }).addTo(map);
 
+    // Define custom arrow icons
+    const arrowUpIcon = L.icon({
+      iconUrl: 'arrow-up.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+    });
+
+    const arrowRightIcon = L.icon({
+      iconUrl: 'arrow-right.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+    });
+
+    const arrowDownIcon = L.icon({
+      iconUrl: 'arrow-down.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+    });
+
+    const arrowLeftIcon = L.icon({
+      iconUrl: 'arrow-left.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+    });
+
+    // Add arrow markers to the map at specific locations
+    L.marker([31.778081556189452, 35.23535263863638], { icon: arrowUpIcon }).addTo(map).bindPopup('Arrow Up');
+    L.marker([31.778081556189452, 35.24535263863638], { icon: arrowRightIcon }).addTo(map).bindPopup('Arrow Right');
+    L.marker([31.768081556189452, 35.23535263863638], { icon: arrowDownIcon }).addTo(map).bindPopup('Arrow Down');
+    L.marker([31.778081556189452, 35.22535263863638], { icon: arrowLeftIcon }).addTo(map).bindPopup('Arrow Left');
   </script>
 </body>
-
 </html>
