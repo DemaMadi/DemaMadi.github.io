@@ -4,110 +4,132 @@
 
 <head>
   <meta charset="utf-8" />
+  <title>Map of Electric Car Charging Stations in West Bank</title>
 
-  <!-- Give the page a title -->
-  <title>Map of Electric car charging stations in West Bank</title>
-
-  <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
-
-  <!-- Add a link to the Leaflet Locate CSS library for the locate control -->
+  <!-- Leaflet Locate CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-
-  <!-- Add a link to Font Awesome for using icons -->
+  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
-  <!-- All the CSS code goes inside the style tags below -->
   <style>
-    /* style the body */
     body {
       margin: 0px;
       height: 100%;
       width: 100%;
     }
 
-    /* style the map */
     #map {
       position: absolute;
       width: 100%;
-      top: 0px;
+      top: 0;
       bottom: 0;
     }
-    
-    /* style the burger button */
-    .burger-container {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 1000; /* Make sure it's above the map */
-    }
 
-    .burger {
-      width: 40px;
-      height: 40px;
+    .buttons__burger {
+      --size: 3rem;
+      --clr: #000;
+      width: var(--size);
+      height: calc(0.7 * var(--size));
       cursor: pointer;
       position: relative;
-    }
-
-    .burger span {
-      position: absolute;
-      height: 5px;
-      width: 100%;
-      background-color: #000;
       display: block;
-      transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease;
+      z-index: 1000; /* Make sure the button is on top */
     }
 
-    .burger span:nth-child(1) {
+    .buttons__burger #burger {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .buttons__burger span {
+      display: block;
+      position: absolute;
+      width: 100%;
+      border-radius: 0.5rem;
+      border: 3px solid var(--clr);
+      background-color: var(--clr);
+      transition: 0.15s ease-in-out;
+    }
+
+    .buttons__burger span:nth-of-type(1) {
       top: 0;
+      right: 0;
+      transform-origin: right center;
     }
 
-    .burger span:nth-child(2) {
+    .buttons__burger span:nth-of-type(2) {
       top: 50%;
       transform: translateY(-50%);
     }
 
-    .burger span:nth-child(3) {
+    .buttons__burger span:nth-of-type(3) {
       top: 100%;
+      right: 0;
+      transform-origin: right center;
+      transform: translateY(-100%);
     }
 
-    .burger.open span:nth-child(1) {
-      transform: translateY(50%) rotate(45deg);
+    .buttons__burger #burger:checked~span:nth-of-type(1) {
+      transform: translateY(-30%) rotate(40deg);
+      width: 50%;
+      top: 50%;
     }
 
-    .burger.open span:nth-child(2) {
-      opacity: 0;
+    .buttons__burger #burger:checked~span:nth-of-type(3) {
+      transform: translateY(-70%) rotate(-40deg);
+      width: 50%;
+      top: 50%;
     }
 
-    .burger.open span:nth-child(3) {
-      transform: translateY(-50%) rotate(-45deg);
+    #legend {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    #burger:checked~#legend {
+      display: block;
     }
   </style>
 </head>
 
 <body>
-  <!-- Burger button -->
-  <div class="burger-container">
-    <div class="burger" id="burger">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+  <!-- Burger button with legend -->
+  <label class="buttons__burger" for="burger">
+    <input type="checkbox" id="burger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </label>
+
+  <!-- Legend -->
+  <div id="legend">
+    <h4>Map Legend</h4>
+    <p><img src="Green.png" alt="Fast Charging 24kW" style="width: 15px; height: 25px;"> Fast Charging 24kW</p>
+    <p><img src="blue.png" alt="Fast Charging 50kW" style="width: 15px; height: 25px;"> Fast Charging 50kW</p>
+    <p><img src="Red.png" alt="Regular Charging 11kW" style="width: 15px; height: 25px;"> Regular Charging 11kW</p>
+    <p><img src="Gry.png" alt="Regular Charging 22kW" style="width: 15px; height: 25px;"> Regular Charging 22kW</p>
   </div>
 
-  <!-- the map -->
+  <!-- Map container -->
   <div id="map"></div>
 
-  <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
-
-  <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
+  <!-- Leaflet Locate JS -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
-
-  <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
+  <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-  <!-- All JavaScript goes inside the script tags below -->
   <script>
     // define map options
     const mapOptions = {
@@ -170,7 +192,7 @@
     // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
-        style: function(feature) {
+        style: function (feature) {
           return {
             fillColor: "",
             fillOpacity: 0.0,
@@ -179,8 +201,8 @@
             opacity: 0.7
           };
         },
-        onEachFeature: function(feature, layer) {
-          layer.on('click', function(e) {
+        onEachFeature: function (feature, layer) {
+          layer.on('click', function (e) {
             alert("Governorate: " + feature.properties.Name);
           });
         }
@@ -190,33 +212,33 @@
     });
 
     // Load GeoJSON data with custom icons
-    $.getJSON("FastCharing24kw.json", function(data) {
+    $.getJSON("FastCharing24kw.json", function (data) {
       L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
+        pointToLayer: function (feature, latlng) {
           return L.marker(latlng, { icon: fastCharging24Icon });
         }
       }).addTo(fastCharging24Layer);
     });
 
-    $.getJSON("FastCharing50kw.json", function(data) {
+    $.getJSON("FastCharing50kw.json", function (data) {
       L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
+        pointToLayer: function (feature, latlng) {
           return L.marker(latlng, { icon: fastCharging50Icon });
         }
       }).addTo(fastCharging50Layer);
     });
 
-    $.getJSON("ReqularCharging11kw.json", function(data) {
+    $.getJSON("ReqularCharging11kw.json", function (data) {
       L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
+        pointToLayer: function (feature, latlng) {
           return L.marker(latlng, { icon: regularCharging11Icon });
         }
       }).addTo(regularCharging11Layer);
     });
 
-    $.getJSON("ReqularCharging22kw.json", function(data) {
+    $.getJSON("ReqularCharging22kw.json", function (data) {
       L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
+        pointToLayer: function (feature, latlng) {
           return L.marker(latlng, { icon: regularCharging22Icon });
         }
       }).addTo(regularCharging22Layer);
@@ -265,15 +287,6 @@
         timeout: 10000
       }
     }).addTo(map);
-
-    // Burger button toggle
-    const burger = document.getElementById('burger');
-    const nav = document.getElementById('nav');
-
-    burger.addEventListener('click', () => {
-      burger.classList.toggle('open');
-      nav.classList.toggle('open');
-    });
   </script>
 </body>
 
