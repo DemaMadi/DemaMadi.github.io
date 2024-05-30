@@ -1,94 +1,113 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
+
+  <!-- Give the page a title -->
   <title>Map of Electric car charging stations in West Bank</title>
+
+  <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+
+  <!-- Add a link to the Leaflet Locate CSS library for the locate control -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+
+  <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+  <!-- All the CSS code goes inside the style tags below -->
   <style>
+    /* style the body */
     body {
-      margin: 0;
+      margin: 0px;
       height: 100%;
       width: 100%;
     }
+
+    /* style the map */
     #map {
       position: absolute;
       width: 100%;
-      top: 0;
+      top: 0px;
       bottom: 0;
     }
-    .btn-container {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
+    
+    /* style the burger button */
+    .burger-container {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000; /* Make sure it's above the map */
     }
-    .btn-container label {
-      display: block;
+
+    .burger {
+      width: 40px;
+      height: 40px;
       cursor: pointer;
-    }
-    .btn-color-mode-switch {
       position: relative;
-      display: inline-block;
-      vertical-align: middle;
     }
-    .btn-color-mode-switch-inner {
-      width: 60px;
-      height: 34px;
-      background: #ccc;
-      border-radius: 20px;
-      display: inline-block;
-      position: relative;
-      transition: background-color 0.3s;
-    }
-    .btn-color-mode-switch-inner:before, .btn-color-mode-switch-inner:after {
-      content: '';
+
+    .burger span {
       position: absolute;
+      height: 5px;
+      width: 100%;
+      background-color: #000;
+      display: block;
+      transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease;
+    }
+
+    .burger span:nth-child(1) {
+      top: 0;
+    }
+
+    .burger span:nth-child(2) {
       top: 50%;
       transform: translateY(-50%);
-      line-height: 34px;
-      text-align: center;
-      width: 50%;
-      height: 100%;
-      font-size: 14px;
-      font-weight: bold;
-      color: #333;
-      transition: left 0.3s, color 0.3s;
     }
-    .btn-color-mode-switch-inner:before {
-      left: 2px;
+
+    .burger span:nth-child(3) {
+      top: 100%;
     }
-    .btn-color-mode-switch-inner:after {
-      left: calc(50% + 2px);
+
+    .burger.open span:nth-child(1) {
+      transform: translateY(50%) rotate(45deg);
     }
-    .btn-color-mode-switch input[type="checkbox"] {
-      display: none;
+
+    .burger.open span:nth-child(2) {
+      opacity: 0;
     }
-    .btn-color-mode-switch input[type="checkbox"]:checked + .btn-color-mode-switch-inner {
-      background: #007bff;
-    }
-    .btn-color-mode-switch input[type="checkbox"]:checked + .btn-color-mode-switch-inner:before {
-      left: calc(50% + 2px);
-      color: #fff;
-    }
-    .btn-color-mode-switch input[type="checkbox"]:checked + .btn-color-mode-switch-inner:after {
-      left: calc(100% + 2px);
-      color: #fff;
+
+    .burger.open span:nth-child(3) {
+      transform: translateY(-50%) rotate(-45deg);
     }
   </style>
 </head>
+
 <body>
-  <div id="map"></div>
-  <div class="btn-container">
-    <label class="switch btn-color-mode-switch">
-      <input value="1" id="color_mode" name="color_mode" type="checkbox">
-      <label class="btn-color-mode-switch-inner" data-off="Light" data-on="Dark" for="color_mode"></label>
-    </label>
+  <!-- Burger button -->
+  <div class="burger-container">
+    <div class="burger" id="burger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </div>
+
+  <!-- the map -->
+  <div id="map"></div>
+
+  <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+
+  <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+
+  <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- All JavaScript goes inside the script tags below -->
   <script>
     // define map options
     const mapOptions = {
@@ -247,19 +266,15 @@
       }
     }).addTo(map);
 
-    // Toggle between light and dark mode
-    const toggleColorMode = document.getElementById('color_mode');
-    toggleColorMode.addEventListener('change', function() {
-      if (this.checked) {
-        document.body.classList.add('dark-mode');
-        map.getContainer().classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-        map.getContainer().classList.remove('dark-mode');
-      }
-    });
+    // Burger button toggle
+    const burger = document.getElementById('burger');
+    const nav = document.getElementById('nav');
 
+    burger.addEventListener('click', () => {
+      burger.classList.toggle('open');
+      nav.classList.toggle('open');
+    });
   </script>
 </body>
-</html>
 
+</html>
