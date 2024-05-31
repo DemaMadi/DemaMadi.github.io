@@ -118,51 +118,36 @@
       map.fitBounds(goverLayer.getBounds());
     });
 
-    $.getJSON("FastCharing24kw.json", function(data) {
-      L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: fastCharging24Icon });
-        }
-      }).addTo(fastCharging24Layer);
+    function addDataToLayer(url, layer, icon) {
+      return $.getJSON(url, function(data) {
+        L.geoJson(data, {
+          pointToLayer: function(feature, latlng) {
+            return L.marker(latlng, { icon: icon });
+          }
+        }).addTo(layer);
+      });
+    }
+
+    $.when(
+      addDataToLayer("FastCharing24kw.json", fastCharging24Layer, fastCharging24Icon),
+      addDataToLayer("FastCharing50kw.json", fastCharging50Layer, fastCharging50Icon),
+      addDataToLayer("ReqularCharging11kw.json", regularCharging11Layer, regularCharging11Icon),
+      addDataToLayer("ReqularCharging22kw.json", regularCharging22Layer, regularCharging22Icon)
+    ).then(function() {
+      fastCharging24Layer.addTo(map);
+      fastCharging50Layer.addTo(map);
+      regularCharging11Layer.addTo(map);
+      regularCharging22Layer.addTo(map);
+
+      const overlayMaps = {
+        "Fast Charging 24kW": fastCharging24Layer,
+        "Fast Charging 50kW": fastCharging50Layer,
+        "Regular Charging 11kW": regularCharging11Layer,
+        "Regular Charging 22kW": regularCharging22Layer
+      };
+
+      L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
     });
-
-    $.getJSON("FastCharing50kw.json", function(data) {
-      L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: fastCharging50Icon });
-        }
-      }).addTo(fastCharging50Layer);
-    });
-
-    $.getJSON("ReqularCharging11kw.json", function(data) {
-      L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: regularCharging11Icon });
-        }
-      }).addTo(regularCharging11Layer);
-    });
-
-    $.getJSON("ReqularCharging22kw.json", function(data) {
-      L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          return L.marker(latlng, { icon: regularCharging22Icon });
-        }
-      }).addTo(regularCharging22Layer);
-    });
-
-    fastCharging24Layer.addTo(map);
-    fastCharging50Layer.addTo(map);
-    regularCharging11Layer.addTo(map);
-    regularCharging22Layer.addTo(map);
-
-    const overlayMaps = {
-      "Fast Charging 24kW": fastCharging24Layer,
-      "Fast Charging 50kW": fastCharging50Layer,
-      "Regular Charging 11kW": regularCharging11Layer,
-      "Regular Charging 22kW": regularCharging22Layer
-    };
-
-    L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
 
     L.control.locate({
       position: 'topleft',
@@ -178,7 +163,7 @@
       icon: 'fa fa-location-arrow',
       metric: true,
       strings: {
-        title: "Show location ",
+        title: "Show location",
         popup: "You are within {distance} {unit} from this point",
         outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
       },
