@@ -214,6 +214,11 @@
     map.on('locationfound', function(e) {
       const currentLocation = e.latlng;
 
+      if (!selectedLayer) {
+        alert("Please select a layer to find the nearest point.");
+        return;
+      }
+
       const nearestPoint = selectedLayer.getLayers().reduce((nearest, layer) => {
         const layerLatLng = layer.getLatLng();
         const distance = currentLocation.distanceTo(layerLatLng);
@@ -226,11 +231,18 @@
 
       if (nearestPoint) {
         L.polyline([currentLocation, nearestPoint.layer.getLatLng()], { color: 'blue' }).addTo(map);
+        L.marker(currentLocation).addTo(map).bindPopup("You are here").openPopup();
       }
     });
 
     map.on('overlayadd', function(e) {
       selectedLayer = e.layer;
+    });
+
+    map.on('overlayremove', function(e) {
+      if (selectedLayer === e.layer) {
+        selectedLayer = null;
+      }
     });
   </script>
 </body>
