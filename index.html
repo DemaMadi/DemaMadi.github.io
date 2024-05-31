@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Map of Electric car charging stations in West Bank</title>
+  <title>Map of Electric Car Charging Stations in West Bank</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -58,16 +58,12 @@
 
     const map = L.map("map", mapOptions);
 
-    const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 20
     }).addTo(map);
 
-    L.control.scale({
-      position: 'bottomright',
-      metric: true,
-      imperial: false
-    }).addTo(map);
+    L.control.scale({ position: 'bottomright', metric: true, imperial: false }).addTo(map);
 
     const fastCharging24Icon = L.icon({
       iconUrl: 'Green.png',
@@ -119,7 +115,6 @@
           });
         }
       }).addTo(map);
-
       map.fitBounds(goverLayer.getBounds());
     });
 
@@ -209,41 +204,54 @@
 
     legend.addTo(map);
 
-    let selectedLayer = null;
+    let userLocationMarker;
+    let nearestStationMarker;
+    let polyline;
 
-    map.on('locationfound', function(e) {
-      const currentLocation = e.latlng;
-
-      if (!selectedLayer) {
-        alert("Please select a layer to find the nearest point.");
-        return;
+    function onLocationFound(e) {
+      if (userLocationMarker) {
+        map.removeLayer(userLocationMarker);
+      }
+      if (polyline) {
+        map.removeLayer(polyline);
+      }
+      if (nearestStationMarker) {
+        map.removeLayer(nearestStationMarker);
       }
 
-      const nearestPoint = selectedLayer.getLayers().reduce((nearest, layer) => {
-        const layerLatLng = layer.getLatLng();
-        const distance = currentLocation.distanceTo(layerLatLng);
-        if (!nearest || distance < nearest.distance) {
-          return { layer: layer, distance: distance };
-        } else {
-          return nearest;
+      const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: "<div style='background-color:#007bff;width:20px;height:20px;border-radius:50%;'></div>"
+      });
+      userLocationMarker = L.marker(e.latlng, {icon: customIcon}).addTo(map);
+
+      let nearestStation = null;
+      let minDistance = Infinity;
+
+      const allStations = [
+        ...fastCharging24Layer.getLayers(),
+        ...fastCharging50Layer.getLayers(),
+        ...regularCharging11Layer.getLayers(),
+        ...regularCharging22Layer.getLayers()
+      ];
+
+      allStations.forEach(function(layer) {
+        const stationLatLng = layer.getLatLng();
+        const distance = e.latlng.distanceTo(stationLatLng);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestStation = layer;
         }
-      }, null);
+      });
 
-      if (nearestPoint) {
-        L.polyline([currentLocation, nearestPoint.layer.getLatLng()], { color: 'blue' }).addTo(map);
-        L.marker(currentLocation).addTo(map).bindPopup("You are here").openPopup();
+      if (nearestStation) {
+        polyline = L.polyline([e.latlng, nearestStation.getLatLng()], {color: 'red'}).addTo(map);
+        nearestStationMarker = nearestStation;
+        nearestStationMarker.openPopup();
       }
-    });
+    }
 
-    map.on('overlayadd', function(e) {
-      selectedLayer = e.layer;
-    });
-
-    map.on('overlayremove', function(e) {
-      if (selectedLayer === e.layer) {
-        selectedLayer = null;
-      }
-    });
+    map.on('locationfound', onLocationFound);
   </script>
 </body>
 </html>
