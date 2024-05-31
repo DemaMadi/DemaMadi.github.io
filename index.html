@@ -1,40 +1,23 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
-
-  <!-- Give the page a title -->
   <title>Map of Electric car charging stations in West Bank</title>
-
-  <!-- Add a link to the Leaflet CSS library so you can reference it for styling your map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
-
-  <!-- Add a link to the Leaflet Locate CSS library for the locate control -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-
-  <!-- Add a link to Font Awesome for using icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-
-  <!-- All the CSS code goes inside the style tags below -->
   <style>
-    /* style the body */
     body {
       margin: 0px;
       height: 100%;
       width: 100%;
     }
-
-    /* style the map */
     #map {
       position: absolute;
       width: 100%;
       top: 0px;
       bottom: 0;
     }
-
-    /* style for the legend */
     .legend {
       background: white;
       padding: 5px;
@@ -43,9 +26,8 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       border-radius: 5px;
       font-size: 12px;
-      max-width: 150px; /* Max width for the legend */
+      max-width: 150px;
     }
-
     .legend i {
       width: 20px;
       height: 20px;
@@ -54,7 +36,6 @@
       opacity: 0.7;
       background-size: cover;
     }
-
     .legend div {
       display: flex;
       align-items: center;
@@ -62,81 +43,63 @@
     }
   </style>
 </head>
-
 <body>
-  <!-- the map -->
   <div id="map"></div>
-
-  <!-- Add a link to the Leaflet JavaScript library so you can reference it for building your map -->
+  <div class="leaflet-top leaflet-right">
+    <div class="leaflet-control leaflet-bar">
+      <a class="leaflet-control-zoom-in" href="#" title="Zoom in">+</a>
+      <a class="leaflet-control-zoom-out" href="#" title="Zoom out">-</a>
+      <a class="leaflet-control-pan-left" href="#" title="Pan left">&larr;</a>
+      <a class="leaflet-control-pan-right" href="#" title="Pan right">&rarr;</a>
+    </div>
+  </div>
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
-
-  <!-- Add a link to the Leaflet Locate JavaScript library for the locate control -->
   <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
-
-  <!-- Add a link to the jQuery JavaScript library so you can leverage ajax methods to load your data -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-  <!-- All JavaScript goes inside the script tags below -->
   <script>
-    // define map options
     const mapOptions = {
-      zoomSnap: 0.5, // this allows fractional zooming
-      center: [31.778081556189452, 35.23535263863638], // center the map on the coordinates for Alquds
-      zoom: 8, // set the initial zoom
+      zoomSnap: 0.5,
+      center: [31.778081556189452, 35.23535263863638],
+      zoom: 8,
     };
-
-    // define the map with the options above
     const map = L.map("map", mapOptions);
-
-    // add a base map to the map
     const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 20
     }).addTo(map);
-
-    // Add scale control to the map
     L.control.scale({
-      position: 'bottomright', // Position of the scale control
-      metric: true, // Display only the metric scale
-      imperial: false // Do not display the imperial scale
+      position: 'bottomright',
+      metric: true,
+      imperial: false
     }).addTo(map);
-
-    // Define custom icons for each type of charging station
     const fastCharging24Icon = L.icon({
       iconUrl: 'Green.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
     const fastCharging50Icon = L.icon({
       iconUrl: 'blue.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
     const regularCharging11Icon = L.icon({
       iconUrl: 'Red.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
     const regularCharging22Icon = L.icon({
       iconUrl: 'Gry.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
-    // Create layer groups for each type of charging station
     const fastCharging24Layer = L.layerGroup();
     const fastCharging50Layer = L.layerGroup();
     const regularCharging11Layer = L.layerGroup();
     const regularCharging22Layer = L.layerGroup();
-
-    // Load GeoJSON data for Governorate boundaries and fit map to its bounds
     $.getJSON("GoverW.json", function(GW) {
       const goverLayer = L.geoJson(GW, {
         style: function(feature) {
@@ -154,11 +117,8 @@
           });
         }
       }).addTo(map);
-
       map.fitBounds(goverLayer.getBounds());
     });
-
-    // Load GeoJSON data with custom icons
     $.getJSON("FastCharing24kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -166,7 +126,6 @@
         }
       }).addTo(fastCharging24Layer);
     });
-
     $.getJSON("FastCharing50kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -174,7 +133,6 @@
         }
       }).addTo(fastCharging50Layer);
     });
-
     $.getJSON("ReqularCharging11kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -182,7 +140,6 @@
         }
       }).addTo(regularCharging11Layer);
     });
-
     $.getJSON("ReqularCharging22kw.json", function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -190,30 +147,23 @@
         }
       }).addTo(regularCharging22Layer);
     });
-
-    // Add all layers to the map initially
     fastCharging24Layer.addTo(map);
     fastCharging50Layer.addTo(map);
     regularCharging11Layer.addTo(map);
     regularCharging22Layer.addTo(map);
-
-    // Add layer control to the map
     const overlayMaps = {
       "Fast Charging 24kW": fastCharging24Layer,
       "Fast Charging 50kW": fastCharging50Layer,
       "Regular Charging 11kW": regularCharging11Layer,
       "Regular Charging 22kW": regularCharging22Layer
     };
-
     L.control.layers(null, overlayMaps, { position: 'topleft' }).addTo(map);
-
-    // Add locate control to the map
     L.control.locate({
       position: 'topleft',
       drawCircle: false,
       follow: true,
       setView: true,
-      keepCurrentZoomLevel: false, // Change to false to allow zooming
+      keepCurrentZoomLevel: false,
       markerStyle: {
         weight: 1,
         opacity: 0.8,
@@ -222,22 +172,19 @@
       icon: 'fa fa-location-arrow',
       metric: true,
       strings: {
-        title: "Show location ",
+        title: "Show location",
         popup: "You are within {distance} {unit} from this point",
         outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
       },
       locateOptions: {
         maxZoom: 15,
-        initialZoomLevel: 15, // Set the initial zoom level
+        initialZoomLevel: 15,
         enableHighAccuracy: true,
         maximumAge: 10000,
         timeout: 10000
       }
     }).addTo(map);
-
-    // Add legend to the map
     const legend = L.control({ position: 'topright' });
-
     legend.onAdd = function(map) {
       const div = L.DomUtil.create('div', 'legend');
       div.innerHTML += '<div><i style="background-image: url(Green.png);"></i> Fast Charging 24kW</div>';
@@ -246,9 +193,8 @@
       div.innerHTML += '<div><i style="background-image: url(Gry.png);"></i> Regular Charging 22kW</div>';
       return div;
     };
-
     legend.addTo(map);
   </script>
 </body>
-
 </html>
+
