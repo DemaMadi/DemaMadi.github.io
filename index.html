@@ -251,7 +251,7 @@
     legend.addTo(map);
 
 
-   const titleControl = L.control({ position: 'topcenter' });
+    const titleControl = L.control({ position: 'topcenter' });
 
     titleControl.onAdd = function(map) {
       const div = L.DomUtil.create('div', 'leaflet-control-title');
@@ -259,14 +259,14 @@
       return div;
     };
 
+    titleControl.addTo(map);
+
     // Function to pan the map to the left
     function panLeft() {
       const currentCenter = map.getCenter();
       const newCenter = L.latLng(currentCenter.lat, currentCenter.lng - 0.05); // Adjust the lng value as needed
       map.panTo(newCenter);
-    };
-
-    titleControl.addTo(myMap);
+    }
 
     // Function to pan the map to the right
     function panRight() {
