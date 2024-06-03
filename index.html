@@ -66,6 +66,19 @@
     #right-button {
       right: 10px;
     }
+
+    /* Style for the title control */
+    .leaflet-control-title {
+      background: white;
+      padding: 5px;
+      border-radius: 5px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      font-size: 14px;
+      font-weight: bold;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
   </style>
 </head>
 
@@ -239,6 +252,16 @@
     };
 
     legend.addTo(map);
+
+    const titleControl = L.control({ position: 'topleft' });
+
+    titleControl.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'leaflet-control-title');
+      div.innerHTML = 'Locations of Electric vehicle charging stations in the West Bank';
+      return div;
+    };
+
+    titleControl.addTo(map);
 
     // Function to pan the map to the left
     function panLeft() {
