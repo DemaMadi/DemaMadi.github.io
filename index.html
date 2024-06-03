@@ -75,9 +75,6 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       font-size: 14px;
       font-weight: bold;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
     }
   </style>
 </head>
@@ -253,7 +250,7 @@
 
     legend.addTo(map);
 
-    const titleControl = L.control({ position: 'topleft' });
+    const titleControl = L.control({ position: 'topcenter' });
 
     titleControl.onAdd = function(map) {
       const div = L.DomUtil.create('div', 'leaflet-control-title');
