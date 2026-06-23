@@ -91,7 +91,6 @@ L.control.scale({
 
 const boundaryLayer = L.layerGroup();
 const blocksLayer = L.layerGroup();
-const roadsLayer = L.layerGroup();
 const manahilLayer = L.layerGroup();
 const sewerageLayer = L.layerGroup();
 const sewerLinesLayer = L.layerGroup();
@@ -112,6 +111,8 @@ $.getJSON("boundary.json", function(data){
         }
     }).addTo(boundaryLayer);
 
+}).fail(function(){
+    console.log("boundary.json not loaded");
 });
 
 // =====================
@@ -129,21 +130,8 @@ $.getJSON("blocks.json", function(data){
         }
     }).addTo(blocksLayer);
 
-});
-
-// =====================
-// Roads
-// =====================
-
-$.getJSON("RoadS.json", function(data){
-
-    L.geoJSON(data,{
-        style:{
-            color:"#ffffff",
-            weight:2
-        }
-    }).addTo(roadsLayer);
-
+}).fail(function(){
+    console.log("blocks.json not loaded");
 });
 
 // =====================
@@ -164,6 +152,8 @@ $.getJSON("Manahil.json", function(data){
         }
     }).addTo(manahilLayer);
 
+}).fail(function(){
+    console.log("Manahil.json not loaded");
 });
 
 // =====================
@@ -179,6 +169,8 @@ $.getJSON("SewerageAgreements.json", function(data){
         }
     }).addTo(sewerageLayer);
 
+}).fail(function(){
+    console.log("SewerageAgreements.json not loaded");
 });
 
 // =====================
@@ -194,13 +186,15 @@ $.getJSON("sewerLines.json", function(data){
         }
     }).addTo(sewerLinesLayer);
 
+}).fail(function(){
+    console.log("sewerLines.json not loaded");
 });
 
 // =====================
-// Water IDs
+// Water Distribution
 // =====================
 
-$.getJSON("Waterids.json", function(data){
+$.getJSON("Waterdis.json", function(data){
 
     L.geoJSON(data,{
         style:{
@@ -209,6 +203,8 @@ $.getJSON("Waterids.json", function(data){
         }
     }).addTo(wateridsLayer);
 
+}).fail(function(){
+    console.log("Waterdis.json not loaded");
 });
 
 // =====================
@@ -229,6 +225,8 @@ $.getJSON("WaterMeterSalfeet.json", function(data){
         }
     }).addTo(waterMeterLayer);
 
+}).fail(function(){
+    console.log("WaterMeterSalfeet.json not loaded");
 });
 
 // =====================
@@ -236,7 +234,6 @@ $.getJSON("WaterMeterSalfeet.json", function(data){
 // =====================
 
 boundaryLayer.addTo(map);
-roadsLayer.addTo(map);
 blocksLayer.addTo(map);
 
 // =====================
@@ -246,7 +243,6 @@ blocksLayer.addTo(map);
 L.control.layers(null,{
     "حدود البلدية": boundaryLayer,
     "الأحواض": blocksLayer,
-    "الطرق": roadsLayer,
     "المناهل": manahilLayer,
     "اتفاقيات الصرف الصحي": sewerageLayer,
     "خطوط الصرف الصحي": sewerLinesLayer,
@@ -255,18 +251,6 @@ L.control.layers(null,{
 },{
     collapsed:false
 }).addTo(map);
-
-// =====================
-// مفتاح الخريطة Legend
-// =====================
-
-const legend = L.control({
-    position:'bottomright'
-});
-
-legend.onAdd = function(){
-
-    const div = L.DomUtil.create('div','legend');
 
     div.innerHTML = `
     <h4>مفتاح الخريطة</h4>
