@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسار دروب الزيتون</title>
+<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCl4deI84ZCCdkUD1yyM9GnKWayG_iIUuD5sjbGJlrmgrcwysQ3bnjpy5H&s=10">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root {
+    --bg: #EDE6D6; --bg-deep: #6c8d00; --ink: #24291C; --ink-soft: #52573F;
+    --olive: #566B3B; --olive-dark: #37451F; --olive-deep: #263216;
+    --clay: #a82e2e; --clay-dark: #7E3D20; --gold: #ffffff;
+    --transit: #fffc3c; --transit-dark: #42503b63; --line: #99ad1a;
+    --paper: #edf7ec; --radius: 4px; --pin-red: #d5d5d5; --pin-red-dark: #166e1d;
+    --route-blue: #2563EB; --route-blue-dark: #294d00d5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Tajawal', sans-serif; }
+  ::selection { background: var(--gold); color: var(--ink); }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 800;
+    display: flex; align-items: center; gap: 1.1rem; padding: 0.65rem 6vw;
+    background: linear-gradient(90deg, var(--olive-deep), var(--olive-dark));
+    color: var(--paper); box-shadow: 0 2px 10px rgba(0,0,0,0.25); flex-wrap: wrap;
+  }
+  .municipality-logo {
+    width: 72px; height: 72px; object-fit: contain; border-radius: 12px;
+    background: transparent; padding: 5px; box-shadow: 0 3px 10px rgba(0,0,0,0.4); flex: 0 0 auto;
+  }
+  .topbar-text { flex: 0 0 auto; }
+  .topbar-text b { display: block; font-family: 'Amiri', serif; font-size: 1.02rem; }
+  .topbar-text span { font-size: 0.72rem; color: #D9D9C4; }
+  .topbar-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.18); flex: 0 0 auto; }
+  .topbar-lede { font-size: 0.82rem; color: #E7E7D6; max-width: 420px; line-height: 1.5; flex: 1 1 220px; }
+  .topbar-stats { display: flex; gap: 0.5rem; margin-inline-start: auto; flex-wrap: wrap; }
+  .chip {
+    display: flex; align-items: baseline; gap: 0.35rem;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px; padding: 0.32rem 0.85rem;
+  }
+  .chip b { font-family: 'Amiri', serif; font-size: 1.05rem; color: #F4E9C6; }
+  .chip span { font-size: 0.7rem; color: #D9D9C4; }
+  @media (max-width: 900px) { .topbar { padding: 0.65rem 4vw; } .topbar-lede { display: none; } }
+
+  .layout { display: grid; grid-template-columns: 340px 1fr; min-height: 660px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  .sidebar { background: var(--paper); border-left: 1px solid var(--line); padding: 1.5rem 1.3rem 2rem; overflow-y: auto; }
+  @media (max-width: 900px) { .sidebar { border-left: none; border-bottom: 1px solid var(--line); } }
+  .sidebar h2 { font-family: 'Amiri', serif; font-size: 1.2rem; margin: 0 0 0.3rem; color: var(--ink); }
+  .sidebar .hint { font-size: 0.84rem; color: var(--ink-soft); margin: 0 0 1.1rem; line-height: 1.7; }
+  .route-summary {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg); border: 1px dashed var(--line); border-radius: var(--radius);
+    padding: 0.65rem 0.85rem; margin-bottom: 1.1rem;
+  }
+  .route-summary b { font-family: 'Amiri', serif; font-size: 1.1rem; color: var(--clay-dark); }
+  .route-summary span { font-size: 0.76rem; color: var(--ink-soft); }
+  .reset-btn {
+    background: none; border: 1px solid var(--clay); color: var(--clay-dark);
+    font-family: 'Tajawal', sans-serif; font-size: 0.76rem; padding: 0.38rem 0.75rem;
+    border-radius: var(--radius); cursor: pointer; transition: all .15s ease;
+  }
+  .reset-btn:hover { background: var(--clay); color: var(--paper); }
+  .reset-btn:focus-visible, .stop-card:focus-visible { outline: 2px solid var(--olive-dark); outline-offset: 2px; }
+
+  .stop-card {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.7rem 0.5rem; border-bottom: 1px solid var(--line);
+    cursor: pointer; transition: background .15s ease;
+  }
+  .stop-card:hover { background: rgba(201,162,39,0.10); }
+  .stop-card.active { background: rgba(86,107,59,0.12); }
+  .badge {
+    flex: 0 0 auto; width: 27px; height: 27px; border-radius: 50%;
+    border: 1.5px solid var(--olive); color: var(--olive-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Amiri', serif; font-size: 0.92rem; margin-top: 2px; background: var(--paper);
+  }
+  .stop-card.active .badge { background: var(--olive); color: var(--paper); border-color: var(--olive); }
+  .stop-info b { display: block; font-size: 1rem; color: var(--ink); font-family: 'Amiri', serif; }
+  .site-desc-tag { display: block; margin-top: 0.25rem; font-size: 0.76rem; color: var(--ink-soft); }
+  .stop-info .info-btn {
+    margin-top: 0.35rem; font-size: 0.72rem; color: var(--clay-dark);
+    background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline dashed;
+  }
+
+  .transit-card {
+    display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 1rem;
+    padding: 0.7rem 0.6rem; border: 1px dashed var(--transit-dark);
+    border-radius: var(--radius); background: rgba(255,201,60,0.10);
+  }
+  .transit-icon {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    background: var(--transit-dark); display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .transit-card b { display: block; font-size: 0.92rem; color: var(--ink); }
+  .transit-card span { font-size: 0.76rem; color: var(--ink-soft); }
+
+  .legend { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  .legend h3 { font-size: 0.82rem; margin: 0 0 0.6rem; color: var(--ink-soft); font-weight: 700; }
+  .legend-row { display: flex; align-items: center; gap: 0.55rem; font-size: 0.8rem; margin-bottom: 0.5rem; color: var(--ink-soft); }
+  .swatch { width: 16px; height: 16px; border-radius: 50%; flex: 0 0 auto; }
+  .swatch.site { background: var(--pin-red); border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--pin-red); }
+  .swatch.route { background: var(--route-blue); }
+  .swatch.transit { width: 20px; height: 6px; border-radius: 3px; background: var(--transit); border: 1px solid var(--transit-dark); }
+  .swatch.stop { background: #2C5B8A; }
+
+  .map-wrap { position: relative; }
+  #map { height: 100%; min-height: 660px; width: 100%; background: #ffffff; }
+  .leaflet-tile-pane { filter: none; }
+
+  .site-pin { position: relative; width: 34px; height: 34px; }
+  .site-pin .pin-shape {
+    position: absolute; inset: 0; width: 34px; height: 34px;
+    border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+    background: var(--pin-red); border: 2px solid var(--paper);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+  }
+  .site-pin.selected .pin-shape { background: var(--pin-red-dark); border-color: var(--gold); }
+  .site-pin .pin-num {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--paper); font-family: 'Amiri', serif; font-weight: 700; font-size: 0.85rem;
+    transform: translateY(-3px);
+  }
+  .site-pin .pin-dot {
+    position: absolute; top: 9px; left: 9px; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--paper); transform: rotate(45deg);
+  }
+  .stop-label {
+    font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--ink);
+    background: var(--paper); border: 1.5px solid var(--pin-red); border-radius: 5px;
+    padding: 2px 9px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  }
+  .leaflet-tooltip.stop-label::before { border-top-color: var(--pin-red); }
+  .bus-pin {
+    width: 32px; height: 32px; border-radius: 50%; background: #2C5B8A;
+    border: 2.5px solid var(--paper); display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+  .route-arrow { color: var(--route-blue-dark); font-size: 0.95rem; text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper); }
+
+  .map-legend {
+    position: absolute; bottom: 14px; left: 14px; z-index: 600;
+    background: rgba(247,245,236,0.95); border: 1px solid var(--line);
+    border-radius: 6px; padding: 0.7rem 0.9rem; font-size: 0.76rem;
+    color: var(--ink-soft); box-shadow: 0 2px 10px rgba(0,0,0,0.25); max-width: 220px;
+  }
+  .map-legend .legend-row { margin-bottom: 0.4rem; }
+  .map-legend .legend-row:last-child { margin-bottom: 0; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(20,22,12,0.72); backdrop-filter: blur(2px);
+    display: flex; align-items: center; justify-content: center; z-index: 2000;
+    padding: 1.2rem; opacity: 0; pointer-events: none; transition: opacity .18s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal-card {
+    background: var(--paper); width: min(560px, 100%); max-height: 90vh; overflow-y: auto;
+    border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 10px; left: 10px; z-index: 5; width: 32px; height: 32px;
+    border-radius: 50%; background: rgba(20,22,12,0.55); color: #fff; border: none;
+    font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .modal-media {
+    height: 190px; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0.3rem;
+    background: linear-gradient(135deg, var(--olive-dark), var(--olive));
+    color: var(--paper); border-radius: 10px 10px 0 0;
+  }
+  .modal-media .emoji { font-size: 3.2rem; }
+  .modal-media .cap { font-size: 0.72rem; opacity: 0.85; }
+  .modal-video {
+    margin: 1rem 1.2rem 0; border: 1.5px dashed var(--transit-dark);
+    border-radius: 8px; background: rgba(255,201,60,0.08);
+    padding: 1.1rem; text-align: center; color: var(--ink-soft); font-size: 0.8rem;
+  }
+  .modal-video .play { font-size: 1.6rem; display: block; margin-bottom: 0.3rem; }
+  .modal-video iframe { width: 100%; aspect-ratio: 16/9; border: none; border-radius: 6px; }
+  .modal-body { padding: 1.1rem 1.3rem 1.4rem; }
+  .modal-eyebrow { font-size: 0.78rem; color: var(--ink-soft); }
+  .modal-body h3 { font-family: 'Amiri', serif; font-size: 1.5rem; margin: 0.2rem 0 0.6rem; color: var(--ink); }
+  .modal-body p { font-size: 0.92rem; line-height: 1.85; color: var(--ink-soft); margin: 0 0 1rem; }
+  .modal-toggle {
+    width: 100%; padding: 0.6rem; background: var(--olive); color: var(--paper);
+    border: none; border-radius: var(--radius); font-family: 'Tajawal', sans-serif;
+    font-size: 0.88rem; cursor: pointer;
+  }
+  .modal-toggle.remove { background: var(--clay-dark); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <filter id="greenBoost" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="
+      0.95 0    0    0 0
+      0    1.18 0    0 0
+      0    0    0.85 0 0
+      0    0    0    1 0"/>
+  </filter>
+</svg>
+
+<div class="topbar">
+  <img class="municipality-logo" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCl4deI84ZCCdkUD1yyM9GnKWayG_iIUuD5sjbGJlrmgrcwysQ3bnjpy5H&s=10" alt="شعار بلدية سلفيت">
+  <div class="topbar-text"><b>🌿 مسار دروب الزيتون</b><span>بلدية سلفيت</span></div>
+  <div class="topbar-divider"></div>
+  <p class="topbar-lede">اكتشف مدينة سلفيت عبر 10 دروب تراثية وطبيعية، وأنشئ مسارك السياحي التفاعلي بسهولة لاستكشاف أبرز معالم المدينة وتجربة زيارة مميز</p>
+  <div class="topbar-stats">
+    <div class="chip"><b id="statCount">10</b><span>دروب</span></div>
+    <div class="chip"><b id="statSelected">0</b><span>مختار</span></div>
+    <div class="chip"><b id="statDist">لم يتم اختيار المسار بعد</b><span>طول المسار</span></div>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2>أين مسارك</h2>
+    <p class="hint">اختر المواقع التي ترغب بزيارتها وسيتم رسم المسار تلقائياً على الطريق المرسوم فقط.</p>
+    <div class="route-summary">
+      <div><b id="summaryDist">لم يتم اختيار المسار بعد</b><span> — طول المسار الفعلي</span></div>
+      <button class="reset-btn" id="resetBtn">مسح المسار</button>
+    </div>
+    <div id="stopList"></div>
+
+    <div class="transit-card">
+      <div class="transit-icon">🚌</div>
+      <div><b>موقف حافلات سلفيت</b><span>نقطة انطلاق مقترحة قبل بدء المسار — يقع على خط النقل العام الظاهر على الخريطة.</span></div>
+    </div>
+
+    <div class="legend">
+      <h3>دليل الخريطة</h3>
+      <div class="legend-row"><span class="swatch site"></span> درب سياحي</div>
+      <div class="legend-row"><span class="swatch route"></span> المسار المختار (على الطريق المرسوم)</div>
+      <div class="legend-row"><span class="swatch transit"></span> خط النقل العام (الحافلة)</div>
+      <div class="legend-row"><span class="swatch stop"></span> موقف الحافلات</div>
+    </div>
+  </aside>
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-row"><span class="swatch site"></span> درب سياحي</div>
+      <div class="legend-row"><span class="swatch route"></span> المسار المختار</div>
+      <div class="legend-row"><span class="swatch transit"></span> خط النقل العام</div>
+      <div class="legend-row"><span class="swatch stop"></span> موقف الحافلات</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="siteModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">×</button>
+    <div class="modal-media" id="modalMedia"></div>
+    <div class="modal-video" id="modalVideo"></div>
+    <div class="modal-body">
+      <div class="modal-eyebrow" id="modalSiteName"></div>
+      <h3 id="modalPathName"></h3>
+      <p id="modalText"></p>
+      <button class="modal-toggle" id="modalToggleBtn"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.js"></script>
+<script>
+proj4.defs("EPSG:28191", "+proj=cass +lat_0=31.73409694444445 +lon_0=35.21208055555556 +x_0=170251.555 +y_0=126867.909 +ellps=clrk80 +towgs84=-275.722,94.7824,340.894,-8.001,-4.42,-11.821,1 +units=m +no_defs");
+function toWGS(x, y) { return proj4("EPSG:28191", "WGS84", [x, y]); }
+
+const rawSites = [
+  {id: 1, name: "", path: "درب الأساس", x: 166891.10890000034, y: 165413.87219999917, emoji: "🏛️",
+   text: "محطة الانطلاق أمام مبنى البلدية، حيث تبدأ حكاية دروب سلفيت وتلتقي كل المسارات."},
+  {id: 2, name: "", path: "درب الأجداد", x: 166833.53799999971, y: 165404.23589999974, emoji: "📜",
+   text: "درب يمر بديوان البلدة القديم، شاهدًا على مجالس الأجداد وحكاياتهم المتوارثة."},
+  {id: 3, name: "", path: "درب عبق الياسمين", x: 166928.55350000039, y: 165295.10309999995, emoji: "🌸",
+   text: "ممر ظليل بين أزقة البلدة القديمة تفوح منه رائحة الياسمين في المساء."},
+  {id: 4, name: "", path: "درب عين المغرفة", x: 166920.10539999977, y: 165096.63529999927, emoji: "⛲",
+   text: "نبع ماء قديم كان يروي البلدة، ويحمل اسم المغرفة التي كانت تُستخدم لجلب الماء."},
+  {id: 9, name: "", path: "درب ميدان التوتة", x: 167072.94959999993, y: 165365.39860000089, emoji: "🌳",
+   text: "ميدان تظلّله شجرة توت عريقة، محطة استراحة تقليدية على طريق العودة من العين."},
+  {id: 5, name: "", path: "درب الحواكير", x: 167229.42050000001, y: 165449.64230000041, emoji: "🌿",
+   text: "زقاق يتوسط حواكير المنازل القديمة وأشجارها المثمرة."},
+  {id: 6, name: "", path: "درب الأصالة", x: 167217.23539999966, y: 165428.01139999926, emoji: "🏰",
+   text: "مبنى تراثي يختصر أصالة العمارة السلفيتية بحجارته المنحوتة."},
+  {id: 7, name: "", path: "درب التحدي", x: 167382.58059999999, y: 165430.92180000059, emoji: "🏋️",
+   text: "محطة نشاط ورياضة على المسار، لمن يريد كسر رتابة المشي بجولة تحدٍ."},
+  {id: 8, name: "", path: "درب النقاء", x: 167459.94240000006, y: 165472.45670000091, emoji: "🛣️",
+   text: "طريق واسع ونظيف يصل زوار المسار بالأحياء المجاورة."},
+  {id: 10, name: " ", path: "درب اللقاء و الترفيه", x: 167510.53849999979, y: 166018.53350000083, emoji: "🎡",
+   text: "محطة الختام؛ منتزه عائلي مفتوح للقاء والراحة بعد جولة الدروب."}
+];
+const sites = rawSites.map(s => { const [lon, lat] = toWGS(s.x, s.y); return { ...s, lat, lon }; });
+
+const busStopRaw = { x: 167353.66150000039, y: 165504.72729999945 };
+const [busLon, busLat] = toWGS(busStopRaw.x, busStopRaw.y);
+
+const routePartsXY = [[[166883.79690000042, 165329.91259999946], [166893.79279999994, 165327.40090000071], [166901.78589999955, 165321.82239999995], [166902.55559999961, 165320.55020000041], [166908.25090000033, 165318.43579999916], [166912.44570000004, 165315.91210000031], [166913.29829999991, 165314.51380000077], [166913.53699999955, 165306.70409999974], [166913.50289999973, 165305.91970000044], [166913.4347000001, 165304.76019999944], [166919.10419999994, 165303.67149999924], [166922.43460000027, 165302.17280000076], [166924.54609999992, 165300.62079999968], [166928.75580000039, 165299.87480000034], [166941.16839999985, 165297.09390000068], [166939.83619999979, 165276.27859999985], [166950.16060000006, 165268.03570000082], [167020.50679999962, 165230.67689999938], [167076.81379999965, 165211.16249999963], [167092.26260000002, 165195.91699999943], [167096.91349999979, 165186.72079999931], [167100.16590000037, 165171.88990000077], [167100.81639999989, 165160.31140000001], [167095.61259999964, 165146.00090000033], [167089.10780000035, 165136.76420000009], [167079.48070000019, 165129.08850000054], [167073.62640000042, 165126.35649999976], [167065.82070000004, 165125.05560000055], [167050.85969999991, 165124.66530000046], [167036.67929999996, 165120.50219999999], [167028.35319999978, 165117.11969999969], [167011.5708999997, 165116.7293999996], [166994.65840000007, 165118.1604999993], [166982.2993999999, 165118.81100000069], [166958.88219999988, 165109.83440000005], [166941.18919999991, 165101.76850000024], [166930.2611999996, 165091.10060000047]], [[166887.13860000018, 165422.80819999985], [166853.99179999996, 165424.36209999956], [166850.14379999973, 165388.7731999997], [166876.80750000011, 165370.77999999933], [166894.87519999966, 165363.95260000043], [166891.23249999993, 165358.57699999958], [166887.06940000039, 165349.47030000016], [166884.46750000026, 165342.31509999931], [166883.79679999966, 165329.91530000046]], [[167093.34410000034, 165193.7854999993], [167099.80590000004, 165196.75799999945], [167106.69429999962, 165200.43510000035], [167152.01339999959, 165223.50029999949], [167197.01150000002, 165247.18569999933], [167206.21520000044, 165249.8300999999], [167215.56039999984, 165251.92019999959], [167219.61780000012, 165252.57609999925], [167225.01370000001, 165253.44830000028], [167226.4561999999, 165253.59380000085], [167226.28650000039, 165266.27859999985], [167223.6604000004, 165281.45209999941], [167218.26209999993, 165293.99950000085], [167200.02469999995, 165299.9813000001], [167189.67169999983, 165304.23570000008], [167184.25590000022, 165318.05529999919], [167179.58719999995, 165326.55250000022], [167178.62820000015, 165327.18859999999], [167170.29040000029, 165324.12890000083], [167167.34539999999, 165322.17830000073], [167162.03259999957, 165328.51329999976], [167156.05659999978, 165335.04959999956], [167154.26750000007, 165336.59970000014], [167147.33530000038, 165329.01009999961], [167143.98869999964, 165325.3049999997], [167137.95299999975, 165320.70340000093], [167127.31560000032, 165314.1297999993], [167123.25189999957, 165312.51630000025], [167115.78189999983, 165310.90269999951], [167109.14850000013, 165309.46849999949], [167107.83380000014, 165309.10989999957], [167105.32390000019, 165317.29710000008], [167104.96530000027, 165325.60380000062], [167103.77010000031, 165337.01799999923], [167103.88960000034, 165349.74689999968], [167101.61870000046, 165355.60339999944], [167094.60049999971, 165363.75229999982], [167079.07440000027, 165368.11620000005], [167078.78259999957, 165370.74239999987], [167090.89219999965, 165381.24709999934], [167111.75580000039, 165391.89770000055], [167129.26370000001, 165396.56650000066], [167166.17609999981, 165400.0680999998], [167172.01209999993, 165400.50579999946], [167170.26130000036, 165450.54920000024], [167182.59389999975, 165450.62219999917], [167201.47809999995, 165450.44290000014], [167207.21509999968, 165450.14409999922], [167224.66509999987, 165449.12820000015], [167235.0036000004, 165448.41110000014], [167255.75820000004, 165443.10830000043], [167268.01370000001, 165439.31489999965], [167288.87719999999, 165445.15090000071], [167298.23000000045, 165446.91709999926], [167300.62040000036, 165441.0605999995], [167301.81560000032, 165438.25180000067], [167346.65330000035, 165455.07200000063], [167374.37409999967, 165464.40960000083], [167457.91949999984, 165481.21529999934], [167498.53419999965, 165497.52859999985], [167517.86909999978, 165513.2053999994], [167519.69830000028, 165520.8666999992], [167517.62090000045, 165525.37460000068], [167480.9095999999, 165520.67989999987], [167428.05580000021, 165515.63839999959], [167363.76900000032, 165510.16719999909], [167364.30709999986, 165523.64460000023], [167368.68730000034, 165548.44979999959], [167380.63860000018, 165595.42689999938], [167384.74199999962, 165610.47279999964], [167391.93400000036, 165610.48090000078], [167417.0279000001, 165764.9776000008], [167439.11220000032, 165896.77119999938], [167455.49739999976, 166020.72839999944], [167465.21449999977, 166020.12989999913]]];
+
+const center = sites.reduce((a, s) => [a[0] + s.lat / sites.length, a[1] + s.lon / sites.length], [0, 0]);
+const map = L.map('map', { scrollWheelZoom: true }).setView(center, 17);
+
+L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    attribution: 'Google Satellite', maxZoom: 21, minZoom: 14
+}).addTo(map);
+
+const transitLatLngs = routePartsXY.map(part => part.map(([x, y]) => { const [lon, lat] = toWGS(x, y); return [lat, lon]; }));
+L.polyline(transitLatLngs, { color: '#ffffff', weight: 6, opacity: 0.85 }).addTo(map);
+L.polyline(transitLatLngs, { color: '#FFC93C', weight: 3.4, opacity: 0.95 }).addTo(map);
+
+const busIcon = L.divIcon({ className: '', html: '<div class="bus-pin">🚌</div>', iconSize: [32, 32], iconAnchor: [16, 16] });
+L.marker([busLat, busLon], { icon: busIcon }).addTo(map)
+    .bindPopup(`<b>موقف حافلات سلفيت</b><br>نقطة الانطلاق نحو المسار`);
+
+function closestOnSegment(px, py, x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const lenSq = dx * dx + dy * dy;
+    let t = lenSq === 0 ? 0 : ((px - x1) * dx + (py - y1) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    const cx = x1 + t * dx, cy = y1 + t * dy;
+    return { x: cx, y: cy, t, dist: Math.hypot(px - cx, py - cy) };
+}
+
+function projectToRoute(px, py) {
+    let best = null;
+    routePartsXY.forEach((part, pi) => {
+        for (let i = 0; i < part.length - 1; i++) {
+            const [x1, y1] = part[i], [x2, y2] = part[i + 1];
+            const c = closestOnSegment(px, py, x1, y1, x2, y2);
+            if (!best || c.dist < best.dist) { best = { part: pi, seg: i, t: c.t, x: c.x, y: c.y, dist: c.dist }; }
+        }
+    });
+    return best;
+}
+
+sites.forEach(s => { s.snap = projectToRoute(s.x, s.y); });
+
+function pointAtPos(partIdx, pos) {
+    const part = routePartsXY[partIdx];
+    const i = Math.max(0, Math.min(part.length - 2, Math.floor(pos)));
+    const t = pos - i;
+    const [x1, y1] = part[i], [x2, y2] = part[i + 1];
+    return [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t];
+}
+
+const SNAP_THRESHOLD = 70;
+
+/* ============================================================
+   بناء شبكة (Graph) من كل أجزاء الطريق المرسوم (routePartsXY)
+   حتى يستطيع المسار "يتعلم" الطريق وينتقل بين أجزائه المختلفة
+   بدل الاكتفاء بربط النقاط الموجودة على نفس الجزء فقط.
+   ============================================================ */
+const NODE_MERGE_TOL = 6; // أمتار: أي نقطتين أقرب من هذا تعتبران نفس التقاطع
+
+const rawNodes = [];
+routePartsXY.forEach((part, pi) => {
+    part.forEach((pt, i) => { rawNodes.push({ key: `${pi}_${i}`, x: pt[0], y: pt[1] }); });
+});
+
+const ufParent = {};
+rawNodes.forEach(n => { ufParent[n.key] = n.key; });
+function ufFind(k) { while (ufParent[k] !== k) k = ufParent[k]; return k; }
+function ufUnion(a, b) { const ra = ufFind(a), rb = ufFind(b); if (ra !== rb) ufParent[ra] = rb; }
+
+for (let i = 0; i < rawNodes.length; i++) {
+    for (let j = i + 1; j < rawNodes.length; j++) {
+        const a = rawNodes[i], b = rawNodes[j];
+        if (a.key.split('_')[0] === b.key.split('_')[0]) continue; // نفس الجزء، لا داعٍ لدمجها
+        if (Math.hypot(a.x - b.x, a.y - b.y) < NODE_MERGE_TOL) ufUnion(a.key, b.key);
+    }
+}
+
+const nodeCoord = {};
+rawNodes.forEach(n => { const r = ufFind(n.key); if (!nodeCoord[r]) nodeCoord[r] = { x: n.x, y: n.y }; });
+
+const baseGraph = {};
+function addBaseEdge(k1, k2, d) {
+    (baseGraph[k1] = baseGraph[k1] || []).push({ to: k2, dist: d });
+    (baseGraph[k2] = baseGraph[k2] || []).push({ to: k1, dist: d });
+}
+routePartsXY.forEach((part, pi) => {
+    for (let i = 0; i < part.length - 1; i++) {
+        const k1 = ufFind(`${pi}_${i}`), k2 = ufFind(`${pi}_${i + 1}`);
+        const [x1, y1] = part[i], [x2, y2] = part[i + 1];
+        if (k1 !== k2) addBaseEdge(k1, k2, Math.hypot(x2 - x1, y2 - y1));
+    }
+});
+
+function siteNodeKey(site) { return `site_${site.id}`; }
+
+function cloneGraphWithSites(sitesList) {
+    const g = {};
+    Object.keys(baseGraph).forEach(k => { g[k] = baseGraph[k].slice(); });
+    sitesList.forEach(site => {
+        const { part, seg, x, y } = site.snap;
+        const k1 = ufFind(`${part}_${seg}`), k2 = ufFind(`${part}_${seg + 1}`);
+        const sk = siteNodeKey(site);
+        const d1 = Math.hypot(x - nodeCoord[k1].x, y - nodeCoord[k1].y);
+        const d2 = Math.hypot(x - nodeCoord[k2].x, y - nodeCoord[k2].y);
+        g[sk] = g[sk] || [];
+        g[k1] = g[k1] || [];
+        g[k2] = g[k2] || [];
+        g[sk].push({ to: k1, dist: d1 }); g[k1].push({ to: sk, dist: d1 });
+        g[sk].push({ to: k2, dist: d2 }); g[k2].push({ to: sk, dist: d2 });
+    });
+    return g;
+}
+
+function dijkstraPath(g, startKey, endKey) {
+    const dist = { [startKey]: 0 };
+    const prev = {};
+    const visited = new Set();
+    const queue = new Set(Object.keys(g));
+    queue.add(startKey); queue.add(endKey);
+    while (queue.size) {
+        let u = null, best = Infinity;
+        queue.forEach(k => { if (dist[k] !== undefined && dist[k] < best) { best = dist[k]; u = k; } });
+        if (u === null) break;
+        queue.delete(u);
+        if (u === endKey) break;
+        (g[u] || []).forEach(({ to, dist: w }) => {
+            const nd = dist[u] + w;
+            if (dist[to] === undefined || nd < dist[to]) { dist[to] = nd; prev[to] = u; }
+        });
+    }
+    if (dist[endKey] === undefined) return null;
+    const path = [endKey];
+    let cur = endKey;
+    while (cur !== startKey) { cur = prev[cur]; if (cur === undefined) return null; path.push(cur); }
+    path.reverse();
+    return path;
+}
+
+function xyOfNode(k, sitesByKey) {
+    if (k.startsWith('site_')) { const s = sitesByKey[k]; return [s.snap.x, s.snap.y]; }
+    return [nodeCoord[k].x, nodeCoord[k].y];
+}
+
+/* يبني المسار الفعلي (متبعاً شبكة الطريق) بين كل محطتين متتاليتين مختارتين */
+function buildFollowSegments(order) {
+    const orderedSites = order.map(id => sites.find(s => s.id === id)).filter(Boolean);
+    if (orderedSites.length < 2) return [];
+    const g = cloneGraphWithSites(orderedSites);
+    const sitesByKey = {}; orderedSites.forEach(s => { sitesByKey[siteNodeKey(s)] = s; });
+
+    const segs = [];
+    for (let i = 0; i < orderedSites.length - 1; i++) {
+        const A = orderedSites[i], B = orderedSites[i + 1];
+        let xyPts;
+        if (A.snap.dist < SNAP_THRESHOLD && B.snap.dist < SNAP_THRESHOLD) {
+            const path = dijkstraPath(g, siteNodeKey(A), siteNodeKey(B));
+            if (path) {
+                xyPts = path.map(k => xyOfNode(k, sitesByKey));
+            }
+        }
+        if (!xyPts) xyPts = [[A.x, A.y], [B.x, B.y]]; // تعذّر إيجاد مسار على الشبكة: خط مباشر كحل بديل
+        segs.push({ latlngs: xyPts.map(([x, y]) => { const [lon, lat] = toWGS(x, y); return [lat, lon]; }) });
+    }
+    return segs;
+}
+
+/* مسار ثابت افتراضي: يبدأ من "درب الأساس" (id 1) وينتهي عند "درب اللقاء و الترفيه" (id 10) */
+const DEFAULT_ROUTE = [1, 2, 3, 4, 9, 5, 6, 7, 8, 10];
+
+let selected = [...DEFAULT_ROUTE];
+let routeLayers = [];
+const markers = {};
+
+function haversineLL(a, b) {
+    const R = 6371;
+    const dLat = (b[0] - a[0]) * Math.PI / 180, dLon = (b[1] - a[1]) * Math.PI / 180;
+    const la1 = a[0] * Math.PI / 180, la2 = b[0] * Math.PI / 180;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function totalDistance() {
+    const segs = buildFollowSegments(selected);
+    let d = 0;
+    segs.forEach(({ latlngs }) => {
+        for (let i = 0; i < latlngs.length - 1; i++) d += haversineLL(latlngs[i], latlngs[i + 1]);
+    });
+    return d;
+}
+
+function bearingDeg(a, b) {
+    const lat = (a[0] + b[0]) / 2 * Math.PI / 180;
+    const dLon = (b[1] - a[1]) * Math.cos(lat);
+    const dLat = (b[0] - a[0]);
+    return Math.atan2(dLon, dLat) * 180 / Math.PI;
+}
+
+function midOfPolyline(latlngs) {
+    let total = 0;
+    const lens = [];
+    for (let i = 0; i < latlngs.length - 1; i++) { const l = haversineLL(latlngs[i], latlngs[i + 1]); lens.push(l); total += l; }
+    let acc = 0, half = total / 2;
+    for (let i = 0; i < lens.length; i++) {
+        if (acc + lens[i] >= half) {
+            const t = lens[i] === 0 ? 0 : (half - acc) / lens[i];
+            const [la1, lo1] = latlngs[i], [la2, lo2] = latlngs[i + 1];
+            return { point: [la1 + (la2 - la1) * t, lo1 + (lo2 - lo1) * t], bearing: bearingDeg(latlngs[i], latlngs[i + 1]) };
+        }
+        acc += lens[i];
+    }
+    const n = latlngs.length;
+    return { point: latlngs[Math.floor(n / 2)], bearing: bearingDeg(latlngs[0], latlngs[n - 1]) };
+}
+
+function pinIcon(n, isSelected) {
+    const inner = n ? `<span class="pin-num">${n}</span>` : `<span class="pin-dot"></span>`;
+    return L.divIcon({
+        className: '',
+        html: `<div class="site-pin${isSelected ? ' selected' : ''}"><div class="pin-shape"></div>${inner}</div>`,
+        iconSize: [34, 34], iconAnchor: [17, 32]
+    });
+}
+
+sites.forEach(site => {
+    const marker = L.marker([site.lat, site.lon], { icon: pinIcon(null, false) }).addTo(map);
+    marker.bindTooltip(site.path, { permanent: true, direction: 'top', offset: [0, -22], className: 'stop-label' });
+    marker.on('click', () => openModal(site.id));
+    markers[site.id] = marker;
+});
+
+function toggleSite(id) {
+    const idx = selected.indexOf(id);
+    if (idx > -1) { selected.splice(idx, 1); } else { selected.push(id); }
+    render();
+}
+
+function render() {
+    sites.forEach(site => {
+        const idx = selected.indexOf(site.id);
+        markers[site.id].setIcon(pinIcon(idx > -1 ? idx + 1 : null, idx > -1));
+    });
+
+    routeLayers.forEach(l => map.removeLayer(l));
+    routeLayers = [];
+
+    if (selected.length > 1) {
+        const segs = buildFollowSegments(selected);
+        segs.forEach(({ latlngs }) => {
+            routeLayers.push(L.polyline(latlngs, { color: '#ffffff', weight: 7, opacity: 0.55 }).addTo(map));
+            routeLayers.push(L.polyline(latlngs, { color: '#ff0000', weight: 4, opacity: 0.95 }).addTo(map));
+            const { point, bearing } = midOfPolyline(latlngs);
+            routeLayers.push(L.marker(point, {
+                icon: L.divIcon({
+                    className: '',
+                    html: `<div class="route-arrow" style="transform:rotate(${bearing}deg)">▲</div>`,
+                    iconSize: [18, 18], iconAnchor: [9, 9]
+                }),
+                interactive: false
+            }).addTo(map));
+        });
+    }
+
+    const list = document.getElementById('stopList');
+    list.innerHTML = '';
+    sites.forEach(site => {
+        const idx = selected.indexOf(site.id);
+        const card = document.createElement('div');
+        card.className = 'stop-card' + (idx > -1 ? ' active' : '');
+        card.tabIndex = 0;
+        card.innerHTML = `
+            <div class="badge">${idx > -1 ? (idx + 1) : ''}</div>
+            <div class="stop-info">
+                <b>${site.path}</b>
+                <span class="site-desc-tag">${site.name}</span>
+                <button type="button" class="info-btn" data-id="${site.id}"> اكتشف درب </button>
+            </div>`;
+        card.querySelector('.badge').onclick = (e) => { e.stopPropagation(); toggleSite(site.id); };
+        card.querySelector('.stop-info b').onclick = (e) => { e.stopPropagation(); toggleSite(site.id); };
+        card.querySelector('.info-btn').onclick = (e) => { e.stopPropagation(); openModal(site.id); };
+        card.onclick = () => toggleSite(site.id);
+        card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSite(site.id); } };
+        list.appendChild(card);
+    });
+
+    document.getElementById('statSelected').textContent = selected.length;
+    const distText = totalDistance().toFixed(2) + ' كم';
+    document.getElementById('statDist').textContent = distText;
+    document.getElementById('summaryDist').textContent = distText;
+}
+// --- Info Cards ---
+        function updateInfoCards() {
+            const container = document.getElementById('infoCardsContainer');
+            const totalSites = sites.length;
+            const selectedCount = selected.length;
+            const dist = selected.length > 1 ? totalDistance(selected).toFixed(2) + ' كم' : '-';
+
+            container.innerHTML = `
+                <div class="info-card"><span class="icon">📍</span><div class="content"><span class="value">${totalSites}</span><span class="label">عدد الدروب</span></div></div>
+                <div class="info-card"><span class="icon">🚶</span><div class="content"><span class="value">${selectedCount}</span><span class="label">المختارة</span></div></div>
+                <div class="info-card"><span class="icon">📏</span><div class="content"><span class="value">${dist}</span><span class="label">طول المسار</span></div></div>
+            `;
+        }
+document.getElementById('resetBtn').onclick = () => { selected = [...DEFAULT_ROUTE]; render(); };
+render();
+
+const bounds = L.latLngBounds(sites.map(s => [s.lat, s.lon]).concat([[busLat, busLon]]));
+map.fitBounds(bounds, { padding: [40, 40] });
+
+const modal = document.getElementById('siteModal');
+function openModal(id) {
+    const site = sites.find(s => s.id === id);
+    document.getElementById('modalMedia').innerHTML = `<div class="emoji">${site.emoji}</div><div class="cap">صورة توضيحية — بانتظار صورة حقيقية من أرشيف البلدية</div>`;
+    document.getElementById('modalVideo').innerHTML = `<span class="play">▶</span>فيديو الموقع — أضيفي رابط الفيديو الخاص بـ«${site.path}» هنا لاحقًا`;
+    document.getElementById('modalSiteName').textContent = site.name;
+    document.getElementById('modalPathName').textContent = site.path;
+    document.getElementById('modalText').textContent = site.text;
+    const btn = document.getElementById('modalToggleBtn');
+    const isSel = selected.includes(id);
+    btn.textContent = isSel ? 'إزالة من المسار' : 'إضافة إلى المسار';
+    btn.className = 'modal-toggle' + (isSel ? ' remove' : '');
+    btn.onclick = () => { toggleSite(id); openModal(id); };  
+    modal.classList.add('open');
+}
+document.getElementById('modalClose').onclick = () => modal.classList.remove('open');
+modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
+</script>
+</body>
+</html>
