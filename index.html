@@ -79,11 +79,21 @@ h1,h2,h3,h4{font-family: var(--f-display);}
 }
 .brand{display:flex; align-items:center; gap:12px;}
 .brand-logo{
-  width:44px; height:44px; border-radius:50%;
-  background: linear-gradient(145deg, var(--c-green-500), var(--c-green-800));
-  display:flex; align-items:center; justify-content:center;
-  color:var(--c-white); font-family:var(--f-display); font-weight:800; font-size:18px;
-  box-shadow: var(--shadow-card);
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+
+.brand-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
 }
 .brand-text{display:flex; flex-direction:column; line-height:1.1;}
 .brand-text strong{font-family:var(--f-display); font-size:15px; color:var(--c-green-800);}
@@ -399,10 +409,13 @@ h1,h2,h3,h4{font-family: var(--f-display);}
 <!-- الشريط العلوي -->
 <header class="site-header">
   <div class="brand">
-    <div class="brand-logo">سلفيت</div>
+    <div class="brand-logo">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCl4deI84ZCCdkUD1yyM9GnKWayG_iIUuD5sjbGJlrmgrcwysQ3bnjpy5H&s=10" alt="شعار بلدية سلفيت">
+    </div>
+
     <div class="brand-text">
       <strong>منتزه بلدية سلفيت</strong>
-      <span> بلدية سلفيت - برئاسة الأستاذ ضياء بني نمرة  </span>
+      <span>بلدية سلفيت - برئاسة الأستاذ ضياء بني نمرة</span>
     </div>
   </div>
   <nav class="main-nav">
