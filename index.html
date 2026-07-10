@@ -1516,33 +1516,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /* ---------------- أزرار الصفحة الرئيسية ---------------- */
-  function wireHomeButtons() {
-    document.getElementById('btn-start-trip').addEventListener('click', async () => {
+function open(src, poster) {
+  const player = document.getElementById('video-player');
 
-function wireHomeButtons() {
+  player.src = src;
+  if (poster) player.poster = poster;
 
-  document.getElementById('btn-start-trip').addEventListener('click', () => {
-    ParkVideo.open("https://demamadi.github.io/mayor.mp4");
-  });
+  document.getElementById('video-modal').classList.add('visible');
 
-  document.getElementById('btn-start-nav').addEventListener('click', () => {
-    goToMapAndNavigate();
-  });
-
-  document.getElementById('btn-locate-me').addEventListener('click', () => {
-    ParkUI.showView('map');
-    locateOnce();
-  });
-
-  document.getElementById('btn-show-facilities').addEventListener('click', () => {
-    ParkUI.showView('facilities');
-  });
-
-  document.getElementById('arrival-explore-btn').addEventListener('click', () => {
-    ParkUI.hideArrivalOverlay();
-    ParkUI.showView('facilities');
-  });
-
+  player.load();
+  player.play().catch(() => {});
 }
     document.getElementById('btn-locate-me').addEventListener('click', () => {
       ParkUI.showView('map');
