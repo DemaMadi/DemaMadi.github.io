@@ -532,7 +532,7 @@ h1,h2,h3,h4{font-family: var(--f-display);}
 <footer class="site-footer">
   <div class="container">
     <p><strong>منتزه بلدية سلفيت</strong> — جميع الحقوق محفوظة لبلدية سلفيت © <span id="footer-year"></span><br>
-    هذا الدليل  يعتمد بالكامل على بيانات المسار والمفارق الرسمية لبلدية سلفيت.</p>
+    </p>
   </div>
 </footer>
 
@@ -1516,17 +1516,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /* ---------------- أزرار الصفحة الرئيسية ---------------- */
-function open(src, poster) {
+  function wireHomeButtons() {
+    document.getElementById('btn-start-trip').addEventListener('click', async () => {
+
   const player = document.getElementById('video-player');
 
-  player.src = src;
-  if (poster) player.poster = poster;
+  player.src = "mayor.mp4";
 
   document.getElementById('video-modal').classList.add('visible');
 
   player.load();
+
+  try {
+    if (player.requestFullscreen) {
+      await player.requestFullscreen();
+    } else if (player.webkitRequestFullscreen) {
+      player.webkitRequestFullscreen();
+    }
+  } catch (e) {}
+
   player.play().catch(() => {});
-}
+
+});
     document.getElementById('btn-locate-me').addEventListener('click', () => {
       ParkUI.showView('map');
       locateOnce();
