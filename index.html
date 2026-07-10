@@ -1,1606 +1,1587 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
-<meta name="theme-color" content="#263216">
-<title>مسار دروب الزيتون </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>منتزه بلدية سلفيت | DM </title>
 <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCl4deI84ZCCdkUD1yyM9GnKWayG_iIUuD5sjbGJlrmgrcwysQ3bnjpy5H&s=10">
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<meta name="description" content="الدليل التفاعلي الرسمي لمنتزه بلدية سلفيت — ملاحة حية، مرافق، وخدمات">
+
+<!-- خطوط عربية -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
+
+<!-- Leaflet -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+
 <style>
+/* ============================================================
+   منتزه بلدية سلفيت — Style Sheet
+   نظام تصميم: أخضر المنتزه + الذهبي + الرمادي الفاتح
+   ============================================================ */
+
 :root{
-  --bg:#EDE6D6; --ink:#24291C; --ink-soft:#52573F;
-  --olive:#566B3B; --olive-dark:#37451F; --olive-deep:#263216;
-  --clay:#a82e2e; --clay-dark:#7E3D20;
-  --gold:#F4C95D; --gold-soft:#FFE9A8;
-  --transit:#FFC93C; --transit-dark:#B58020;
-  --line:#C9A227; --paper:#F7F5EC; --paper-2:#FFFFFF;
-  --radius:10px; --shadow:0 6px 20px rgba(38,50,22,.18);
-  --shadow-soft:0 2px 8px rgba(38,50,22,.10);
-  --blue:#2563EB; --blue-soft:#DBEAFE;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;overflow:hidden}
-body{font-size:14px;line-height:1.5}
-::selection{background:var(--gold);color:var(--ink)}
-button{font-family:inherit;cursor:pointer}
-input,select{font-family:inherit}
+  /* الألوان */
+  --c-green-50:  #EEF4E8;
+  --c-green-200: #BFDCA9;
+  --c-green-500: #6E9F55;
+  --c-green-600: #557E40;
+  --c-green-800: #2F4A25;
+  --c-gold:      #C9A15A;
+  --c-gold-dark: #A47F3B;
+  --c-white:     #FFFFFF;
+  --c-gray-50:   #F5F6F3;
+  --c-gray-100:  #ECEEE9;
+  --c-gray-300:  #D6D9D1;
+  --c-text:      #263120;
+  --c-text-soft: #5B6656;
 
-/* ============ TOPBAR ============ */
-.topbar{
-  position:sticky;top:0;z-index:800;
-  display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;
-  background:linear-gradient(90deg,var(--olive-deep),var(--olive-dark));
-  color:var(--paper);box-shadow:0 2px 10px rgba(0,0,0,.25);
-}
-.municipality-logo{
-  width:48px;height:48px;object-fit:contain;border-radius:10px;
-  background:rgba(255,255,255,.1);padding:4px;flex:0 0 auto;
-}
-.topbar-text{flex:0 0 auto;display:flex;flex-direction:column;line-height:1.1}
-.topbar-text b{font-family:'Amiri',serif;font-size:1.05rem}
-.topbar-text span{font-size:.7rem;color:#D9D9C4}
-.topbar-stats{display:flex;gap:.4rem;margin-inline-start:auto;flex-wrap:wrap}
-.chip{
-  display:flex;align-items:baseline;gap:.3rem;
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-  border-radius:999px;padding:.28rem .75rem;
-}
-.chip b{font-family:'Amiri',serif;font-size:.95rem;color:#F4E9C6}
-.chip span{font-size:.66rem;color:#D9D9C4}
-.device-toggle{
-  display:flex;gap:3px;background:rgba(255,255,255,.08);padding:3px;
-  border-radius:8px;border:1px solid rgba(255,255,255,.15);flex:0 0 auto;
-}
-.device-toggle button{
-  background:transparent;border:none;color:#D9D9C4;
-  padding:.32rem .55rem;border-radius:6px;font-size:.75rem;
-  display:flex;align-items:center;gap:.25rem;
-}
-.device-toggle button.active{background:var(--paper);color:var(--olive-dark);font-weight:700}
-.device-toggle button span{display:none}
-@media (min-width:900px){ .device-toggle button span{display:inline} }
+  /* الطباعة */
+  --f-display: 'Cairo', 'Segoe UI', sans-serif;
+  --f-body: 'Almarai', 'Segoe UI', sans-serif;
 
-/* ============ INFO BAR (collapsible) ============ */
-.info-bar{
-  display:grid;grid-template-columns:repeat(6,minmax(0,1fr)) auto;
-  gap:.5rem;padding:.6rem 1rem;background:var(--paper-2);
-  border-bottom:1px solid var(--line);transition:max-height .3s ease,padding .3s ease,opacity .25s ease;
-  max-height:200px;overflow:hidden;
-}
-.info-bar.collapsed{max-height:0;padding:0 1rem;border-bottom:0;opacity:0}
-.info-cell{display:flex;align-items:center;gap:.5rem;min-width:0;padding:.15rem 0}
-.info-cell .ic-ico{font-size:1.1rem;flex:0 0 auto}
-.info-cell .ic-content{min-width:0;flex:1}
-.info-cell .ic-label{font-size:.65rem;color:var(--ink-soft);display:block;letter-spacing:.2px}
-.info-cell .ic-value{font-size:.92rem;font-weight:700;color:var(--ink);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.info-cell .ic-value small{font-weight:400;color:var(--ink-soft);font-size:.72rem;margin-inline-start:.2rem}
-.difficulty{display:inline-flex;align-items:center;gap:2px}
-.difficulty .sq{
-  width:8px;height:12px;border-radius:2px;background:#e7e3d3;border:1px solid #cdc8b3;
-}
-.difficulty .sq.on{background:var(--olive);border-color:var(--olive-dark)}
-.stars{color:var(--gold);font-size:.85rem;letter-spacing:1px}
-.stars .empty{color:#d0d0c5}
-.info-bar-toggle{
-  background:var(--olive);color:var(--paper);border:none;border-radius:8px;
-  padding:.45rem .8rem;font-size:.74rem;display:flex;align-items:center;gap:.3rem;
-  align-self:center;flex:0 0 auto;transition:background .15s ease;
-}
-.info-bar-toggle:hover{background:var(--olive-dark)}
-@media (max-width:1100px){
-  .info-bar{grid-template-columns:repeat(4,minmax(0,1fr)) auto}
-  .info-bar .info-cell:nth-child(5),.info-bar .info-cell:nth-child(6){display:none}
-}
-@media (max-width:768px){ .info-bar{display:none} }
-
-/* ============ LAYOUT ============ */
-.layout{
-  display:grid;grid-template-columns:300px 1fr 320px;
-  height:calc(100vh - 56px);
-  transition:grid-template-columns .25s ease;
-}
-@media (max-width:1180px){ .layout{grid-template-columns:280px 1fr;}.panel-right{display:none} }
-@media (max-width:768px){ .layout{grid-template-columns:1fr;height:calc(100vh - 56px)}.panel-left{display:none} }
-
-/* ============ LEFT PANEL ============ */
-.panel-left{
-  background:var(--paper);border-inline-start:1px solid var(--line);
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.panel-head{
-  padding:.75rem .9rem;border-bottom:1px solid var(--line);background:var(--paper-2);
-}
-.panel-head h2{font-family:'Amiri',serif;font-size:1.05rem;margin:0 0 .15rem;color:var(--ink)}
-.panel-head p{font-size:.74rem;color:var(--ink-soft);margin:0;line-height:1.5}
-.route-summary{
-  display:flex;justify-content:space-between;align-items:center;
-  background:var(--bg);border:1px dashed var(--line);border-radius:var(--radius);
-  padding:.5rem .7rem;margin:.65rem .9rem;
-}
-.route-summary b{font-family:'Amiri',serif;font-size:.98rem;color:var(--clay-dark)}
-.route-summary span{font-size:.7rem;color:var(--ink-soft)}
-.reset-btn{
-  background:none;border:1px solid var(--clay);color:var(--clay-dark);
-  padding:.28rem .6rem;border-radius:var(--radius);font-size:.72rem;
-  transition:all .15s ease;
-}
-.reset-btn:hover{background:var(--clay);color:var(--paper)}
-.stop-list{flex:1;overflow-y:auto;padding:.15rem .4rem .5rem}
-.stop-card{
-  display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .45rem;
-  border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s ease;
-  border-radius:6px;margin:2px 0;
-}
-.stop-card:hover{background:rgba(86,107,59,.08)}
-.stop-card.active{background:rgba(86,107,59,.14);border-inline-start:3px solid var(--olive);padding-inline-start:calc(.45rem - 3px)}
-.badge{
-  flex:0 0 auto;width:25px;height:25px;border-radius:50%;
-  border:1.5px solid var(--olive);color:var(--olive-dark);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Amiri',serif;font-size:.85rem;background:var(--paper-2);
-}
-.stop-card.active .badge{background:var(--olive);color:var(--paper)}
-.stop-info{flex:1;min-width:0}
-.stop-info b{display:block;font-size:.88rem;color:var(--ink);font-family:'Amiri',serif}
-.site-desc-tag{display:block;margin-top:.15rem;font-size:.68rem;color:var(--ink-soft)}
-.info-btn{
-  margin-top:.25rem;font-size:.68rem;color:var(--clay-dark);
-  background:none;border:none;padding:0;cursor:pointer;text-decoration:underline dashed;
-}
-.transit-card{
-  display:flex;align-items:flex-start;gap:.6rem;margin:.7rem .9rem;
-  padding:.55rem .55rem;border:1px dashed var(--transit-dark);border-radius:var(--radius);
-  background:rgba(255,201,60,.10);
-}
-.transit-icon{
-  flex:0 0 auto;width:28px;height:28px;border-radius:50%;
-  background:var(--transit-dark);display:flex;align-items:center;justify-content:center;font-size:.95rem;
-}
-.transit-card b{display:block;font-size:.85rem;color:var(--ink)}
-.transit-card span{font-size:.7rem;color:var(--ink-soft)}
-.legend{margin:.7rem .9rem 1rem;padding-top:.7rem;border-top:1px solid var(--line)}
-.legend h3{font-size:.78rem;margin:0 0 .45rem;color:var(--ink-soft);font-weight:700}
-.legend-row{display:flex;align-items:center;gap:.5rem;font-size:.74rem;margin-bottom:.35rem;color:var(--ink-soft)}
-.swatch{width:14px;height:14px;border-radius:50%;flex:0 0 auto}
-.swatch.site{background:var(--clay);border:2px solid var(--paper-2);box-shadow:0 0 0 1px var(--clay)}
-.swatch.route{background:var(--clay-dark);width:18px;height:4px;border-radius:2px}
-.swatch.transit{width:18px;height:5px;border-radius:3px;background:var(--transit);border:1px solid var(--transit-dark)}
-.swatch.stop{background:#2C5B8A}
-
-/* ============ MAP AREA ============ */
-.map-area{position:relative;overflow:hidden}
-#map{height:100%;width:100%;background:#e8e8e8}
-.leader-overlay{
-  position:absolute;inset:0;width:100%;height:100%;
-  pointer-events:none;z-index:550;
+  /* أخرى */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --shadow-card: 0 8px 30px rgba(47, 74, 37, 0.12);
+  --shadow-float: 0 12px 40px rgba(38, 49, 32, 0.22);
+  --header-h: 72px;
 }
 
-/* ============ MAP CONTROLS ============ */
-.map-controls{
-  position:absolute;z-index:600;display:flex;flex-direction:column;gap:6px;
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family: var(--f-body);
+  color: var(--c-text);
+  background: var(--c-gray-50);
+  direction: rtl;
+  text-align: right;
+  overflow-x:hidden;
 }
-.map-controls.right{top:14px;right:14px}
-.map-controls.left{top:14px;left:14px}
-.map-controls .mc-btn{
-  width:42px;height:42px;border-radius:10px;
-  background:var(--paper-2);border:1px solid var(--line);
-  box-shadow:var(--shadow-soft);display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;color:var(--ink);transition:all .15s ease;
-}
-.map-controls .mc-btn:hover{background:var(--olive);color:var(--paper);transform:translateY(-1px)}
-.map-controls .mc-btn.active{background:var(--olive);color:var(--paper);border-color:var(--olive-dark)}
-.map-controls .mc-divider{height:1px;background:var(--line);margin:2px 0}
-.popup-menu{
-  position:absolute;z-index:650;background:var(--paper-2);border-radius:10px;
-  box-shadow:var(--shadow);padding:.4rem;min-width:180px;display:none;
-  border:1px solid var(--line);
-}
-.popup-menu.open{display:block;animation:popIn .18s ease}
-@keyframes popIn{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
-.popup-menu .pm-title{font-size:.7rem;color:var(--ink-soft);padding:.3rem .6rem .1rem;font-weight:700;letter-spacing:.3px}
-.popup-menu button{
-  width:100%;background:none;border:none;padding:.5rem .7rem;text-align:start;
-  border-radius:6px;font-size:.82rem;color:var(--ink);display:flex;align-items:center;gap:.5rem;
-}
-.popup-menu button:hover{background:var(--bg)}
-.popup-menu button.active{background:var(--olive);color:var(--paper)}
-.popup-menu .switch-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:.45rem .7rem;font-size:.82rem;
-}
-.popup-menu .switch-row .switch{
-  position:relative;width:34px;height:18px;background:#d4cfba;border-radius:999px;
-  transition:background .15s;cursor:pointer;
-}
-.popup-menu .switch-row .switch::after{
-  content:"";position:absolute;top:2px;right:2px;width:14px;height:14px;
-  background:var(--paper-2);border-radius:50%;transition:transform .15s;
-}
-.popup-menu .switch-row .switch.on{background:var(--olive)}
-.popup-menu .switch-row .switch.on::after{transform:translateX(-16px)}
+img{max-width:100%; display:block;}
+button{font-family:inherit; cursor:pointer; border:none;}
+a{color:inherit; text-decoration:none;}
+h1,h2,h3,h4{font-family: var(--f-display);}
+.hidden{display:none !important;}
+.container{max-width:1180px; margin:0 auto; padding:0 24px;}
 
-/* mini-map legend on bottom-left */
-.map-legend{
-  position:absolute;bottom:14px;left:14px;z-index:600;
-  background:rgba(247,245,236,.95);border:1px solid var(--line);
-  border-radius:8px;padding:.55rem .75rem;font-size:.72rem;color:var(--ink-soft);
-  box-shadow:var(--shadow-soft);max-width:200px;backdrop-filter:blur(4px);
+/* ===================== شريط علوي ===================== */
+.site-header{
+  position:fixed; inset-inline:0; top:0; z-index:500;
+  height:var(--header-h);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--c-gray-300);
+  transition: background .3s;
 }
-.map-legend .legend-row{margin-bottom:.3rem}
-.map-legend .legend-row:last-child{margin-bottom:0}
-@media (max-width:768px){ .map-legend{display:none} }
+.brand{display:flex; align-items:center; gap:12px;}
+.brand-logo{
+  width:44px; height:44px; border-radius:50%;
+  background: linear-gradient(145deg, var(--c-green-500), var(--c-green-800));
+  display:flex; align-items:center; justify-content:center;
+  color:var(--c-white); font-family:var(--f-display); font-weight:800; font-size:18px;
+  box-shadow: var(--shadow-card);
+}
+.brand-text{display:flex; flex-direction:column; line-height:1.1;}
+.brand-text strong{font-family:var(--f-display); font-size:15px; color:var(--c-green-800);}
+.brand-text span{font-size:11px; color:var(--c-text-soft);}
+.main-nav{display:flex; gap:6px;}
+.main-nav button{
+  padding:9px 16px; border-radius:999px; background:transparent;
+  font-weight:700; font-size:14px; color:var(--c-text-soft);
+  transition:.25s;
+}
+.main-nav button.active, .main-nav button:hover{
+  background: var(--c-green-50); color:var(--c-green-800);
+}
 
-/* ============ RIGHT PANEL (NAV) ============ */
-.panel-right{
-  background:var(--paper);border-inline-start:1px solid var(--line);
-  display:flex;flex-direction:column;overflow:hidden;
+/* ===================== الصفحة الرئيسية / Hero ===================== */
+.view{ padding-top: var(--header-h); min-height:100vh; }
+.hero{
+  position:relative;
+  min-height: 92vh;
+  display:flex; align-items:center; justify-content:center;
+  text-align:center;
+  overflow:hidden;
+  background: linear-gradient(180deg, rgba(24,38,18,.55), rgba(24,38,18,.72)),
+              url('../images/park-hero.jpg') center/cover no-repeat;
+  background-color: var(--c-green-800);
 }
-.nav-head{display:flex;align-items:center;gap:.5rem}
-.nav-head .dot{
-  width:9px;height:9px;border-radius:50%;background:var(--olive);
-  box-shadow:0 0 0 4px rgba(86,107,59,.18);animation:pulse 2s infinite;flex:0 0 auto;
+.hero::after{
+  content:"";
+  position:absolute; inset-inline:0; bottom:0; height:140px;
+  background: linear-gradient(180deg, transparent, var(--c-gray-50));
 }
-@keyframes pulse{
-  0%{box-shadow:0 0 0 0 rgba(86,107,59,.5)}
-  70%{box-shadow:0 0 0 12px rgba(86,107,59,0)}
-  100%{box-shadow:0 0 0 0 rgba(86,107,59,0)}
+.hero-content{position:relative; z-index:2; color:var(--c-white); max-width:720px; padding:0 20px;}
+.hero-eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3);
+  padding:6px 16px; border-radius:999px; font-size:13px; font-weight:700;
+  margin-bottom:22px; letter-spacing:.5px;
 }
-.transport-bar{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:.55rem .7rem;
-  background:var(--paper-2);border-bottom:1px solid var(--line);
+.hero-eyebrow::before{content:"●"; color:var(--c-gold); font-size:10px;}
+.hero h1{font-size:clamp(34px,6vw,58px); font-weight:800; line-height:1.15; margin-bottom:18px;}
+.hero h1 em{font-style:normal; color:var(--c-gold);}
+.hero p{font-size:17px; line-height:1.9; color:rgba(255,255,255,.88); max-width:560px; margin:0 auto 34px;}
+.hero-actions{display:flex; flex-wrap:wrap; gap:14px; justify-content:center;}
+
+.btn{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:14px 26px; border-radius:999px; font-weight:800; font-size:15px;
+  transition: transform .2s, box-shadow .2s, background .2s;
 }
-.transport-bar button{
-  background:var(--bg);border:1px solid transparent;padding:.5rem .25rem;
-  border-radius:8px;font-size:.7rem;color:var(--ink);display:flex;flex-direction:column;
-  align-items:center;gap:.18rem;transition:all .15s ease;
+.btn:active{transform:scale(.97);}
+.btn-primary{background: var(--c-gold); color:#2A1F0C; box-shadow:0 10px 24px rgba(201,161,90,.45);}
+.btn-primary:hover{background:var(--c-gold-dark); box-shadow:0 12px 28px rgba(164,127,59,.5);}
+.btn-outline{background:rgba(255,255,255,.08); color:var(--c-white); border:1.5px solid rgba(255,255,255,.6);}
+.btn-outline:hover{background:rgba(255,255,255,.2);}
+.btn-solid{background:var(--c-green-600); color:var(--c-white); box-shadow:0 10px 22px rgba(85,126,64,.35);}
+.btn-solid:hover{background:var(--c-green-800);}
+.btn-ghost{background:var(--c-green-50); color:var(--c-green-800);}
+.btn-ghost:hover{background:var(--c-green-200);}
+.btn-sm{padding:9px 16px; font-size:13px;}
+
+/* عن المنتزه */
+.about-section{padding:80px 0; background:var(--c-white);}
+.about-grid{display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center;}
+.section-eyebrow{color:var(--c-gold-dark); font-weight:800; font-size:13px; letter-spacing:1px; margin-bottom:10px;}
+.about-grid h2{font-size:32px; color:var(--c-green-800); margin-bottom:18px; line-height:1.4;}
+.about-grid p{color:var(--c-text-soft); line-height:2; font-size:15.5px; margin-bottom:24px;}
+.about-stats{display:flex; gap:28px; flex-wrap:wrap;}
+.about-stats div strong{display:block; font-family:var(--f-display); font-size:26px; color:var(--c-green-700, var(--c-green-600));}
+.about-stats div span{font-size:12.5px; color:var(--c-text-soft);}
+.about-visual{
+  border-radius: var(--radius-lg); overflow:hidden; aspect-ratio:4/3.2;
+  background: linear-gradient(135deg, var(--c-green-200), var(--c-green-50)) url('../images/park-about.jpg') center/cover no-repeat;
+  box-shadow: var(--shadow-card);
 }
-.transport-bar button .ico{font-size:1.15rem}
-.transport-bar button.active{background:var(--olive);color:var(--paper);border-color:var(--olive)}
-.transport-bar button:hover:not(.active){background:var(--paper-2);border-color:var(--line)}
-.nav-content{flex:1;overflow-y:auto;padding:.7rem .8rem 1rem}
+
+/* ===================== خريطة الملاحة ===================== */
+#view-map{padding-top:0;}
+.map-wrap{position:relative; height:100vh; width:100%;}
+#leaflet-map{position:absolute; inset:0; z-index:1;}
+
+/* بطاقة الملاحة العلوية */
 .nav-card{
-  background:var(--paper-2);border-radius:var(--radius);padding:.7rem .85rem;
-  box-shadow:var(--shadow-soft);border:1px solid var(--line);
+  position:absolute; top:calc(var(--header-h) + 14px); right:16px; left:16px;
+  max-width:480px; margin:0 auto;
+  background:var(--c-white); border-radius:var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  z-index:400; overflow:hidden;
+  transform: translateY(-140%); transition: transform .35s ease;
 }
-.nav-row{
-  display:flex;align-items:center;gap:.55rem;padding:.4rem 0;
-  border-bottom:1px dashed rgba(86,107,59,.18);
+.nav-card.visible{transform: translateY(0);}
+.nav-card-top{display:flex; align-items:center; gap:16px; padding:18px 20px 14px;}
+.nav-maneuver{
+  width:52px; height:52px; border-radius:50%; flex-shrink:0;
+  background: var(--c-green-50); color:var(--c-green-700, var(--c-green-600));
+  display:flex; align-items:center; justify-content:center; font-size:26px;
 }
-.nav-row:last-child{border-bottom:none}
-.nav-row .n-ico{font-size:1rem;flex:0 0 auto;width:26px;text-align:center}
-.nav-row .n-content{flex:1;min-width:0}
-.nav-row .n-label{font-size:.66rem;color:var(--ink-soft);display:block;letter-spacing:.2px}
-.nav-row .n-value{font-size:.88rem;font-weight:700;color:var(--ink)}
-.nav-row .n-value small{font-weight:400;color:var(--ink-soft);font-size:.7rem;margin-inline-start:.25rem}
-
-.directions-card{margin-top:.7rem}
-.directions-card h3{
-  font-family:'Amiri',serif;font-size:1rem;margin:0 0 .45rem;
-  display:flex;align-items:center;gap:.4rem;color:var(--ink);
+.nav-maneuver.arrived{background:var(--c-gold); color:#2A1F0C;}
+.nav-info{flex:1; min-width:0;}
+.nav-distance{font-family:var(--f-display); font-weight:800; font-size:20px; color:var(--c-green-800);}
+.nav-instruction{font-size:13.5px; color:var(--c-text-soft); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.nav-eta{font-size:12px; color:var(--c-gold-dark); font-weight:700; margin-top:2px;}
+.nav-progress-wrap{padding:0 20px 16px;}
+.trail-track{position:relative; height:10px; border-radius:999px; background:var(--c-gray-100); overflow:visible; direction:ltr;}
+.trail-fill{
+  position:absolute; left:0; top:0; bottom:0; border-radius:999px;
+  background: linear-gradient(90deg, var(--c-green-500), var(--c-gold));
+  width:0%; transition:width .5s ease;
 }
-.directions-card h3::before{content:"🧭";font-size:.95rem}
-.dir-list{display:flex;flex-direction:column;gap:.4rem}
-.dir-step{
-  display:flex;align-items:flex-start;gap:.55rem;padding:.55rem .6rem;
-  background:var(--paper-2);border:1px solid var(--line);border-radius:8px;
-  transition:all .2s ease;cursor:pointer;
+.trail-pin{
+  position:absolute; top:50%; left:0; transform:translate(-50%,-50%);
+  width:18px; height:18px; border-radius:50%; background:var(--c-white);
+  border:3px solid var(--c-gold); box-shadow:0 2px 6px rgba(0,0,0,.25);
+  transition: left .5s ease;
 }
-.dir-step:hover{background:#fdfaf0;border-color:var(--olive)}
-.dir-step.active{background:rgba(86,107,59,.12);border-color:var(--olive);box-shadow:0 0 0 2px rgba(86,107,59,.15)}
-.dir-step .step-num{
-  flex:0 0 auto;width:26px;height:26px;border-radius:50%;
-  background:var(--bg);display:flex;align-items:center;justify-content:center;
-  font-family:'Amiri',serif;font-size:.82rem;color:var(--olive-dark);
-}
-.dir-step.active .step-num{background:var(--olive);color:var(--paper)}
-.dir-step .step-content{flex:1;min-width:0}
-.dir-step .step-action{font-size:.84rem;font-weight:600;color:var(--ink);line-height:1.4}
-.dir-step .step-meta{font-size:.7rem;color:var(--ink-soft);margin-top:.15rem;display:flex;gap:.7rem;flex-wrap:wrap}
-.dir-step .step-meta span::before{content:"·";margin:0 .25rem;opacity:.5}
-.dir-step .step-meta span:first-child::before{display:none}
-
-/* ============ MARKERS / SMART LABELS ============ */
-.site-pin{position:relative;width:34px;height:42px;cursor:pointer;z-index:600}
-.site-pin .pin-shape{
-  position:absolute;top:0;left:0;width:34px;height:34px;
-  border-radius:50% 50% 50% 0;transform:rotate(-45deg);
-  background:var(--clay);border:2px solid var(--paper-2);
-  box-shadow:0 3px 8px rgba(0,0,0,.5);
-  transition:all .15s ease;
-}
-.site-pin.start .pin-shape{background:var(--olive)}
-.site-pin.end .pin-shape{background:var(--gold);border-color:var(--olive-dark)}
-.site-pin.selected .pin-shape{background:var(--clay-dark)}
-.site-pin:hover .pin-shape{transform:rotate(-45deg) scale(1.08)}
-.site-pin .pin-num{
-  position:absolute;top:0;left:0;width:34px;height:34px;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--paper);font-family:'Amiri',serif;font-weight:700;font-size:.9rem;
-  transform:translateY(-2px);
-}
-.site-pin.start .pin-num,.site-pin.end .pin-num{color:var(--ink);transform:translateY(-2px)}
-.site-pin .pin-dot{
-  position:absolute;top:8px;left:8px;width:18px;height:18px;
-  border-radius:50%;background:var(--paper-2);transform:rotate(45deg);
-}
-.start-flag::after{
-  content:"🚩";position:absolute;top:-14px;left:50%;transform:translateX(-50%);
-  font-size:1.05rem;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));
-}
-.end-flag::after{
-  content:"🏁";position:absolute;top:-14px;left:50%;transform:translateX(-50%);
-  font-size:1.05rem;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));
+.nav-close{
+  position:absolute; top:14px; left:14px; width:30px; height:30px; border-radius:50%;
+  background:var(--c-gray-100); color:var(--c-text-soft); font-size:16px;
+  display:flex; align-items:center; justify-content:center;
 }
 
-.smart-label{
-  font-family:'Tajawal',sans-serif;font-weight:700;font-size:.74rem;color:var(--ink);
-  background:var(--paper-2);border:1.5px solid var(--clay);border-radius:6px;
-  padding:3px 10px;white-space:nowrap;box-shadow:var(--shadow-soft);
-  cursor:pointer;transition:all .15s ease;
+/* أزرار عائمة على الخريطة */
+.map-fab-group{
+  position:absolute; bottom:28px; left:16px; z-index:400;
+  display:flex; flex-direction:column; gap:10px;
 }
-.smart-label.start{border-color:var(--olive);background:#eef3e1}
-.smart-label.end{border-color:var(--gold);background:var(--gold-soft);color:var(--ink)}
-.smart-label.muted{opacity:.5}
-.smart-label:hover,.smart-label.highlight{background:var(--olive);color:var(--paper);border-color:var(--olive-dark);transform:translateY(-1px)}
-.leader-line{stroke:var(--clay);stroke-width:1.2;stroke-dasharray:3 2;fill:none;opacity:.85}
-.leader-line.start{stroke:var(--olive)}
-.leader-line.end{stroke:#a07a18}
-
-.bus-pin{
-  width:32px;height:32px;border-radius:50%;background:#2C5B8A;
-  border:2.5px solid var(--paper-2);display:flex;align-items:center;justify-content:center;
-  font-size:1rem;box-shadow:0 2px 6px rgba(0,0,0,.5);
+.fab{
+  width:50px; height:50px; border-radius:50%; background:var(--c-white);
+  box-shadow:var(--shadow-card); display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:var(--c-green-700, var(--c-green-600));
 }
-.user-marker{
-  width:18px;height:18px;border-radius:50%;background:var(--blue);
-  border:3px solid var(--paper-2);box-shadow:0 0 0 0 rgba(37,99,235,.5);
-  animation:pulse-blue 2s infinite;
-}
-@keyframes pulse-blue{
-  0%{box-shadow:0 0 0 0 rgba(37,99,235,.6)}
-  70%{box-shadow:0 0 0 18px rgba(37,99,235,0)}
-  100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}
+.fab:hover{background:var(--c-green-50);}
+.map-start-btn{
+  position:absolute; bottom:28px; right:16px; z-index:400;
 }
 
-/* ============ BOTTOM SHEET (mobile) ============ */
-.bottom-sheet{
-  position:fixed;left:0;right:0;bottom:0;z-index:900;
-  background:var(--paper);border-radius:18px 18px 0 0;
-  box-shadow:0 -8px 28px rgba(0,0,0,.25);
-  transform:translateY(calc(100% - 76px));
-  transition:transform .35s cubic-bezier(.2,.8,.2,1);
-  max-height:85vh;display:flex;flex-direction:column;
+/* رسالة الوصول */
+.arrival-overlay{
+  position:fixed; inset:0; z-index:900;
+  background: linear-gradient(180deg, rgba(24,38,18,.6), rgba(24,38,18,.85));
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .5s;
 }
-.bottom-sheet.open{transform:translateY(0)}
-.bottom-sheet.dragging{transition:none}
-.sheet-handle{
-  width:56px;height:5px;border-radius:3px;background:var(--line);
-  margin:8px auto;cursor:grab;
+.arrival-overlay.visible{opacity:1; pointer-events:all;}
+.arrival-card{
+  background:var(--c-white); border-radius:var(--radius-lg); padding:44px 36px;
+  text-align:center; max-width:420px; margin:0 20px;
+  transform: scale(.85); transition: transform .5s cubic-bezier(.17,.89,.32,1.28);
+  box-shadow: var(--shadow-float);
 }
-.sheet-handle:active{cursor:grabbing}
-.sheet-head{
-  display:flex;align-items:center;gap:.5rem;padding:0 1rem .55rem;
-  border-bottom:1px solid var(--line);
-}
-.sheet-head h2{font-family:'Amiri',serif;font-size:1rem;margin:0;flex:0 0 auto}
-.quick-stats{display:flex;gap:.6rem;margin-inline-start:auto}
-.quick-stats span{font-size:.66rem;color:var(--ink-soft)}
-.quick-stats b{font-family:'Amiri',serif;font-size:.95rem;color:var(--olive-dark);margin-inline-end:.2rem}
-.sheet-transport{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:.55rem .8rem;
-  background:var(--paper-2);border-bottom:1px solid var(--line);
-}
-.sheet-transport button{
-  background:var(--bg);border:1px solid transparent;padding:.5rem .25rem;
-  border-radius:8px;font-size:.7rem;color:var(--ink);display:flex;flex-direction:column;
-  align-items:center;gap:.15rem;
-}
-.sheet-transport button .ico{font-size:1.15rem}
-.sheet-transport button.active{background:var(--olive);color:var(--paper);border-color:var(--olive)}
-.sheet-body{padding:.7rem .8rem 1.2rem;overflow-y:auto}
+.arrival-overlay.visible .arrival-card{transform:scale(1);}
+.arrival-icon{font-size:52px; margin-bottom:14px;}
+.arrival-card h2{color:var(--c-green-800); font-size:26px; margin-bottom:10px;}
+.arrival-card p{color:var(--c-text-soft); margin-bottom:24px; line-height:1.8;}
 
-/* ============ MODAL ============ */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(20,22,12,.72);backdrop-filter:blur(2px);
-  display:flex;align-items:center;justify-content:center;z-index:2000;padding:1.2rem;
-  opacity:0;pointer-events:none;transition:opacity .18s ease;
+/* ===================== المرافق ===================== */
+.facilities-section{padding:70px 0 100px;}
+.section-head{text-align:center; max-width:620px; margin:0 auto 44px;}
+.section-head h2{font-size:30px; color:var(--c-green-800); margin-bottom:10px;}
+.section-head p{color:var(--c-text-soft); line-height:1.8;}
+
+.facility-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:26px;
 }
-.modal-overlay.open{opacity:1;pointer-events:auto}
-.modal-card{
-  background:var(--paper);width:min(560px,100%);max-height:90vh;overflow-y:auto;
-  border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;
-  animation:modalIn .25s ease;
+.facility-card{
+  background:var(--c-white); border-radius:var(--radius-md); overflow:hidden;
+  box-shadow:var(--shadow-card); transition:transform .25s, box-shadow .25s;
+  display:flex; flex-direction:column;
 }
-@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+.facility-card:hover{transform:translateY(-6px); box-shadow:var(--shadow-float);}
+.facility-thumb{aspect-ratio:16/11; background-size:cover; background-position:center; position:relative;}
+.facility-thumb span{
+  position:absolute; top:12px; inset-inline-start:12px;
+  background:rgba(255,255,255,.92); color:var(--c-green-800);
+  font-size:12px; font-weight:800; padding:5px 12px; border-radius:999px;
+}
+.facility-body{padding:18px 18px 20px; display:flex; flex-direction:column; gap:10px; flex:1;}
+.facility-body h3{font-size:18px; color:var(--c-green-800);}
+.facility-body p{font-size:13.5px; color:var(--c-text-soft); line-height:1.75; flex:1;}
+.facility-more{align-self:flex-start; font-weight:800; font-size:13.5px; color:var(--c-gold-dark); display:flex; align-items:center; gap:6px;}
+.facility-more::after{content:"←"; transition:transform .2s;}
+.facility-card:hover .facility-more::after{transform:translateX(-4px);}
+
+/* ===================== نافذة تفاصيل المرفق ===================== */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(20,28,16,.72); z-index:800;
+  display:flex; align-items:flex-end; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s;
+}
+.modal-backdrop.visible{opacity:1; pointer-events:all;}
+@media(min-width:760px){
+  .modal-backdrop{align-items:center;}
+}
+.modal-panel{
+  background:var(--c-white); width:100%; max-width:760px; max-height:92vh; overflow-y:auto;
+  border-radius:24px 24px 0 0; transform:translateY(40px); transition:transform .35s;
+}
+@media(min-width:760px){ .modal-panel{border-radius:var(--radius-lg);} }
+.modal-backdrop.visible .modal-panel{transform:translateY(0);}
+.modal-hero{aspect-ratio:16/8; background-size:cover; background-position:center; position:relative;}
 .modal-close{
-  position:absolute;top:10px;left:10px;z-index:5;width:32px;height:32px;
-  border-radius:50%;background:rgba(20,22,12,.55);color:#fff;border:none;
-  font-size:1.2rem;display:flex;align-items:center;justify-content:center;
+  position:absolute; top:16px; left:16px; width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,.9); font-size:18px; display:flex; align-items:center; justify-content:center;
 }
-.modal-media{
-  height:170px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.3rem;
-  background:linear-gradient(135deg,var(--olive-dark),var(--olive));
-  color:var(--paper);border-radius:12px 12px 0 0;
-}
-.modal-media .emoji{font-size:3rem;animation:emojiPop .4s ease}
-@keyframes emojiPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-media .cap{font-size:.7rem;opacity:.85}
-.modal-body{padding:1rem 1.2rem 1.3rem}
-.modal-body h3{font-family:'Amiri',serif;font-size:1.35rem;margin:.15rem 0 .5rem}
-.modal-body p{font-size:.88rem;line-height:1.85;color:var(--ink-soft);margin:0 0 .9rem}
-.modal-toggle{
-  width:100%;padding:.6rem;background:var(--olive);color:var(--paper);
-  border:none;border-radius:var(--radius);font-size:.85rem;
-  transition:background .15s ease;
-}
-.modal-toggle:hover{background:var(--olive-dark)}
-.modal-toggle.remove{background:var(--clay-dark)}
-.modal-toggle.remove:hover{background:#5e2e18}
+.modal-content{padding:28px 26px 40px;}
+.modal-content h3{font-size:24px; color:var(--c-green-800); margin-bottom:6px;}
+.modal-tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.modal-tags span{background:var(--c-green-50); color:var(--c-green-800); font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px;}
+.modal-content p{color:var(--c-text-soft); line-height:1.95; font-size:14.5px; margin-bottom:14px;}
+.modal-facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin:20px 0;}
+.modal-fact{background:var(--c-gray-50); border-radius:14px; padding:14px;}
+.modal-fact strong{display:block; font-size:13px; color:var(--c-green-800); margin-bottom:3px;}
+.modal-fact span{font-size:12.5px; color:var(--c-text-soft);}
+.modal-video-btn{margin-top:6px;}
 
-/* ============ DEVICE PREVIEW ============ */
-.preview-wrapper{transition:all .3s ease}
-.preview-wrapper.preview-mobile{
-  padding:24px;background:linear-gradient(135deg,#2a2a2a,#0e0e0e);min-height:100vh;
-  display:flex;align-items:flex-start;justify-content:center;
+/* ===================== معرض الصور ===================== */
+.gallery-strip{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; margin-top:14px;}
+.gallery-strip img{
+  width:110px; height:80px; object-fit:cover; border-radius:12px; flex-shrink:0;
+  cursor:zoom-in; transition:transform .2s;
 }
-.preview-wrapper.preview-mobile .layout{
-  width:390px;height:740px;border-radius:36px;border:10px solid #0e0e0e;
-  box-shadow:0 18px 70px rgba(0,0,0,.6);overflow:hidden;
-  grid-template-columns:1fr !important;
+.gallery-strip img:hover{transform:scale(1.04);}
+.lightbox{
+  position:fixed; inset:0; z-index:1000; background:rgba(10,14,8,.94);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s;
 }
-.preview-wrapper.preview-mobile .topbar{border-radius:26px 26px 0 0}
-.preview-wrapper.preview-mobile .info-bar{display:none}
-.preview-wrapper.preview-mobile .panel-left{display:none}
-.preview-wrapper.preview-mobile .panel-right{display:none}
-.preview-wrapper.preview-mobile .bottom-sheet{display:flex}
-.preview-wrapper.preview-mobile .device-toggle button span{display:none}
-
-.preview-wrapper.preview-tablet{
-  padding:24px;background:linear-gradient(135deg,#e5e0d2,#cdc6b3);min-height:100vh;
+.lightbox.visible{opacity:1; pointer-events:all;}
+.lightbox img{max-width:90vw; max-height:80vh; border-radius:8px; user-select:none;}
+.lightbox-close, .lightbox-nav{
+  position:absolute; color:var(--c-white); background:rgba(255,255,255,.12);
+  width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:20px;
 }
-.preview-wrapper.preview-tablet .layout{
-  max-width:1024px;margin:0 auto;border-radius:18px;
-  box-shadow:0 14px 50px rgba(0,0,0,.22);overflow:hidden;
+.lightbox-close{top:20px; left:20px;}
+.lightbox-prev{inset-inline-start:20px; top:50%; transform:translateY(-50%);}
+.lightbox-next{inset-inline-end:20px; top:50%; transform:translateY(-50%);}
+
+/* ===================== نافذة الفيديو ===================== */
+.video-modal{
+  position:fixed; inset:0; z-index:1000; background:rgba(10,14,8,.92);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s;
+}
+.video-modal.visible{opacity:1; pointer-events:all;}
+.video-modal-inner{width:min(880px,92vw); position:relative;}
+.video-modal video{width:100%; border-radius:16px; background:#000;}
+.video-close{
+  position:absolute; top:-46px; left:0; color:var(--c-white); font-size:16px; font-weight:700;
+  background:rgba(255,255,255,.15); padding:8px 16px; border-radius:999px;
 }
 
-/* ============ UTIL ============ */
-.skeleton{background:linear-gradient(90deg,#e7e3d3 0%,#f3eedb 50%,#e7e3d3 100%);background-size:200% 100%;animation:skel 1.5s linear infinite;border-radius:6px}
-@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+/* ===================== تذييل ===================== */
+.site-footer{background:var(--c-green-800); color:rgba(255,255,255,.85); padding:44px 0 26px; text-align:center;}
+.site-footer p{font-size:13px; line-height:2;}
+.site-footer strong{color:var(--c-white);}
 
-/* leaflet popups */
-.leaflet-popup-content-wrapper{border-radius:10px;padding:0;font-family:'Tajawal',sans-serif;overflow:hidden}
-.leaflet-popup-content{margin:0;width:auto !important}
-.popup-site{padding:.55rem .75rem .65rem;min-width:160px}
-.popup-site b{font-family:'Amiri',serif;font-size:.95rem;display:block;color:var(--ink)}
-.popup-site span{font-size:.74rem;color:var(--ink-soft)}
+/* ===================== استجابة الجوال ===================== */
+@media(max-width:760px){
+  .main-nav{display:none;}
+  .about-grid{grid-template-columns:1fr; gap:34px;}
+  .nav-card{right:10px; left:10px; top:calc(var(--header-h) + 8px);}
+  .map-fab-group{bottom:20px; left:10px;}
+  .map-start-btn{bottom:20px; right:10px;}
+}
 
-/* hide native scrollbar arrows */
-.stop-list::-webkit-scrollbar,.nav-content::-webkit-scrollbar,.sheet-body::-webkit-scrollbar{width:6px}
-.stop-list::-webkit-scrollbar-thumb,.nav-content::-webkit-scrollbar-thumb,.sheet-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+/* أدلة توجيه leaflet مخصصة */
+.user-marker{
+  width:22px; height:22px; border-radius:50%;
+  background:var(--c-gold); border:3px solid var(--c-white);
+  box-shadow:0 0 0 6px rgba(201,161,90,.28);
+  transition: transform .3s linear;
+}
+.user-marker .arrow{
+  position:absolute; top:-11px; right:50%; transform:translateX(50%);
+  width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent;
+  border-bottom:12px solid var(--c-green-800);
+}
+.junction-marker{
+  width:14px; height:14px; border-radius:50%; background:var(--c-green-600);
+  border:2px solid var(--c-white); box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+.park-marker{
+  width:34px; height:34px; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+  background:var(--c-gold); border:3px solid var(--c-white); box-shadow:0 3px 8px rgba(0,0,0,.3);
+}
+.park-marker span{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  transform:rotate(45deg); font-size:15px;
+}
+.leaflet-popup-content-wrapper{border-radius:14px; font-family:var(--f-body); direction:rtl;}
+
+/* شاشة تحميل */
+.loader{
+  position:fixed; inset:0; background:var(--c-green-800); z-index:2000;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--c-white);
+  transition:opacity .5s, visibility .5s;
+}
+.loader.hidden{opacity:0; visibility:hidden;}
+.loader-leaf{font-size:40px; animation:sway 1.4s ease-in-out infinite;}
+@keyframes sway{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg);}}
+.loader p{margin-top:14px; font-size:13px; letter-spacing:1px; color:rgba(255,255,255,.75);}
+
 </style>
 </head>
 <body>
 
-<div class="preview-wrapper" id="previewWrapper">
-
-  <div class="topbar">
-  <img class="municipality-logo" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCl4deI84ZCCdkUD1yyM9GnKWayG_iIUuD5sjbGJlrmgrcwysQ3bnjpy5H&s=10" alt="شعار بلدية سلفيت">
-  <div class="topbar-text"><b>🌿 مسار دروب الزيتون</b><span>بلدية سلفيت</span></div>
-  <div class="topbar-divider"></div>
-  <p class="topbar-lede">استكشف مدينة سلفيت من خلال 10 دروب تراثية وطبيعية، واتبع المسار السياحي التفاعلي للوصول إلى أهم المواقع التاريخية والطبيعية بكل سهولة.</p>
-    <div class="topbar-stats">
-      <div class="chip"><b id="statCount">10</b><span>دروب</span></div>
-      <div class="chip"><b id="statSelected">0</b><span>مختار</span></div>
-    </div>
-    <div class="device-toggle" role="tablist" aria-label="معاينة الأجهزة">
-      <button data-device="desktop" class="active" title="عرض سطح المكتب">🖥️ <span>سطح المكتب</span></button>
-      <button data-device="tablet" title="عرض الجهاز اللوحي">💻 <span>لوحي</span></button>
-      <button data-device="mobile" title="عرض الهاتف">📱 <span>هاتف</span></button>
-    </div>
-  </div>
-
-  <div class="info-bar" id="infoBar">
-    <div class="info-cell">
-      <span class="ic-ico">📍</span>
-      <div class="ic-content">
-        <span class="ic-label">الدرب</span>
-        <span class="ic-value" id="ibName">دروب الزيتون</span>
-      </div>
-    </div>
-    <div class="info-cell">
-      <span class="ic-ico">📏</span>
-      <div class="ic-content">
-        <span class="ic-label">المسافة</span>
-        <span class="ic-value" id="ibDist">— <small>كم</small></span>
-      </div>
-    </div>
-    <div class="info-cell">
-      <span class="ic-ico">⏱️</span>
-      <div class="ic-content">
-        <span class="ic-label">الوقت التقديري</span>
-        <span class="ic-value" id="ibTime">— <small>دقيقة</small></span>
-      </div>
-    </div>
-    <div class="info-cell">
-      <span class="ic-ico">🚶</span>
-      <div class="ic-content">
-        <span class="ic-label">وسيلة التنقل</span>
-        <span class="ic-value" id="ibMode">سير</span>
-      </div>
-    </div>
-    <div class="info-cell">
-      <span class="ic-ico">⭐</span>
-      <div class="ic-content">
-        <span class="ic-label">التقييم</span>
-        <span class="ic-value"><span class="stars" id="ibStars">★★★★★</span></span>
-      </div>
-    </div>
-    <div class="info-cell">
-      <span class="ic-ico">🔥</span>
-      <div class="ic-content">
-        <span class="ic-label">الصعوبة</span>
-        <span class="ic-value"><span class="difficulty" id="ibDiff"></span></span>
-      </div>
-    </div>
-    <button class="info-bar-toggle" id="infoBarToggle" title="طي/فتح شريط المعلومات">إخفاء ⌃</button>
-  </div>
-
-  <div class="layout">
-
-    <aside class="panel-left">
-      <div class="panel-head">
-        <h2>📍 قائمة الدروب</h2>
-        <p>اختر الدروب التي تنوي زيارتها لبناء مسارك التفاعلي.</p>
-      </div>
-      <div class="route-summary">
-        <div><b id="summaryDist">— كم</b><span> — طول المسار</span></div>
-        <button class="reset-btn" id="resetBtn">إعادة التعيين</button>
-      </div>
-      <div class="stop-list" id="stopList"></div>
-
-      <div class="transit-card">
-        <div class="transit-icon">🚌</div>
-        <div><b>موقف حافلات سلفيت</b><span>نقطة انطلاق مقترحة — يقع على خط النقل العام الظاهر على الخريطة.</span></div>
-      </div>
-
-      <div class="legend">
-        <h3>دليل الخريطة</h3>
-        <div class="legend-row"><span class="swatch site"></span> درب سياحي</div>
-        <div class="legend-row"><span class="swatch route"></span> المسار المختار</div>
-        <div class="legend-row"><span class="swatch transit"></span> خط النقل العام</div>
-        <div class="legend-row"><span class="swatch stop"></span> موقف الحافلات</div>
-      </div>
-    </aside>
-
-    <div class="map-area">
-      <div id="map"></div>
-      <svg class="leader-overlay" id="leaderOverlay" xmlns="http://www.w3.org/2000/svg"></svg>
-
-      <div class="map-controls right">
-        <button class="mc-btn" id="zoomIn" title="تكبير">➕</button>
-        <button class="mc-btn" id="zoomOut" title="تصغير">➖</button>
-        <div class="mc-divider"></div>
-        <button class="mc-btn" id="myLocation" title="موقعي الحالي">🎯</button>
-        <button class="mc-btn" id="recenter" title="إعادة توجيه الخريطة">🧭</button>
-      </div>
-
-      <div class="map-controls left">
-        <button class="mc-btn active" id="mapStyleBtn" title="نوع الخريطة">🗺️</button>
-        <button class="mc-btn" id="allPathsBtn" title="عرض جميع الدروب">📍</button>
-        <button class="mc-btn" id="settingsBtn" title="الإعدادات">⚙️</button>
-      </div>
-
-      <div class="popup-menu" id="mapStyleMenu">
-        <div class="pm-title">نوع الخريطة</div>
-        <button data-style="satellite" class="active">🛰️ قمر صناعي</button>
-        <button data-style="streets">🛣️ شوارع</button>
-        <button data-style="terrain">⛰️ تضاريس</button>
-        <button data-style="light">🌅 فاتح</button>
-      </div>
-
-      <div class="popup-menu" id="settingsMenu">
-        <div class="pm-title">إعدادات العرض</div>
-        <div class="switch-row">
-          <span>خط النقل العام</span>
-          <div class="switch on" data-setting="transit"></div>
-        </div>
-        <div class="switch-row">
-          <span>أسماء الدروب</span>
-          <div class="switch on" data-setting="labels"></div>
-        </div>
-        <div class="switch-row">
-          <span>خطوط القادة</span>
-          <div class="switch on" data-setting="leaders"></div>
-        </div>
-        <div class="switch-row">
-          <span>تثبيت على الطريق</span>
-          <div class="switch on" data-setting="snap"></div>
-        </div>
-      </div>
-
-      <div class="popup-menu" id="allPathsMenu">
-        <div class="pm-title">عرض الدروب</div>
-        <div id="allPathsList" style="max-height:240px;overflow-y:auto"></div>
-      </div>
-
->
-    </div>
-
-    <aside class="panel-right">
-      <div class="panel-head">
-        <div class="nav-head">
-          <span class="dot"></span>
-          <div>
-            <h2>معلومات التنقل</h2>
-            <p id="navSubtitle">اختر دروباً لعرض التفاصيل</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="transport-bar" id="transportBar">
-        <button data-mode="walk" class="active"><span class="ico">🚶</span><span>سير</span></button>
-        <button data-mode="transit"><span class="ico">🚌</span><span>نقل عام</span></button>
-        <button data-mode="car"><span class="ico">🚗</span><span>سيارة</span></button>
-        <button data-mode="bike"><span class="ico">🚲</span><span>دراجة</span></button>
-      </div>
-
-      <div class="nav-content" id="navContent">
-        <!-- dynamically filled -->
-      </div>
-    </aside>
-
-  </div>
-
-  <div class="bottom-sheet" id="bottomSheet" aria-hidden="true">
-    <div class="sheet-handle" id="sheetHandle"></div>
-    <div class="sheet-head">
-      <div class="nav-head">
-        <span class="dot"></span>
-        <h2>تفاصيل المسار</h2>
-      </div>
-      <div class="quick-stats">
-        <span><b id="mobDist">—</b>كم</span>
-        <span><b id="mobTime">—</b>د</span>
-      </div>
-    </div>
-    <div class="sheet-transport" id="sheetTransport">
-      <button data-mode="walk" class="active"><span class="ico">🚶</span><span>سير</span></button>
-      <button data-mode="transit"><span class="ico">🚌</span><span>نقل عام</span></button>
-      <button data-mode="car"><span class="ico">🚗</span><span>سيارة</span></button>
-      <button data-mode="bike"><span class="ico">🚲</span><span>دراجة</span></button>
-    </div>
-    <div class="sheet-body" id="sheetBody"></div>
-  </div>
-
+<!-- شاشة التحميل -->
+<div class="loader" id="loader">
+  <div class="loader-leaf">🌿</div>
+  <p>جارِ تجهيز دليل المنتزه...</p>
 </div>
 
-<div class="modal-overlay" id="siteModal" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="modal-card">
-    <button class="modal-close" id="modalClose" aria-label="إغلاق">×</button>
-    <div class="modal-media" id="modalMedia"></div>
-    <div class="modal-body">
-      <div id="modalSiteName" style="font-size:.76rem;color:var(--ink-soft)"></div>
-      <h3 id="modalPathName"></h3>
-      <p id="modalText"></p>
-      <button class="modal-toggle" id="modalToggleBtn"></button>
+<!-- الشريط العلوي -->
+<header class="site-header">
+  <div class="brand">
+    <div class="brand-logo">سلفيت</div>
+    <div class="brand-text">
+      <strong>منتزه بلدية سلفيت</strong>
+      <span> بلدية سلفيت - برئاسة الأستاذ ضياء بني نمرة  </span>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <button data-view="home" class="active">الرئيسية</button>
+    <button data-view="map">الملاحة</button>
+    <button data-view="facilities">المرافق</button>
+  </nav>
+</header>
+
+<!-- ============= الصفحة الرئيسية ============= -->
+<main id="view-home" class="view">
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-eyebrow">بلدية سلفيت ترحب بكم</span>
+      <h1>منتزه <em>بلدية سلفيت</em><br>وجهتكم للراحة والطبيعة</h1>
+      <p>دليل تفاعلي يقودكم خطوة بخطوة من موقعكم الحالي وحتى بوابة المنتزه، ويعرّفكم على جميع المرافق والخدمات المتوفرة داخله.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="btn-start-trip">ابدأ الرحلة</button>
+        <button class="btn btn-outline" id="btn-locate-me">تحديد موقعي</button>
+        <button class="btn btn-outline" id="btn-start-nav">ابدأ الملاحة</button>
+        <button class="btn btn-outline" id="btn-show-facilities">عرض مرافق المنتزه</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section">
+    <div class="container about-grid">
+      <div>
+        <div class="section-eyebrow">عن المنتزه</div>
+        <h2>مساحة خضراء تجمع العائلة والأصدقاء في قلب سلفيت</h2>
+        <p>
+          يوفر منتزه بلدية سلفيت تجربة ترفيهية متكاملة تجمع بين الجلسات العائلية، الألعاب الداخلية
+          والخارجية، المسبح، الكافتيريا، وقاعة الأفراح، ضمن بيئة آمنة ومهيأة لجميع أفراد العائلة على مدار العام.
+        </p>
+        <div class="about-stats">
+          <div><strong>9</strong><span>مرافق وخدمات</span></div>
+          <div><strong>1</strong><span>مسار رئيسي مباشر</span></div>
+          <div><strong>24/7</strong><span>ملاحة حية للزوار</span></div>
+        </div>
+      </div>
+      <div class="about-visual"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ============= صفحة الخريطة والملاحة ============= -->
+<section id="view-map" class="view hidden">
+  <div class="map-wrap">
+    <div id="leaflet-map"></div>
+
+    <!-- بطاقة الملاحة -->
+    <div class="nav-card" id="nav-card">
+      <button class="nav-close" id="nav-card-close">✕</button>
+      <div class="nav-card-top">
+        <div class="nav-maneuver" id="nav-maneuver-icon">↑</div>
+        <div class="nav-info">
+          <div class="nav-distance" id="nav-distance">-- م</div>
+          <div class="nav-instruction" id="nav-instruction">جارٍ تحديد أفضل مسار نحو المنتزه...</div>
+          <div class="nav-eta" id="nav-eta"></div>
+        </div>
+      </div>
+      <div class="nav-progress-wrap">
+        <div class="trail-track">
+          <div class="trail-fill" id="trail-fill"></div>
+          <div class="trail-pin" id="trail-pin"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-fab-group">
+      <button class="fab" id="fab-locate" title="تحديد موقعي">🎯</button>
+      <button class="fab" id="fab-zoom-in" title="تكبير">+</button>
+      <button class="fab" id="fab-zoom-out" title="تصغير">−</button>
+    </div>
+
+    <button class="btn btn-primary map-start-btn" id="map-start-nav-btn">ابدأ الملاحة</button>
+  </div>
+</section>
+
+<!-- شاشة الوصول -->
+<div class="arrival-overlay" id="arrival-overlay">
+  <div class="arrival-card">
+    <div class="arrival-icon">🎉</div>
+    <h2>أهلاً بكم في منتزه بلدية سلفيت</h2>
+    <p>لقد وصلتم إلى وجهتكم بنجاح. نتمنى لكم وقتًا ممتعًا! يمكنكم الآن استكشاف جميع مرافق وخدمات المنتزه.</p>
+    <button class="btn btn-solid" id="arrival-explore-btn">استكشاف المرافق</button>
+  </div>
+</div>
+
+<!-- ============= صفحة المرافق ============= -->
+<section id="view-facilities" class="view hidden">
+  <div class="container facilities-section">
+    <div class="section-head">
+      <div class="section-eyebrow">مرافق المنتزه</div>
+      <h2>كل ما تحتاجه لرحلة عائلية مثالية</h2>
+      <p>تعرّفوا على مرافق وخدمات منتزه بلدية سلفيت، واطّلعوا على الصور والفيديوهات وتفاصيل كل مرفق.</p>
+    </div>
+    <div class="facility-grid" id="facility-grid"><!-- تُملأ بواسطة JavaScript --></div>
+  </div>
+</section>
+
+<!-- ============= نافذة تفاصيل المرفق ============= -->
+<div class="modal-backdrop" id="facility-modal">
+  <div class="modal-panel">
+    <div class="modal-hero" id="modal-hero">
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-content">
+      <h3 id="modal-title"></h3>
+      <div class="modal-tags" id="modal-tags"></div>
+      <p id="modal-desc"></p>
+      <div class="modal-facts" id="modal-facts"></div>
+      <button class="btn btn-ghost modal-video-btn" id="modal-video-btn">▶ مشاهدة الفيديو</button>
+      <div class="gallery-strip" id="modal-gallery"></div>
     </div>
   </div>
 </div>
 
+<!-- ============= معرض الصور المكبّر ============= -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close">✕</button>
+  <button class="lightbox-nav lightbox-prev" id="lightbox-prev">›</button>
+  <img id="lightbox-img" src="" alt="">
+  <button class="lightbox-nav lightbox-next" id="lightbox-next">‹</button>
+</div>
+
+<!-- ============= نافذة الفيديو ============= -->
+<div class="video-modal" id="video-modal">
+  <div class="video-modal-inner">
+    <button class="video-close" id="video-close">إغلاق ✕</button>
+    <video id="video-player" controls poster=""></video>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p><strong>منتزه بلدية سلفيت</strong> — جميع الحقوق محفوظة لبلدية سلفيت © <span id="footer-year"></span><br>
+    هذا الدليل  يعتمد بالكامل على بيانات المسار والمفارق الرسمية لبلدية سلفيت.</p>
+  </div>
+</footer>
+
+<!-- المكتبات الخارجية -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.19.10/proj4.min.js"></script>
+
+<!-- ملفات المشروع -->
 <script>
-/* =====================================================================
-   1) DATA + PROJECTION (kept from original, supplemented with categories)
-   ===================================================================== */
-proj4.defs("EPSG:28191","+proj=cass +lat_0=31.73409694444445 +lon_0=35.21208055555556 +x_0=170251.555 +y_0=126867.909 +ellps=clrk80 +towgs84=-275.722,94.7824,340.894,-8.001,-4.42,-11.821,1 +units=m +no_defs");
-function toWGS(x,y){return proj4("EPSG:28191","WGS84",[x,y])}
-
-const rawSites=[
-  {id:1, name:"بلدية سلفيت", path:"درب الأساس", cat:"🏛️ معلم بلدي", x:166891.10890000034,y:165413.87219999917,emoji:"🏛️",
-   text:"محطة الانطلاق أمام مبنى البلدية، حيث تبدأ حكاية دروب سلفيت وتلتقي كل المسارات."},
-  {id:2, name:"ديوان البلدة", path:"درب الأجداد", cat:"📜 تراث", x:166833.53799999971,y:165404.23589999974,emoji:"📜",
-   text:"درب يمر بديوان البلدة القديم، شاهدًا على مجالس الأجداد وحكاياتهم المتوارثة."},
-  {id:3, name:"الأزقة القديمة", path:"درب عبق الياسمين", cat:"🌸 طبيعة", x:166928.55350000039,y:165295.10309999995,emoji:"🌸",
-   text:"ممر ظليل بين أزقة البلدة القديمة تفوح منه رائحة الياسمين في المساء."},
-  {id:4, name:"نبع المغرفة", path:"درب عين المغرفة", cat:"⛲ ماء", x:166920.10539999977,y:165096.63529999927,emoji:"⛲",
-   text:"نبع ماء قديم كان يروي البلدة، ويحمل اسم المغرفة التي كانت تُستخدم لجلب الماء."},
-  {id:9, name:"ميدان التوتة", path:"درب ميدان التوتة", cat:"🌳 استراحة", x:167072.94959999993,y:165365.39860000089,emoji:"🌳",
-   text:"ميدان تظلّله شجرة توت عريقة، محطة استراحة تقليدية على طريق العودة من العين."},
-  {id:5, name:"حواكير البيوت", path:"درب الحواكير", cat:"🌿 ريفي", x:167229.42050000001,y:165449.64230000041,emoji:"🌿",
-   text:"زقاق يتوسط حواكير المنازل القديمة وأشجارها المثمرة."},
-  {id:6, name:"بيت التراث", path:"درب الأصالة", cat:"🏰 عمارة", x:167217.23539999966,y:165428.01139999926,emoji:"🏰",
-   text:"مبنى تراثي يختصر أصالة العمارة السلفيتية بحجارته المنحوتة."},
-  {id:7, name:"نقطة النشاط", path:"درب التحدي", cat:"🏋️ نشاط", x:167382.58059999999,y:165430.92180000059,emoji:"🏋️",
-   text:"محطة نشاط ورياضة على المسار، لمن يريد كسر رتابة المشي بجولة تحدٍ."},
-  {id:8, name:"الطريق النظيف", path:"درب النقاء", cat:"🛣️ طريق", x:167459.94240000006,y:165472.45670000091,emoji:"🛣️",
-   text:"طريق واسع ونظيف يصل زوار المسار بالأحياء المجاورة."},
-  {id:10, name:"المنتزه العائلي", path:"درب اللقاء و الترفيه", cat:"🎡 ترفيه", x:167510.53849999979,y:166018.53350000083,emoji:"🎡",
-   text:"محطة الختام؛ منتزه عائلي مفتوح للقاء والراحة بعد جولة الدروب."}
-];
-const sites=rawSites.map(s=>{const[lon,lat]=toWGS(s.x,s.y);return{...s,lat,lon}});
-
-const busStopRaw={x:167353.66150000039,y:165504.72729999945};
-const[busLon,busLat]=toWGS(busStopRaw.x,busStopRaw.y);
-
-const routePartsXY=[
-[[166883.79690000042,165329.91259999946],[166893.79279999994,165327.40090000071],[166901.78589999955,165321.82239999995],[166902.55559999961,165320.55020000041],[166908.25090000033,165318.43579999916],[166912.44570000004,165315.91210000031],[166913.29829999991,165314.51380000077],[166913.53699999955,165306.70409999974],[166913.50289999973,165305.91970000044],[166913.4347000001,165304.76019999944],[166919.10419999994,165303.67149999924],[166922.43460000027,165302.17280000076],[166924.54609999992,165300.62079999968],[166928.75580000039,165299.87480000034],[166941.16839999985,165297.09390000068],[166939.83619999979,165276.27859999985],[166950.16060000006,165268.03570000082],[167020.50679999962,165230.67689999938],[167076.81379999965,165211.16249999963],[167092.26260000002,165195.91699999943],[167096.91349999979,165186.72079999931],[167100.16590000037,165171.88990000077],[167100.81639999989,165160.31140000001],[167095.61259999964,165146.00090000033],[167089.10780000035,165136.76420000009],[167079.48070000019,165129.08850000054],[167073.62640000042,165126.35649999976],[167065.82070000004,165125.05560000055],[167050.85969999991,165124.66530000046],[167036.67929999996,165120.50219999999],[167028.35319999978,165117.11969999969],[167011.5708999997,165116.7293999996],[166994.65840000007,165118.1604999993],[166982.2993999999,165118.81100000069],[166958.88219999988,165109.83440000005],[166941.18919999991,165101.76850000024],[166930.2611999996,165091.10060000047]],
-[[166887.13860000018,165422.80819999985],[166853.99179999996,165424.36209999956],[166850.14379999973,165388.7731999997],[166876.80750000011,165370.77999999933],[166894.87519999966,165363.95260000043],[166891.23249999993,165358.57699999958],[166887.06940000039,165349.47030000016],[166884.46750000026,165342.31509999931],[166883.79679999966,165329.91530000046]],
-[[167093.34410000034,165193.7854999993],[167099.80590000004,165196.75799999945],[167106.69429999962,165200.43510000035],[167152.01339999959,165223.50029999949],[167197.01150000002,165247.18569999933],[167206.21520000044,165249.8300999999],[167215.56039999984,165251.92019999959],[167219.61780000012,165252.57609999925],[167225.01370000001,165253.44830000028],[167226.4561999999,165253.59380000085],[167226.28650000039,165266.27859999985],[167223.6604000004,165281.45209999941],[167218.26209999993,165293.99950000085],[167200.02469999995,165299.9813000001],[167189.67169999983,165304.23570000008],[167184.25590000022,165318.05529999919],[167179.58719999995,165326.55250000022],[167178.62820000015,165327.18859999999],[167170.29040000029,165324.12890000083],[167167.34539999999,165322.17830000073],[167162.03259999957,165328.51329999976],[167156.05659999978,165335.04959999956],[167154.26750000007,165336.59970000014],[167147.33530000038,165329.01009999961],[167143.98869999964,165325.3049999997],[167137.95299999975,165320.70340000093],[167127.31560000032,165314.1297999993],[167123.25189999957,165312.51630000025],[167115.78189999983,165310.90269999951],[167109.14850000013,165309.46849999949],[167107.83380000014,165309.10989999957],[167105.32390000019,165317.29710000008],[167104.96530000027,165325.60380000062],[167103.77010000031,165337.01799999923],[167103.88960000034,165349.74689999968],[167101.61870000046,165355.60339999944],[167094.60049999971,165363.75229999982],[167079.07440000027,165368.11620000005],[167078.78259999957,165370.74239999987],[167090.89219999965,165381.24709999934],[167111.75580000039,165391.89770000055],[167129.26370000001,165396.56650000066],[167166.17609999981,165400.0680999998],[167172.01209999993,165400.50579999946],[167170.26130000036,165450.54920000024],[167182.59389999975,165450.62219999917],[167201.47809999995,165450.44290000014],[167207.21509999968,165450.14409999922],[167224.66509999987,165449.12820000015],[167235.0036000004,165448.41110000014],[167255.75820000004,165443.10830000043],[167268.01370000001,165439.31489999965],[167288.87719999999,165445.15090000071],[167298.23000000045,165446.91709999926],[167300.62040000036,165441.0605999995],[167301.81560000032,165438.25180000067],[167346.65330000035,165455.07200000063],[167374.37409999967,165464.40960000083],[167457.91949999984,165481.21529999934],[167498.53419999965,165497.52859999985],[167517.86909999978,165513.2053999994],[167519.69830000028,165520.8666999992],[167517.62090000045,165525.37460000068],[167480.9095999999,165520.67989999987],[167428.05580000021,165515.63839999959],[167363.76900000032,165510.16719999909],[167364.30709999986,165523.64460000023],[167368.68730000034,165548.44979999959],[167380.63860000018,165595.42689999938],[167384.74199999962,165610.47279999964],[167391.93400000036,165610.48090000078],[167417.0279000001,165764.9776000008],[167439.11220000032,165896.77119999938],[167455.49739999976,166020.72839999944],[167465.21449999977,166020.12989999913]]
-];
-
-const center=sites.reduce((a,s)=>[a[0]+s.lat/sites.length,a[1]+s.lon/sites.length],[0,0]);
-
-/* =====================================================================
-   2) MAP SETUP
-   ===================================================================== */
-const map=L.map('map',{scrollWheelZoom:true,zoomControl:false,attributionControl:false}).setView(center,17);
-
-const TILE_LAYERS={
-  satellite:{url:'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',attr:'Google Satellite',max:21},
-  streets:{url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap',max:19},
-  terrain:{url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',attr:'© OpenTopoMap',max:17},
-  light:{url:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',attr:'© CartoDB',max:20}
+window.__PARK_DATA__ = {
+  route: {"type": "FeatureCollection", "crs": {"type": "name", "properties": {"name": "EPSG:28191"}}, "features": [{"type": "Feature", "id": 5, "geometry": {"type": "MultiLineString", "coordinates": [[[167367.2115000002, 164366.19930000044], [167356.17709999997, 164414.6085000001], [167347.9902999997, 164467.2890000008], [167346.21050000004, 164519.25769999996], [167343.71889999975, 164570.51439999975], [167325.53689999972, 164628.97560000047], [167301.8448999999, 164679.09329999983], [167282.4813000001, 164721.23780000024], [167268.58499999996, 164756.77580000088], [167263.80099999998, 164782.7458999995], [167266.06089999992, 164803.25769999996], [167278.16199999955, 164840.7276000008], [167281.02529999986, 164860.16059999913], [167281.19629999995, 164861.55370000005]], [[166398.67229999974, 164425.28690000065], [166485.16810000036, 164429.55829999968], [166513.4391999999, 164434.1172000002], [166530.04839999974, 164440.7422000002], [166573.06429999974, 164464.44299999997], [166644.63320000004, 164500.18070000038], [166677.38499999978, 164517.90960000083], [166738.85890000034, 164558.7561000008], [166773.85020000022, 164615.61700000055], [166795.5563000003, 164736.03109999932], [166799.71449999977, 164749.41200000048], [166808.95220000017, 164759.39619999938], [166831.2533999998, 164766.2078000009], [166899.64969999995, 164773.39269999973], [166938.93319999985, 164773.67259999923], [166988.94739999995, 164759.39619999938], [167014.23440000042, 164753.61089999974], [167030.65699999966, 164752.86439999938], [167046.78220000025, 164754.9989], [167083.19060000032, 164769.00709999911], [167138.34269999992, 164795.9679000005], [167223.25119999982, 164837.1919999998], [167280.6347000003, 164861.38409999944], [167281.19629999995, 164861.55370000005]], [[167281.19629999995, 164861.55370000005], [167286.14329999965, 164863.77669999935], [167315.34030000027, 164873.82349999994], [167397.75200000033, 164893.00489999913], [167471.14890000038, 164915.78570000082], [167507.55539999995, 164930.5932], [167564.2796, 164957.70229999907], [167640.32180000003, 165001.6875], [167679.83279999997, 165023.11959999986], [167726.02309999987, 165050.1922999993], [167798.04420000035, 165088.37680000067], [167843.11629999988, 165120.81269999966], [167867.49179999996, 165150.65560000017], [167904.27300000004, 165230.20050000027], [167940.98029999994, 165303.61519999988], [167973.23819999956, 165380.3668000009], [167993.26040000003, 165503.2807], [168009.3448999999, 165647.26239999942], [168013.2603000002, 165673.60270000063], [168067.72059999965, 165843.3906999994]], [[168514.52070000023, 165686.6417999994], [168478.21719999984, 165687.51659999974], [168411.72470000014, 165689.19329999946], [168371.7854000004, 165693.3485000003], [168351.51960000023, 165696.99340000004], [168329.21270000003, 165695.2438999992], [168200.11239999998, 165656.10610000044], [168174.26549999975, 165652.5603], [168125.9682, 165651.17559999973], [168122.80310000014, 165651.59359999932], [168161.2544999998, 165760.4151000008], [168165.5876000002, 165779.36869999953], [168166.52070000023, 165793.45859999955], [168166.52070000023, 165812.49379999936], [168164.28129999992, 165826.4902999997], [168157.37629999965, 165857.93579999916]], [[165934.86980000045, 165724.6370000001], [166004.39120000042, 165722.9684999995], [166081.14290000033, 165699.6093000006], [166119.5186999999, 165676.80619999953], [166211.8432, 165632.3125], [166316.40340000018, 165615.07120000012], [166378.02720000036, 165611.31149999984], [166430.70779999997, 165608.46389999986], [166502.96559999976, 165589.5985000003], [166580.56259999983, 165566.10590000078], [166619.33270000014, 165572.32789999992], [166671.95629999973, 165593.0583999995], [166721.16280000005, 165643.85950000025], [166739.61519999988, 165660.71729999967], [166756.92860000022, 165673.24670000002], [166759.13210000005, 165674.46580000035], [166752.5033999998, 165679.42239999957], [166731.42279999983, 165692.14250000007], [166710.52130000014, 165708.44559999928], [166694.71740000043, 165721.33520000055], [166685.7357999999, 165726.64780000038], [166679.42949999962, 165729.28500000015], [166677.29169999994, 165747.7366000004], [166675.05229999963, 165772.6503999997], [166674.67899999954, 165785.52720000036], [166674.9888000004, 165797.42610000074], [166681.97589999996, 165821.91070000082], [166723.44079999998, 165912.67280000076], [166726.04810000025, 165916.1464000009], [166762.2374999998, 165919.61009999923], [166784.97159999982, 165920.9201999996], [166849.46449999977, 165915.94700000063], [166858.6969999997, 165915.01579999924], [166858.6827999996, 165911.78690000065], [166861.19099999964, 165906.59139999934], [166867.40170000028, 165902.8889000006], [166872.53749999963, 165902.47089999914], [166878.92729999963, 165904.5610000007], [166882.09240000043, 165906.94969999976], [166884.24230000004, 165912.92159999907], [166884.0033999998, 165920.56560000032], [166879.4648000002, 165925.88049999997], [166873.9110000003, 165928.92610000074], [166876.29970000032, 165939.43659999967], [166883.1673999997, 165956.21749999933], [166902.7346999999, 166005.3541000001], [166925.04169999994, 166048.94739999995], [166940.93350000028, 166076.35720000044], [166972.27990000043, 166122.86649999954], [166979.42389999982, 166134.67610000074], [166987.25659999996, 166145.10700000077], [166991.08770000003, 166158.14939999953]], [[168067.72059999965, 165843.3906999994], [167880.0212000003, 165809.24799999967], [167871.36450000014, 165856.17640000023], [167858.3794999998, 165889.20859999955], [167841.74949999992, 165920.64599999972], [167773.40710000042, 166018.14780000038], [167760.09470000025, 166029.31049999967], [167751.91559999995, 166024.34190000035], [167735.17059999984, 166016.95109999925], [167699.07799999975, 166003.7502999995], [167658.10900000017, 165993.10720000044], [167629.53280000016, 165987.42109999992], [167602.12299999967, 165983.19299999997], [167534.7648, 165983.6303000003], [167517.45579999965, 165987.17029999942], [167528.4955000002, 166058.8616000004], [167533.7441999996, 166110.7653000001], [167539.94350000005, 166163.71299999952], [167499.62770000007, 166177.10300000012], [167407.33820000011, 166202.18009999953], [167312.86170000024, 166208.0120000001], [167225.67509999964, 166202.6174999997], [167128.25540000014, 166183.99190000072], [166991.08770000003, 166158.14939999953]], [[168157.37629999965, 165857.93579999916], [168067.72059999965, 165843.3906999994]], [[168563.67250000034, 166006.0739999991], [168523.57830000017, 166000.83440000005], [168507.28920000046, 165999.30059999973], [168474.25739999954, 165993.70199999958], [168434.91550000012, 165979.69380000047], [168339.41849999968, 165940.91180000082], [168287.2231999999, 165914.66840000078], [168249.75329999998, 165893.38199999928], [168210.74969999958, 165873.51860000007], [168187.4221999999, 165865.40059999935], [168157.37629999965, 165857.93579999916]], [[165892.17009999976, 166815.4751999993], [165921.10170000046, 166774.6975999996], [166022.93180000037, 166695.42049999908], [166106.53720000014, 166634.14020000026], [166241.17169999983, 166532.31010000035], [166288.55570000038, 166471.71319999918], [166306.78029999975, 166414.98900000006], [166314.07019999996, 166362.5932], [166326.82739999983, 166311.10869999975], [166345.50760000013, 166284.91080000065], [166366.01040000003, 166265.54710000008], [166405.42109999992, 166243.9054000005], [166431.51879999973, 166232.50579999946], [166477.1531999996, 166219.67569999956], [166515.49789999984, 166207.7204], [166526.3208999997, 166201.3761], [166567.43589999992, 166172.57740000077], [166585.9411000004, 166160.35380000062], [166626.62430000026, 166137.77280000038], [166659.16339999996, 166126.23589999974], [166696.0097000003, 166117.99479999952], [166721.2706000004, 166117.27820000052], [166856.80869999994, 166133.5097000003], [166991.08770000003, 166158.14939999953]]]}, "properties": {"OBJECTID": 5, "Shape_Length": 8619.405145899747, "Id": 0}}]},
+  junctions: {"displayFieldName": "", "fieldAliases": {"OBJECTID": "OBJECTID", "Id": "Id", "Paths": "Paths"}, "geometryType": "esriGeometryPoint", "spatialReference": {"wkid": 28191, "latestWkid": 28191}, "fields": [{"name": "OBJECTID", "type": "esriFieldTypeOID", "alias": "OBJECTID"}, {"name": "Id", "type": "esriFieldTypeInteger", "alias": "Id"}, {"name": "Paths", "type": "esriFieldTypeString", "alias": "Paths", "length": 254}], "features": [{"attributes": {"OBJECTID": 1, "Id": 9, "Paths": "دوار شرقي - عيسى عودة"}, "geometry": {"x": 168067.3035000004, "y": 165843.4154000003}}, {"attributes": {"OBJECTID": 2, "Id": 9, "Paths": "مفترق خربة قيس - فرخة"}, "geometry": {"x": 167281.1383999996, "y": 164861.56200000085}}, {"attributes": {"OBJECTID": 3, "Id": 9, "Paths": "مفترق المدخل الشمالي "}, "geometry": {"x": 165888.83409999963, "y": 166818.57159999944}}, {"attributes": {"OBJECTID": 4, "Id": 9, "Paths": "المدخل الغربي - شارع المطوي"}, "geometry": {"x": 165929.5850999998, "y": 165725.2650000006}}]},
+  park: {"type": "FeatureCollection", "crs": {"type": "name", "properties": {"name": "EPSG:28191"}}, "features": [{"type": "Feature", "id": 1, "geometry": {"type": "Point", "coordinates": [167548.02840000018, 166058.3761]}, "properties": {"OBJECTID": 1, "Id": 9, "Name": "منتزه بلدية سلفيت", "Paths": "منتزه بلدية سلفيت"}}]}
 };
-let currentTile=L.tileLayer(TILE_LAYERS.satellite.url,{attribution:TILE_LAYERS.satellite.attr,maxZoom:TILE_LAYERS.satellite.max,minZoom:14}).addTo(map);
+</script>
+<script>
+/* ============================================================
+   utils.js
+   أدوات مشتركة: تحويل الإحداثيات، حسابات جغرافية، خوارزمية المسار الأقصر
+   ============================================================ */
+'use strict';
 
-/* =====================================================================
-   3) TRANSIT LINE + BUS MARKER
-   ===================================================================== */
-const transitLatLngs=routePartsXY.map(part=>part.map(([x,y])=>{const[lon,lat]=toWGS(x,y);return[lat,lon]}));
-const transitHalo=L.polyline(transitLatLngs,{color:'#ffffff',weight:6,opacity:.85}).addTo(map);
-const transitLine=L.polyline(transitLatLngs,{color:'#FFC93C',weight:3.4,opacity:.95}).addTo(map);
+const ParkUtils = (() => {
 
-const busIcon=L.divIcon({className:'',html:'<div class="bus-pin">🚌</div>',iconSize:[32,32],iconAnchor:[16,16]});
-const busMarker=L.marker([busLat,busLon],{icon:busIcon}).addTo(map);
-busMarker.bindPopup('<div class="popup-site"><b>موقف حافلات سلفيت</b><span>نقطة الانطلاق نحو المسار</span></div>');
+  /* ---------- تعريف نظام إحداثيات فلسطين (EPSG:28191) ---------- */
+  // شبكة فلسطين 1923 (Palestine Grid) — تُستخدم في بيانات GeoJSON المرفقة.
+  proj4.defs(
+    'EPSG:28191',
+    '+proj=cass +lat_0=31.73409694444445 +lon_0=35.21208055555556 ' +
+    '+x_0=170251.555 +y_0=126867.909 +a=6378300.789 +rf=293.466307656 ' +
+    '+towgs84=-275.722,94.7824,340.894,-8.001,-4.42,-11.821,1 +units=m +no_defs'
+  );
 
-/* =====================================================================
-   4) ROUTE GRAPH (snap + dijkstra)  — same as original
-   ===================================================================== */
-function closestOnSegment(px,py,x1,y1,x2,y2){
-  const dx=x2-x1,dy=y2-y1;const lenSq=dx*dx+dy*dy;
-  let t=lenSq===0?0:((px-x1)*dx+(py-y1)*dy)/lenSq;
-  t=Math.max(0,Math.min(1,t));
-  return{x:x1+t*dx,y:y1+t*dy,t,dist:Math.hypot(px-(x1+t*dx),py-(y1+t*dy))};
-}
-function projectToRoute(px,py){
-  let best=null;
-  routePartsXY.forEach((part,pi)=>{
-    for(let i=0;i<part.length-1;i++){
-      const[x1,y1]=part[i],[x2,y2]=part[i+1];
-      const c=closestOnSegment(px,py,x1,y1,x2,y2);
-      if(!best||c.dist<best.dist) best={part:pi,seg:i,t:c.t,x:c.x,y:c.y,dist:c.dist};
-    }
-  });
-  return best;
-}
-sites.forEach(s=>{s.snap=projectToRoute(s.x,s.y)});
-const SNAP_THRESHOLD=70;
-const NODE_MERGE_TOL=6;
-const rawNodes=[];routePartsXY.forEach((part,pi)=>part.forEach((pt,i)=>rawNodes.push({key:`${pi}_${i}`,x:pt[0],y:pt[1]})));
-const ufParent={};rawNodes.forEach(n=>{ufParent[n.key]=n.key});
-function ufFind(k){while(ufParent[k]!==k)k=ufParent[k];return k}
-function ufUnion(a,b){const ra=ufFind(a),rb=ufFind(b);if(ra!==rb)ufParent[ra]=rb}
-for(let i=0;i<rawNodes.length;i++)for(let j=i+1;j<rawNodes.length;j++){
-  const a=rawNodes[i],b=rawNodes[j];
-  if(a.key.split('_')[0]===b.key.split('_')[0])continue;
-  if(Math.hypot(a.x-b.x,a.y-b.y)<NODE_MERGE_TOL) ufUnion(a.key,b.key);
-}
-const nodeCoord={};rawNodes.forEach(n=>{const r=ufFind(n.key);if(!nodeCoord[r])nodeCoord[r]={x:n.x,y:n.y}});
-const baseGraph={};
-function addBaseEdge(k1,k2,d){
-  (baseGraph[k1]=baseGraph[k1]||[]).push({to:k2,dist:d});
-  (baseGraph[k2]=baseGraph[k2]||[]).push({to:k1,dist:d});
-}
-routePartsXY.forEach((part,pi)=>{
-  for(let i=0;i<part.length-1;i++){
-    const k1=ufFind(`${pi}_${i}`),k2=ufFind(`${pi}_${i+1}`);
-    const[x1,y1]=part[i],[x2,y2]=part[i+1];
-    if(k1!==k2) addBaseEdge(k1,k2,Math.hypot(x2-x1,y2-y1));
+  /**
+   * تحويل إحداثيات [x, y] من EPSG:28191 إلى [lat, lng] (WGS84) لاستخدامها في Leaflet
+   */
+  function toLatLng(x, y) {
+    const [lng, lat] = proj4('EPSG:28191', 'EPSG:4326', [x, y]);
+    return [lat, lng];
   }
-});
-function siteNodeKey(s){return `site_${s.id}`}
-function cloneGraphWithSites(list){
-  const g={};Object.keys(baseGraph).forEach(k=>g[k]=baseGraph[k].slice());
-  list.forEach(site=>{
-    const{part,seg,x,y}=site.snap;
-    const k1=ufFind(`${part}_${seg}`),k2=ufFind(`${part}_${seg+1}`),sk=siteNodeKey(site);
-    const d1=Math.hypot(x-nodeCoord[k1].x,y-nodeCoord[k1].y);
-    const d2=Math.hypot(x-nodeCoord[k2].x,y-nodeCoord[k2].y);
-    g[sk]=g[sk]||[];g[k1]=g[k1]||[];g[k2]=g[k2]||[];
-    g[sk].push({to:k1,dist:d1});g[k1].push({to:sk,dist:d1});
-    g[sk].push({to:k2,dist:d2});g[k2].push({to:sk,dist:d2});
-  });
-  return g;
-}
-function dijkstraPath(g,start,end){
-  const dist={[start]:0},prev={};
-  const queue=new Set(Object.keys(g));queue.add(start);queue.add(end);
-  while(queue.size){
-    let u=null,best=Infinity;
-    queue.forEach(k=>{if(dist[k]!==undefined&&dist[k]<best){best=dist[k];u=k}});
-    if(u===null)break;
-    queue.delete(u);
-    if(u===end)break;
-    (g[u]||[]).forEach(({to,dist:w})=>{
-      const nd=dist[u]+w;
-      if(dist[to]===undefined||nd<dist[to]){dist[to]=nd;prev[to]=u}
+
+  /* ---------- حسابات جغرافية ---------- */
+  const R_EARTH = 6371000; // متر
+
+  function toRad(deg) { return deg * Math.PI / 180; }
+  function toDeg(rad) { return rad * 180 / Math.PI; }
+
+  /** المسافة بالمتر بين نقطتين [lat,lng] باستخدام هافرسين */
+  function haversine(a, b) {
+    const dLat = toRad(b[0] - a[0]);
+    const dLng = toRad(b[1] - a[1]);
+    const la1 = toRad(a[0]);
+    const la2 = toRad(b[0]);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+    return 2 * R_EARTH * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+
+  /** اتجاه البوصلة (0-360) من نقطة إلى أخرى */
+  function bearing(a, b) {
+    const la1 = toRad(a[0]), la2 = toRad(b[0]);
+    const dLng = toRad(b[1] - a[1]);
+    const y = Math.sin(dLng) * Math.cos(la2);
+    const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLng);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+  }
+
+  /** أقرب نقطة على قطعة مستقيمة [a,b] من نقطة p — تقريب مستوٍ مناسب للمسافات القصيرة */
+  function nearestPointOnSegment(p, a, b) {
+    // نحول الفروق الجغرافية لمتر تقريبًا باستخدام خط العرض المتوسط
+    const latMid = toRad((a[0] + b[0]) / 2);
+    const mPerDegLat = 111320;
+    const mPerDegLng = 111320 * Math.cos(latMid);
+
+    const ax = 0, ay = 0;
+    const bx = (b[1] - a[1]) * mPerDegLng, by = (b[0] - a[0]) * mPerDegLat;
+    const px = (p[1] - a[1]) * mPerDegLng, py = (p[0] - a[0]) * mPerDegLat;
+
+    const abLen2 = bx * bx + by * by;
+    let t = abLen2 === 0 ? 0 : ((px * bx + py * by) / abLen2);
+    t = Math.max(0, Math.min(1, t));
+
+    const lat = a[0] + t * (b[0] - a[0]);
+    const lng = a[1] + t * (b[1] - a[1]);
+    const point = [lat, lng];
+    return { point, t, dist: haversine(p, point) };
+  }
+
+  /* ---------- بناء الرسم البياني (Graph) لشبكة المسار ---------- */
+  function keyOf(latlng) {
+    return latlng[0].toFixed(6) + ',' + latlng[1].toFixed(6);
+  }
+
+  /**
+   * يبني رسمًا بيانيًا من مصفوفة خطوط (كل خط = مصفوفة نقاط [lat,lng])
+   */
+  function buildGraph(lines) {
+    const nodes = new Map(); // key -> latlng
+    const adj = new Map();   // key -> [{to, weight}]
+
+    function ensureNode(latlng) {
+      const k = keyOf(latlng);
+      if (!nodes.has(k)) {
+        nodes.set(k, latlng);
+        adj.set(k, []);
+      }
+      return k;
+    }
+
+    lines.forEach(line => {
+      for (let i = 0; i < line.length - 1; i++) {
+        const kA = ensureNode(line[i]);
+        const kB = ensureNode(line[i + 1]);
+        const w = haversine(line[i], line[i + 1]);
+        adj.get(kA).push({ to: kB, weight: w });
+        adj.get(kB).push({ to: kA, weight: w });
+      }
     });
+
+    return { nodes, adj, allEdges: lines };
   }
-  if(dist[end]===undefined)return null;
-  const path=[end];let cur=end;
-  while(cur!==start){cur=prev[cur];if(cur===undefined)return null;path.push(cur)}
-  path.reverse();return path;
-}
-function xyOfNode(k,byKey){
-  if(k.startsWith('site_')){const s=byKey[k];return[s.snap.x,s.snap.y]}
-  return[nodeCoord[k].x,nodeCoord[k].y];
-}
-function buildFollowSegments(order){
-  const ordered=order.map(id=>sites.find(s=>s.id===id)).filter(Boolean);
-  if(ordered.length<2)return [];
-  const g=cloneGraphWithSites(ordered);
-  const byKey={};ordered.forEach(s=>byKey[siteNodeKey(s)]=s);
-  const segs=[];
-  for(let i=0;i<ordered.length-1;i++){
-    const A=ordered[i],B=ordered[i+1];
-    let xyPts;
-    if(A.snap.dist<SNAP_THRESHOLD&&B.snap.dist<SNAP_THRESHOLD){
-      const path=dijkstraPath(g,siteNodeKey(A),siteNodeKey(B));
-      if(path) xyPts=path.map(k=>xyOfNode(k,byKey));
-    }
-    if(!xyPts) xyPts=[[A.x,A.y],[B.x,B.y]];
-    segs.push({latlngs:xyPts.map(([x,y])=>{const[lon,lat]=toWGS(x,y);return[lat,lon]})});
-  }
-  return segs;
-}
 
-/* =====================================================================
-   5) TRAVEL MODES
-   ===================================================================== */
-const MODES={
-  walk:{speed:5,emoji:'🚶',label:'سيراً على الأقدام',wait:0,waitLabel:''},
-  transit:{speed:20,emoji:'🚌',label:'النقل العام',wait:5,waitLabel:'+5د انتظار'},
-  car:{speed:35,emoji:'🚗',label:'السيارة',wait:2,waitLabel:'+2د تحضير'},
-  bike:{speed:15,emoji:'🚲',label:'الدراجة',wait:0,waitLabel:''}
-};
-const DEFAULT_MODE='walk';
-let travelMode=DEFAULT_MODE;
-
-/* =====================================================================
-   6) STATE
-   ===================================================================== */
-const DEFAULT_ROUTE=[1,2,3,4,9,5,6,7,8,10];
-let selected=[...DEFAULT_ROUTE];
-let routeLayers=[];
-let arrowLayers=[];
-const markers={};
-let activeStep=-1;
-const SETTINGS={transit:true,labels:true,leaders:true,snap:true};
-
-/* =====================================================================
-   7) HELPERS
-   ===================================================================== */
-function haversineLL(a,b){
-  const R=6371,dLat=(b[0]-a[0])*Math.PI/180,dLon=(b[1]-a[1])*Math.PI/180;
-  const la1=a[0]*Math.PI/180,la2=b[0]*Math.PI/180;
-  const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
-  return 2*R*Math.asin(Math.sqrt(h));
-}
-function bearingDeg(a,b){
-  const lat=(a[0]+b[0])/2*Math.PI/180;
-  const dLon=(b[1]-a[1])*Math.cos(lat),dLat=b[0]-a[0];
-  return Math.atan2(dLon,dLat)*180/Math.PI;
-}
-function bearingToCompass(b){
-  // b is in degrees, 0=north, +90=east. Map to 8 dirs in Arabic.
-  const dirs=[
-    {name:'شمالاً',icon:'⬆️'},
-    {name:'شمال شرق',icon:'↗️'},
-    {name:'شرقاً',icon:'➡️'},
-    {name:'جنوب شرق',icon:'↘️'},
-    {name:'جنوباً',icon:'⬇️'},
-    {name:'جنوب غرب',icon:'↙️'},
-    {name:'غرباً',icon:'⬅️'},
-    {name:'شمال غرب',icon:'↖️'}
-  ];
-  const norm=((b%360)+360)%360;
-  const idx=Math.round(norm/45)%8;
-  return dirs[idx];
-}
-function totalDistance(){
-  const segs=buildFollowSegments(selected);
-  let d=0;segs.forEach(({latlngs})=>{for(let i=0;i<latlngs.length-1;i++) d+=haversineLL(latlngs[i],latlngs[i+1])});
-  return d;
-}
-function totalTime(){
-  const d=totalDistance();
-  const m=MODES[travelMode];
-  const hours=d/m.speed;
-  return Math.round(hours*60+m.wait);
-}
-function midOfPolyline(latlngs){
-  let total=0;const lens=[];
-  for(let i=0;i<latlngs.length-1;i++){const l=haversineLL(latlngs[i],latlngs[i+1]);lens.push(l);total+=l}
-  let acc=0,half=total/2;
-  for(let i=0;i<lens.length;i++){
-    if(acc+lens[i]>=half){
-      const t=lens[i]===0?0:(half-acc)/lens[i];
-      const[la1,lo1]=latlngs[i],[la2,lo2]=latlngs[i+1];
-      return{point:[la1+(la2-la1)*t,lo1+(lo2-lo1)*t],bearing:bearingDeg(latlngs[i],latlngs[i+1])};
-    }
-    acc+=lens[i];
-  }
-  const n=latlngs.length;
-  return{point:latlngs[Math.floor(n/2)],bearing:bearingDeg(latlngs[0],latlngs[n-1])};
-}
-
-/* =====================================================================
-   8) SITE MARKERS + SMART LABELS WITH LEADER LINES
-   ===================================================================== */
-function pinIcon(num,role){
-  // role: 'start' | 'end' | 'selected' | null
-  const cls=['site-pin'];
-  if(role) cls.push(role);
-  if(role==='selected') cls.push('selected');
-  const inner = num
-    ? `<span class="pin-num">${num}</span>`
-    : `<span class="pin-dot"></span>`;
-  return L.divIcon({
-    className:'',
-    html:`<div class="${cls.join(' ')}"><div class="pin-shape"></div>${inner}${role==='start'?'<span class="start-flag"></span>':role==='end'?'<span class="end-flag"></span>':''}</div>`,
-    iconSize:[34,42],iconAnchor:[17,40]
-  });
-}
-
-function labelOffset(idx,total){
-  // alternate up-left / up-right based on index to reduce overlap
-  const ang = (idx * 137) % 360;  // golden angle spread
-  const r = 42;
-  return {x:Math.cos(ang*Math.PI/180)*r, y:-Math.abs(Math.sin(ang*Math.PI/180)*r)-22};
-}
-
-const leaderOverlay=document.getElementById('leaderOverlay');
-const labelMarkers={};
-
-sites.forEach((site,i)=>{
-  const m=L.marker([site.lat,site.lon],{icon:pinIcon(null,null),riseOnHover:true}).addTo(map);
-  m.on('click',()=>openModal(site.id));
-  markers[site.id]=m;
-  labelMarkers[site.id]=null;
-});
-
-function renderSmartLabels(){
-  // remove existing label markers
-  Object.values(labelMarkers).forEach(lm=>{if(lm)lm.remove()});
-  Object.keys(labelMarkers).forEach(k=>labelMarkers[k]=null);
-  leaderOverlay.innerHTML='';
-
-  if(!SETTINGS.labels) return;
-
-  sites.forEach((site,i)=>{
-    const off=labelOffset(i,sites.length);
-    const isStart=selected[0]===site.id;
-    const isEnd=selected[selected.length-1]===site.id;
-    const role=isStart?'start':isEnd?'end':null;
-
-    const labelIcon=L.divIcon({
-      className:'',
-      html:`<div class="smart-label ${role||''}" data-id="${site.id}">${site.path}</div>`,
-      iconSize:[140,26],
-      iconAnchor:[70-off.x, 26/2 - off.y]
-    });
-    const lm=L.marker([site.lat,site.lon],{
-      icon:labelIcon,
-      interactive:true,
-      keyboard:false,
-      zIndexOffset:-50
-    }).addTo(map);
-    lm.on('click',e=>{L.DomEvent.stopPropagation(e);onLabelClick(site.id)});
-    labelMarkers[site.id]=lm;
-
-    if(SETTINGS.leaders){
-      const a=map.latLngToContainerPoint([site.lat,site.lon]);
-      const b=map.latLngToContainerPoint([site.lat,site.lon]).add([off.x,off.y]);
-      const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-      line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
-      line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
-      line.setAttribute('class','leader-line '+(role||''));
-      leaderOverlay.appendChild(line);
-    }
-  });
-}
-function refreshLeaderOverlay(){
-  // only re-position existing SVG lines (cheaper than rebuilding)
-  const lines=leaderOverlay.querySelectorAll('line');
-  sites.forEach((site,i)=>{
-    const off=labelOffset(i,sites.length);
-    const idx=[...lines].findIndex(l=>l.getAttribute('data-id')==site.id);
-    if(idx>-1){
-      const a=map.latLngToContainerPoint([site.lat,site.lon]);
-      const b=map.latLngToContainerPoint([site.lat,site.lon]).add([off.x,off.y]);
-      const line=lines[idx];
-      line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
-      line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
-    }
-  });
-}
-function onLabelClick(id){
-  // focus on this site and highlight
-  flyToSite(id);
-  flashSite(id);
-}
-
-/* =====================================================================
-   9) FLIGHT / FOCUS
-   ===================================================================== */
-function flyToSite(id){
-  const s=sites.find(x=>x.id===id);if(!s)return;
-  map.flyTo([s.lat,s.lon],Math.max(map.getZoom(),18),{duration:.7});
-}
-function flyToAll(){
-  const b=L.latLngBounds(sites.map(s=>[s.lat,s.lon]).concat([[busLat,busLon]]));
-  map.fitBounds(b,{padding:[50,50],maxZoom:18});
-}
-function flashSite(id){
-  const m=markers[id];if(!m)return;
-  const el=m.getElement();
-  if(!el)return;
-  el.style.transition='transform .25s ease';
-  el.style.transformOrigin='center bottom';
-  el.style.transform='scale(1.35)';
-  setTimeout(()=>{el.style.transform='';},400);
-}
-
-/* =====================================================================
-   10) ROUTE RENDERING (with arrow + animation hook)
-   ===================================================================== */
-function clearRoute(){
-  routeLayers.forEach(l=>map.removeLayer(l));routeLayers=[];
-  arrowLayers.forEach(l=>map.removeLayer(l));arrowLayers=[];
-}
-function renderRoute(){
-  clearRoute();
-  if(selected.length<2) return;
-  const segs=buildFollowSegments(selected);
-  segs.forEach(({latlngs},si)=>{
-    const halo=L.polyline(latlngs,{color:'#ffffff',weight:7,opacity:.55,className:'route-anim'}).addTo(map);
-    const line=L.polyline(latlngs,{color:'#a82e2e',weight:4.5,opacity:.95}).addTo(map);
-    routeLayers.push(halo,line);
-
-    // animate the colored line via stroke-dashoffset
-    const path=line.getElement();
-    if(path && path.getTotalLength){
-      try{
-        const len=path.getTotalLength();
-        path.style.strokeDasharray=len;
-        path.style.strokeDashoffset=len;
-        path.style.transition=`stroke-dashoffset ${.6+si*.1}s cubic-bezier(.4,.1,.2,1)`;
-        requestAnimationFrame(()=>{path.style.strokeDashoffset=0});
-      }catch(e){}
-    }
-
-    const{point,bearing}=midOfPolyline(latlngs);
-    const arrow=L.marker(point,{
-      icon:L.divIcon({
-        className:'',
-        html:`<div class="route-arrow" style="transform:rotate(${bearing}deg)">▲</div>`,
-        iconSize:[18,18],iconAnchor:[9,9]
-      }),
-      interactive:false
-    }).addTo(map);
-    arrowLayers.push(arrow);
-  });
-}
-
-/* =====================================================================
-   11) TOGGLE / RENDER
-   ===================================================================== */
-function toggleSite(id){
-  const idx=selected.indexOf(id);
-  if(idx>-1) selected.splice(idx,1);
-  else selected.push(id);
-  render();
-}
-function render(){
-  // pin styling
-  sites.forEach(site=>{
-    const idx=selected.indexOf(site.id);
-    const role = idx===0?'start':idx===selected.length-1?'end':null;
-    const num=idx>-1?idx+1:null;
-    markers[site.id].setIcon(pinIcon(num,role));
-  });
-  // labels (always render, since they show even when not selected)
-  renderSmartLabels();
-  // route
-  renderRoute();
-
-  // left panel — route cards
-  const list=document.getElementById('stopList');
-  list.innerHTML='';
-  sites.forEach(site=>{
-    const idx=selected.indexOf(site.id);
-    const card=document.createElement('div');
-    card.className='stop-card'+(idx>-1?' active':'');
-    card.tabIndex=0;
-    card.innerHTML=`
-      <div class="badge">${idx>-1?(idx+1):''}</div>
-      <div class="stop-info">
-        <b>${site.path}</b>
-        <span class="site-desc-tag">${site.cat} · ${site.name||''}</span>
-        <button type="button" class="info-btn"> اكتشف الدرب </button>
-      </div>`;
-    card.querySelector('.badge').onclick=(e)=>{e.stopPropagation();toggleSite(site.id)};
-    card.querySelector('.stop-info b').onclick=(e)=>{e.stopPropagation();toggleSite(site.id)};
-    card.querySelector('.info-btn').onclick=(e)=>{e.stopPropagation();openModal(site.id)};
-    card.onclick=()=>toggleSite(site.id);
-    card.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleSite(site.id)}};
-    list.appendChild(card);
-  });
-
-  document.getElementById('statSelected').textContent=selected.length;
-
-  const distKm=totalDistance();
-  const distText=distKm.toFixed(2)+' كم';
-  document.getElementById('summaryDist').textContent=distText;
-
-  // top stats distance
-  const statDist=document.getElementById('statDist');
-  if(statDist){statDist.textContent=distText;statDist.nextElementSibling.textContent='طول المسار'}
-
-  // info bar + nav panel + sheet
-  updateInfoBar();
-  renderNavPanel();
-  renderSheet();
-  // all paths panel
-  renderAllPathsList();
-}
-
-/* =====================================================================
-   12) INFO BAR
-   ===================================================================== */
-function updateInfoBar(){
-  const distKm=totalDistance();
-  const time=totalTime();
-  document.getElementById('ibName').textContent = selected.length>0
-    ? `${selected.length} دروب مختارة`
-    : 'دروب الزيتون';
-  document.getElementById('ibDist').innerHTML = selected.length>1
-    ? `${distKm.toFixed(2)} <small>كم</small>` : `— <small>كم</small>`;
-  document.getElementById('ibTime').innerHTML = selected.length>1
-    ? `${time} <small>دقيقة</small>` : `— <small>دقيقة</small>`;
-  document.getElementById('ibMode').textContent = MODES[travelMode].label;
-
-  // rating (mock based on count)
-  const rating = selected.length ? 4.2 + Math.min(0.7, selected.length*0.04) : 4.6;
-  const full = Math.floor(rating), half = rating-full>=0.5;
-  const stars = '★'.repeat(full) + (half?'☆':'') + '<span class="empty">★</span>'.repeat(5-full-(half?1:0));
-  document.getElementById('ibStars').innerHTML = stars;
-
-  // difficulty: based on dist + count
-  const diff = Math.min(5, Math.max(1, Math.ceil(distKm*2.5)));
-  let html='';for(let i=0;i<5;i++) html+=`<span class="sq ${i<diff?'on':''}"></span>`;
-  document.getElementById('ibDiff').innerHTML = html;
-
-  // mobile quick
-  document.getElementById('mobDist').textContent = selected.length>1 ? distKm.toFixed(2) : '—';
-  document.getElementById('mobTime').textContent = selected.length>1 ? time : '—';
-}
-
-/* =====================================================================
-   13) DIRECTIONS (turn-by-turn)
-   ===================================================================== */
-function generateDirections(){
-  if(selected.length<2) return [];
-  const segs=buildFollowSegments(selected);
-  const ordered=selected.map(id=>sites.find(s=>s.id===id));
-  const steps=[];
-
-  // step 0: start
-  steps.push({
-    icon:'📍',
-    action:`ابدأ من ${ordered[0].path}`,
-    dist:0,
-    time:0,
-    cumulative:0
-  });
-
-  segs.forEach((seg,si)=>{
-    const A=ordered[si],B=ordered[si+1];
-    const dist = seg.latlngs.reduce((acc,p,i)=>i?acc+haversineLL(seg.latlngs[i-1],p):acc,0);
-    // detect general bearing
-    let totalBear=0;let n=0;
-    for(let i=1;i<seg.latlngs.length;i++){
-      const b=bearingDeg(seg.latlngs[i-1],seg.latlngs[i]);
-      totalBear+=b;n++;
-    }
-    const avgBear=n?totalBear/n:0;
-    const cmp=bearingToCompass(avgBear);
-
-    const cumulativeBefore = steps.length?steps[steps.length-1].cumulative:0;
-
-    if(travelMode==='transit'){
-      // transit step: walk to bus + bus ride
-      steps.push({
-        icon:'🚶',
-        action:`امشِ ${cmp.name} من ${A.path} نحو موقف الحافلات`,
-        dist:Math.round(dist*0.25),
-        time:Math.round(dist*0.25/1000/MODES.walk.speed*60),
-        cumulative:cumulativeBefore+Math.round(dist*0.25/1000/MODES.walk.speed*60)
-      });
-      steps.push({
-        icon:'🚌',
-        action:`اركب الحافلة من الموقف العام ${cmp.name} نحو ${B.path}`,
-        dist:Math.round(dist*0.75),
-        time:Math.round(dist*0.75/1000/MODES.transit.speed*60)+MODES.transit.wait,
-        cumulative:steps[steps.length-1].cumulative+Math.round(dist*0.75/1000/MODES.transit.speed*60)+MODES.transit.wait
-      });
-    } else if(travelMode==='car'){
-      steps.push({
-        icon:'🚗',
-        action:`قد السيارة ${cmp.name} نحو ${B.path}`,
-        dist:Math.round(dist),
-        time:Math.round(dist/1000/MODES.car.speed*60)+MODES.car.wait,
-        cumulative:cumulativeBefore+Math.round(dist/1000/MODES.car.speed*60)+MODES.car.wait
-      });
-    } else if(travelMode==='bike'){
-      steps.push({
-        icon:'🚲',
-        action:`اركب الدراجة ${cmp.name} نحو ${B.path}`,
-        dist:Math.round(dist),
-        time:Math.round(dist/1000/MODES.bike.speed*60),
-        cumulative:cumulativeBefore+Math.round(dist/1000/MODES.bike.speed*60)
-      });
-    } else {
-      steps.push({
-        icon:cmp.icon,
-        action:`تابع ${cmp.name} من ${A.path} نحو ${B.path}`,
-        dist:Math.round(dist),
-        time:Math.round(dist/1000/MODES.walk.speed*60),
-        cumulative:cumulativeBefore+Math.round(dist/1000/MODES.walk.speed*60)
-      });
-    }
-  });
-
-  steps.push({
-    icon:'🏁',
-    action:`لقد وصلت إلى ${ordered[ordered.length-1].path}`,
-    dist:0,
-    time:0,
-    cumulative:steps[steps.length-1].cumulative
-  });
-
-  return steps;
-}
-
-/* =====================================================================
-   14) NAV PANEL + DIRECTIONS LIST
-   ===================================================================== */
-function renderNavPanel(){
-  const c=document.getElementById('navContent');
-  const sub=document.getElementById('navSubtitle');
-  const steps=generateDirections();
-
-  if(selected.length<2){
-    sub.textContent='اختر دربين أو أكثر لعرض التفاصيل';
-    c.innerHTML=`
-      <div class="nav-card" style="text-align:center;padding:1.5rem 1rem">
-        <div style="font-size:2.5rem;margin-bottom:.5rem">🧭</div>
-        <b style="display:block;font-family:'Amiri',serif;font-size:1.05rem;margin-bottom:.3rem">لا يوجد مسار حالياً</b>
-        <span style="font-size:.82rem;color:var(--ink-soft)">اختر دروباً من القائمة الجانبية لبناء مسارك.</span>
-      </div>`;
-    return;
-  }
-  sub.textContent=`${selected.length} دروب · ${totalDistance().toFixed(2)} كم · ${totalTime()} دقيقة`;
-
-  const totalMin=totalTime();
-  const distKm=totalDistance();
-  const elev = Math.max(8, Math.round(distKm*6));
-  const elevDown = Math.max(6, Math.round(distKm*5));
-  const diff = Math.min(5, Math.max(1, Math.ceil(distKm*2.5)));
-
-  c.innerHTML=`
-    <div class="nav-card">
-      <div class="nav-row"><div class="n-ico">📍</div><div class="n-content"><span class="n-label">نقطة البداية</span><span class="n-value">${sites.find(s=>s.id===selected[0]).path}</span></div></div>
-      <div class="nav-row"><div class="n-ico">🏁</div><div class="n-content"><span class="n-label">نقطة النهاية</span><span class="n-value">${sites.find(s=>s.id===selected[selected.length-1]).path}</span></div></div>
-      <div class="nav-row"><div class="n-ico">📏</div><div class="n-content"><span class="n-label">طول المسار</span><span class="n-value">${distKm.toFixed(2)} <small>كم</small></span></div></div>
-      <div class="nav-row"><div class="n-ico">⏱️</div><div class="n-content"><span class="n-label">الوقت التقديري</span><span class="n-value">${totalMin} <small>دقيقة</small></span></div></div>
-      <div class="nav-row"><div class="n-ico">🚶</div><div class="n-content"><span class="n-label">مدة المشي</span><span class="n-value">${Math.round(distKm/MODES.walk.speed*60)} <small>دقيقة</small></span></div></div>
-      <div class="nav-row"><div class="n-ico">🚌</div><div class="n-content"><span class="n-label">النقل العام</span><span class="n-value">${Math.round(distKm/MODES.transit.speed*60+MODES.transit.wait)} <small>دقيقة</small></span></div></div>
-      <div class="nav-row"><div class="n-ico">🚗</div><div class="n-content"><span class="n-label">الوصول بالسيارة</span><span class="n-value">${Math.round(distKm/MODES.car.speed*60+MODES.car.wait)} <small>دقيقة</small></span></div></div>
-      <div class="nav-row"><div class="n-ico">🚲</div><div class="n-content"><span class="n-label">الدراجة</span><span class="n-value">${Math.round(distKm/MODES.bike.speed*60)} <small>دقيقة</small></span></div></div>
-      <div class="nav-row"><div class="n-ico">⬆️</div><div class="n-content"><span class="n-label">الارتفاع والانخفاض</span><span class="n-value">↑ ${elev} م <small>·</small> ↓ ${elevDown} م</span></div></div>
-      <div class="nav-row"><div class="n-ico">🔥</div><div class="n-content"><span class="n-label">مستوى الصعوبة</span><span class="n-value"><span class="difficulty">${'<span class="sq on"></span>'.repeat(diff)+'<span class="sq"></span>'.repeat(5-diff)}</span></span></div></div>
-      <div class="nav-row"><div class="n-ico">⭐</div><div class="n-content"><span class="n-label">التقييم</span><span class="n-value stars">${'★'.repeat(Math.floor(4.6))}${'☆'.repeat(5-Math.floor(4.6))} <small>· 120 تقييم</small></span></div></div>
-    </div>
-
-    <div class="directions-card">
-      <h3>تعليمات المسار</h3>
-      <div class="dir-list" id="dirList">
-        ${steps.map((s,i)=>`
-          <div class="dir-step ${i===0?'active':''}" data-step="${i}">
-            <div class="step-num">${i+1}</div>
-            <div class="step-content">
-              <div class="step-action">${s.icon} ${s.action}</div>
-              <div class="step-meta">
-                ${s.dist>0?`<span>${s.dist>=1000?(s.dist/1000).toFixed(2)+' كم':s.dist+' م'}</span>`:''}
-                ${s.time>0?`<span>${s.time} دقيقة</span>`:''}
-                ${i>0?`<span>المجموع ${s.cumulative} د</span>`:''}
-              </div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>
-  `;
-
-  // step click -> highlight + scroll map
-  c.querySelectorAll('.dir-step').forEach(el=>{
-    el.onclick=()=>{
-      c.querySelectorAll('.dir-step').forEach(x=>x.classList.remove('active'));
-      el.classList.add('active');
-      const stepIdx=parseInt(el.dataset.step);
-      activeStep=stepIdx;
-      // scroll to corresponding site (1:1 with selected, but we'll just focus on the matching site if any)
-      if(stepIdx>0 && stepIdx<steps.length-1){
-        const siteIdx = travelMode==='transit' ? Math.floor(stepIdx/2) : stepIdx-1;
-        const targetSiteId = selected[Math.min(siteIdx, selected.length-1)];
-        if(targetSiteId){
-          const ts=sites.find(s=>s.id===targetSiteId);
-          if(ts) map.flyTo([ts.lat,ts.lon],Math.max(map.getZoom(),18),{duration:.6});
+  /**
+   * يجد أقرب نقطة على كامل شبكة المسار لنقطة معطاة p [lat,lng]
+   * يعيد: { point, edge:[keyA,keyB], distToA, distToB }
+   */
+  function nearestPointOnGraph(graph, p) {
+    let best = null;
+    graph.allEdges.forEach(line => {
+      for (let i = 0; i < line.length - 1; i++) {
+        const res = nearestPointOnSegment(p, line[i], line[i + 1]);
+        if (!best || res.dist < best.dist) {
+          best = {
+            point: res.point,
+            dist: res.dist,
+            a: line[i],
+            b: line[i + 1]
+          };
         }
       }
+    });
+    if (!best) return null;
+    const keyA = keyOf(best.a);
+    const keyB = keyOf(best.b);
+    return {
+      point: best.point,
+      dist: best.dist,
+      keyA,
+      keyB,
+      distToA: haversine(best.point, best.a),
+      distToB: haversine(best.point, best.b)
     };
-  });
-}
-
-/* =====================================================================
-   15) BOTTOM SHEET (mobile)
-   ===================================================================== */
-function renderSheet(){
-  const body=document.getElementById('sheetBody');
-  const steps=generateDirections();
-  if(selected.length<2){
-    body.innerHTML=`<div style="text-align:center;padding:1rem"><div style="font-size:2rem">🗺️</div><b style="display:block;margin:.3rem 0;font-family:'Amiri',serif">لا يوجد مسار</b><span style="font-size:.8rem;color:var(--ink-soft)">اختر دروباً من الأعلى أو اضغط على الخريطة.</span></div>`;
-    return;
   }
-  const distKm=totalDistance();
-  const totalMin=totalTime();
-  body.innerHTML=`
-    <div class="nav-card" style="margin-bottom:.7rem">
-      <div class="nav-row"><div class="n-ico">📍</div><div class="n-content"><span class="n-label">البداية</span><span class="n-value">${sites.find(s=>s.id===selected[0]).path}</span></div></div>
-      <div class="nav-row"><div class="n-ico">🏁</div><div class="n-content"><span class="n-label">النهاية</span><span class="n-value">${sites.find(s=>s.id===selected[selected.length-1]).path}</span></div></div>
-      <div class="nav-row"><div class="n-ico">⏱️</div><div class="n-content"><span class="n-label">الوقت · المسافة</span><span class="n-value">${totalMin} د · ${distKm.toFixed(2)} كم</span></div></div>
-    </div>
-    <div class="directions-card">
-      <h3>تعليمات المسار</h3>
-      <div class="dir-list">
-        ${steps.slice(0,6).map((s,i)=>`
-          <div class="dir-step">
-            <div class="step-num">${i+1}</div>
-            <div class="step-content">
-              <div class="step-action">${s.icon} ${s.action}</div>
-              <div class="step-meta">
-                ${s.dist>0?`<span>${s.dist>=1000?(s.dist/1000).toFixed(2)+' كم':s.dist+' م'}</span>`:''}
-                ${s.time>0?`<span>${s.time}د</span>`:''}
-              </div>
-            </div>
-          </div>`).join('')}
-      </div>
-      ${steps.length>6?`<div style="text-align:center;font-size:.78rem;color:var(--ink-soft);margin-top:.5rem">اسحب للأعلى لعرض ${steps.length-6} خطوات إضافية</div>`:''}
-    </div>`;
-}
 
-/* =====================================================================
-   16) MODAL
-   ===================================================================== */
-const modal=document.getElementById('siteModal');
-function openModal(id){
-  const site=sites.find(s=>s.id===id);
-  document.getElementById('modalMedia').innerHTML=`<div class="emoji">${site.emoji}</div><div class="cap">صورة توضيحية — بانتظار صورة حقيقية من أرشيف البلدية</div>`;
-  document.getElementById('modalSiteName').textContent=site.cat;
-  document.getElementById('modalPathName').textContent=site.path;
-  document.getElementById('modalText').textContent=site.text;
-  const btn=document.getElementById('modalToggleBtn');
-  const isSel=selected.includes(id);
-  btn.textContent=isSel?'إزالة من المسار':'إضافة إلى المسار';
-  btn.className='modal-toggle'+(isSel?' remove':'');
-  btn.onclick=()=>{toggleSite(id);openModal(id)};
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden','false');
-}
-function closeModal(){
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden','true');
-}
-document.getElementById('modalClose').onclick=closeModal;
-modal.addEventListener('click',e=>{if(e.target===modal) closeModal()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeAllPopups()}});
+  /**
+   * خوارزمية دايكسترا لإيجاد أقصر مسار بين عقدتين في الرسم البياني
+   * تعيد مصفوفة من [lat,lng] تمثل المسار، أو null إن تعذر الوصول
+   */
+  function dijkstra(graph, startKey, endKey) {
+    const dist = new Map();
+    const prev = new Map();
+    const visited = new Set();
+    const queue = new Set(graph.nodes.keys());
 
-/* =====================================================================
-   17) MAP CONTROLS
-   ===================================================================== */
-document.getElementById('zoomIn').onclick=()=>map.zoomIn();
-document.getElementById('zoomOut').onclick=()=>map.zoomOut();
-document.getElementById('recenter').onclick=flyToAll;
+    graph.nodes.forEach((_, k) => dist.set(k, Infinity));
+    dist.set(startKey, 0);
 
-document.getElementById('myLocation').onclick=()=>{
-  if(!navigator.geolocation){alert('الموقع الجغرافي غير متوفر في هذا المتصفح');return}
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const {latitude:lat,longitude:lon}=pos.coords;
-    if(window._userMarker) map.removeLayer(window._userMarker);
-    const icon=L.divIcon({className:'',html:'<div class="user-marker"></div>',iconSize:[18,18],iconAnchor:[9,9]});
-    window._userMarker=L.marker([lat,lon],{icon}).addTo(map).bindPopup('موقعك الحالي');
-    map.flyTo([lat,lon],18,{duration:.6});
-  },err=>alert('تعذّر الوصول إلى الموقع: '+err.message));
+    while (queue.size) {
+      // اختيار العقدة ذات أقل مسافة (تنفيذ بسيط يكفي لحجم الشبكة هنا)
+      let u = null, best = Infinity;
+      queue.forEach(k => {
+        const d = dist.get(k);
+        if (d < best) { best = d; u = k; }
+      });
+      if (u === null) break;
+      queue.delete(u);
+      visited.add(u);
+      if (u === endKey) break;
+
+      const edges = graph.adj.get(u) || [];
+      edges.forEach(e => {
+        if (visited.has(e.to)) return;
+        const alt = dist.get(u) + e.weight;
+        if (alt < (dist.get(e.to) ?? Infinity)) {
+          dist.set(e.to, alt);
+          prev.set(e.to, u);
+        }
+      });
+    }
+
+    if (!dist.has(endKey) || dist.get(endKey) === Infinity) return null;
+
+    const path = [];
+    let cur = endKey;
+    while (cur !== undefined) {
+      path.unshift(graph.nodes.get(cur));
+      if (cur === startKey) break;
+      cur = prev.get(cur);
+    }
+    return { coords: path, distance: dist.get(endKey) };
+  }
+
+  /**
+   * يضيف عقدة افتراضية (نقطة ملتصقة على حافة) إلى نسخة مؤقتة من الرسم البياني
+   * ويعيد مفتاح العقدة الجديدة
+   */
+  function attachVirtualNode(graph, snap, label) {
+    const key = 'virtual:' + label + ':' + snap.point[0].toFixed(7) + ',' + snap.point[1].toFixed(7);
+    graph.nodes.set(key, snap.point);
+    graph.adj.set(key, []);
+    const link = (otherKey, w) => {
+      graph.adj.get(key).push({ to: otherKey, weight: w });
+      if (!graph.adj.has(otherKey)) graph.adj.set(otherKey, []);
+      graph.adj.get(otherKey).push({ to: key, weight: w });
+    };
+    link(snap.keyA, snap.distToA || 0.01);
+    link(snap.keyB, snap.distToB || 0.01);
+    return key;
+  }
+
+  /** طول مسار مكوّن من نقاط متتالية */
+  function pathLength(coords) {
+    let total = 0;
+    for (let i = 1; i < coords.length; i++) total += haversine(coords[i - 1], coords[i]);
+    return total;
+  }
+
+  /** المسافة المتبقية من نقطة "مسقطة" على المسار وحتى نهايته، مع مؤشر أقرب رأس تالٍ */
+  function remainingFromPoint(coords, fromIndex, snapPointOnPath) {
+    let total = haversine(snapPointOnPath, coords[fromIndex + 1] || coords[fromIndex]);
+    for (let i = fromIndex + 1; i < coords.length - 1; i++) {
+      total += haversine(coords[i], coords[i + 1]);
+    }
+    return total;
+  }
+
+  return {
+    toLatLng, haversine, bearing, toRad, toDeg,
+    nearestPointOnSegment, buildGraph, nearestPointOnGraph,
+    dijkstra, attachVirtualNode, pathLength, remainingFromPoint, keyOf
+  };
+})();
+
+</script>
+<script>
+/* ============================================================
+   map.js
+   تهيئة خريطة Leaflet وتحميل بيانات المسار والمفارق والمنتزه
+   ============================================================ */
+'use strict';
+
+const ParkMap = (() => {
+  let map = null;
+  let userMarker = null;
+  let connectorLine = null;
+  let activePathLine = null;
+  let routeLinesLayer = null;
+
+  const state = {
+    routeLines: [],      // مصفوفة خطوط، كل خط = [[lat,lng], ...]
+    junctions: [],        // [{name, latlng}]
+    park: null,            // {latlng, name}
+    graph: null
+  };
+
+  /* ---------- تحميل وتحويل البيانات ---------- */
+  async function loadData() {
+    // البيانات مضمّنة مباشرة داخل الصفحة (لا حاجة لملفات خارجية)
+    const routeRes = window.__PARK_DATA__.route;
+    const junctionsRes = window.__PARK_DATA__.junctions;
+    const parkRes = window.__PARK_DATA__.park;
+
+    // تحويل خطوط المسار (MultiLineString) من EPSG:28191 إلى WGS84
+    const multi = routeRes.features[0].geometry.coordinates; // array of lines of [x,y]
+    state.routeLines = multi.map(line => line.map(([x, y]) => ParkUtils.toLatLng(x, y)));
+
+    // تحويل نقاط المفارق (تنسيق ArcGIS REST: x/y مباشرة)
+    state.junctions = junctionsRes.features.map(f => ({
+      name: (f.attributes.Paths || '').trim(),
+      latlng: ParkUtils.toLatLng(f.geometry.x, f.geometry.y)
+    }));
+
+    // تحويل موقع المنتزه (تنسيق GeoJSON Point)
+    const parkFeature = parkRes.features[0];
+    const [px, py] = parkFeature.geometry.coordinates;
+    state.park = {
+      name: parkFeature.properties.Name || 'منتزه بلدية سلفيت',
+      latlng: ParkUtils.toLatLng(px, py)
+    };
+
+    // بناء الرسم البياني لشبكة المسار لاستخدامه في الملاحة
+    state.graph = ParkUtils.buildGraph(state.routeLines);
+
+    return state;
+  }
+
+  /* ---------- تهيئة الخريطة ---------- */
+  function initMap() {
+    map = L.map('leaflet-map', { zoomControl: false, attributionControl: true });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    drawRoute();
+    drawJunctions();
+    drawPark();
+    fitToRoute();
+
+    return map;
+  }
+
+  function drawRoute() {
+    routeLinesLayer = L.layerGroup(
+      state.routeLines.map(line =>
+        L.polyline(line, { color: '#6E9F55', weight: 5, opacity: 0.55, lineCap: 'round' })
+      )
+    ).addTo(map);
+  }
+
+  function drawJunctions() {
+    state.junctions.forEach(j => {
+      const el = document.createElement('div');
+      el.className = 'junction-marker';
+      const icon = L.divIcon({ html: el.outerHTML, className: '', iconSize: [14, 14] });
+      L.marker(j.latlng, { icon }).addTo(map).bindPopup(`<strong>${j.name || 'مفترق'}</strong>`);
+    });
+  }
+
+  function drawPark() {
+    const icon = L.divIcon({
+      html: '<div class="park-marker"><span>🌳</span></div>',
+      className: '', iconSize: [34, 34], iconAnchor: [17, 30]
+    });
+    L.marker(state.park.latlng, { icon }).addTo(map)
+      .bindPopup(`<strong>${state.park.name}</strong>`);
+  }
+
+  function fitToRoute() {
+    const bounds = L.latLngBounds([]);
+    state.routeLines.forEach(line => line.forEach(pt => bounds.extend(pt)));
+    bounds.extend(state.park.latlng);
+    map.fitBounds(bounds, { padding: [40, 40] });
+  }
+
+  /* ---------- طبقة المستخدم ---------- */
+  function setUserPosition(latlng, heading) {
+    if (!userMarker) {
+      const el = `<div class="user-marker"><div class="arrow"></div></div>`;
+      const icon = L.divIcon({ html: el, className: '', iconSize: [22, 22], iconAnchor: [11, 11] });
+      userMarker = L.marker(latlng, { icon, zIndexOffset: 1000 }).addTo(map);
+    } else {
+      userMarker.setLatLng(latlng);
+    }
+    if (typeof heading === 'number') {
+      const el = userMarker.getElement();
+      if (el) {
+        const inner = el.querySelector('.user-marker');
+        if (inner) inner.style.transform = `rotate(${heading}deg)`;
+      }
+    }
+  }
+
+  function setConnectorLine(from, to) {
+    if (connectorLine) map.removeLayer(connectorLine);
+    if (!from || !to) { connectorLine = null; return; }
+    connectorLine = L.polyline([from, to], {
+      color: '#C9A15A', weight: 4, dashArray: '2,10', lineCap: 'round'
+    }).addTo(map);
+  }
+
+  function setActivePath(coords) {
+    if (activePathLine) map.removeLayer(activePathLine);
+    if (!coords || !coords.length) { activePathLine = null; return; }
+    activePathLine = L.polyline(coords, {
+      color: '#2F4A25', weight: 6, opacity: 0.9, lineCap: 'round'
+    }).addTo(map);
+  }
+
+  function panTo(latlng, zoom) {
+    map.flyTo(latlng, zoom || Math.max(map.getZoom(), 17), { duration: 0.8 });
+  }
+
+  function invalidate() {
+    if (map) setTimeout(() => map.invalidateSize(), 200);
+  }
+
+  function getMap() { return map; }
+  function getState() { return state; }
+
+  return {
+    loadData, initMap, setUserPosition, setConnectorLine, setActivePath,
+    panTo, invalidate, getMap, getState
+  };
+})();
+
+</script>
+<script>
+/* ============================================================
+   navigation.js
+   نظام الملاحة الحية: تتبع الموقع، حساب المسار، التوجيهات، الوصول
+   ============================================================ */
+'use strict';
+
+const ParkNav = (() => {
+  const ARRIVAL_THRESHOLD_M = 18;    // مسافة اعتبار الوصول للمنتزه
+  const ON_ROUTE_THRESHOLD_M = 25;   // مسافة اعتبار المستخدم "على المسار"
+  const JUNCTION_MATCH_M = 35;       // نطاق ربط رأس المسار بأقرب مفترق
+  const REROUTE_DRIFT_M = 60;        // انحراف يستدعي إعادة حساب المسار
+
+  let watchId = null;
+  let activePath = null;     // {coords, distance}
+  let onRoute = false;
+  let arrived = false;
+  let lastLatLng = null;
+  let onUpdateCallback = null;
+  let onArriveCallback = null;
+
+  function haversine(a, b) { return ParkUtils.haversine(a, b); }
+
+  /* ---------- حساب المسار من نقطة المستخدم إلى المنتزه عبر شبكة الطرق ---------- */
+  function computeRoute(userLatLng) {
+    const state = ParkMap.getState();
+    // ننسخ الرسم البياني الأساسي في كل مرة لإضافة عقد افتراضية دون تلويث الأصل
+    const graph = { nodes: new Map(state.graph.nodes), adj: new Map(), allEdges: state.graph.allEdges };
+    state.graph.adj.forEach((v, k) => graph.adj.set(k, [...v]));
+
+    const userSnap = ParkUtils.nearestPointOnGraph(graph, userLatLng);
+    const parkSnap = ParkUtils.nearestPointOnGraph(graph, state.park.latlng);
+    if (!userSnap || !parkSnap) return null;
+
+    const startKey = ParkUtils.attachVirtualNode(graph, userSnap, 'start');
+    const endKey = ParkUtils.attachVirtualNode(graph, parkSnap, 'end');
+
+    const result = ParkUtils.dijkstra(graph, startKey, endKey);
+    if (!result) return null;
+
+    return {
+      coords: result.coords,
+      distance: result.distance,
+      userSnapPoint: userSnap.point,
+      userOffRoute: userSnap.dist > ON_ROUTE_THRESHOLD_M,
+      userOffDistance: userSnap.dist
+    };
+  }
+
+  /* ---------- ربط رؤوس المسار بأقرب مفترق (إن وجد) ---------- */
+  function junctionNear(point) {
+    const state = ParkMap.getState();
+    let best = null;
+    state.junctions.forEach(j => {
+      const d = haversine(point, j.latlng);
+      if (d <= JUNCTION_MATCH_M && (!best || d < best.d)) best = { j, d };
+    });
+    return best ? best.j : null;
+  }
+
+  /* ---------- تصنيف نوع المناورة عند رأس معيّن في المسار ---------- */
+  function classifyTurn(coords, index) {
+    if (index <= 0 || index >= coords.length - 1) return null;
+    const inBearing = ParkUtils.bearing(coords[index - 1], coords[index]);
+    const outBearing = ParkUtils.bearing(coords[index], coords[index + 1]);
+    let diff = outBearing - inBearing;
+    diff = ((diff + 540) % 360) - 180; // تطبيع إلى [-180,180]
+
+    const junction = junctionNear(coords[index]);
+    const isRoundabout = junction && junction.name.includes('دوار');
+
+    let type, label, icon;
+    if (isRoundabout) {
+      type = 'roundabout'; label = 'تابع عند الدوار'; icon = '🔄';
+    } else if (Math.abs(diff) < 20) {
+      type = 'straight'; label = 'استمر مستقيمًا'; icon = '↑';
+    } else if (diff > 20 && diff <= 120) {
+      type = 'right'; label = 'انعطف يمينًا'; icon = '↱';
+    } else if (diff < -20 && diff >= -120) {
+      type = 'left'; label = 'انعطف يسارًا'; icon = '↰';
+    } else if (diff > 120) {
+      type = 'sharp-right'; label = 'انعطف يمينًا بشكل حاد'; icon = '↱';
+    } else {
+      type = 'sharp-left'; label = 'انعطف يسارًا بشكل حاد'; icon = '↰';
+    }
+
+    return { type, label, icon, junctionName: junction ? junction.name : null };
+  }
+
+  /* ---------- بدء الملاحة ---------- */
+  function start(onUpdate, onArrive) {
+    onUpdateCallback = onUpdate;
+    onArriveCallback = onArrive;
+    arrived = false;
+
+    if (!navigator.geolocation) {
+      onUpdate({ error: 'المتصفح لا يدعم تحديد الموقع الجغرافي' });
+      return;
+    }
+
+    watchId = navigator.geolocation.watchPosition(handlePosition, handleError, {
+      enableHighAccuracy: true, maximumAge: 1000, timeout: 15000
+    });
+  }
+
+  function stop() {
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+    activePath = null;
+    onRoute = false;
+    arrived = false;
+  }
+
+  function handleError(err) {
+    if (onUpdateCallback) onUpdateCallback({ error: 'تعذّر الوصول لموقعك، يرجى تفعيل خدمة الموقع الجغرافي' });
+  }
+
+  function handlePosition(pos) {
+    const userLatLng = [pos.coords.latitude, pos.coords.longitude];
+    const heading = pos.coords.heading;
+    lastLatLng = userLatLng;
+
+    if (arrived) return;
+
+    // إعادة حساب المسار عند أول مرة أو عند وجود انحراف كبير عن المسار الحالي
+    const needsRoute = !activePath || (
+      ParkUtils.nearestPointOnSegmentOfPath(activePath.coords, userLatLng).dist > REROUTE_DRIFT_M
+    );
+
+    if (needsRoute) {
+      const route = computeRoute(userLatLng);
+      if (!route) return;
+      activePath = route;
+    }
+
+    const snap = ParkUtils.nearestPointOnSegmentOfPath(activePath.coords, userLatLng);
+    onRoute = snap.dist <= ON_ROUTE_THRESHOLD_M;
+
+    const totalLen = ParkUtils.pathLength(activePath.coords);
+    const remaining = ParkUtils.remainingFromPoint(activePath.coords, snap.segIndex, snap.point) + snap.dist;
+    const traveled = Math.max(0, totalLen - remaining);
+    const progress = totalLen > 0 ? Math.min(100, Math.max(0, (traveled / totalLen) * 100)) : 0;
+
+    // المفترق/المناورة القادمة: أول رأس بعد موضع المستخدم الحالي
+    let nextIdx = snap.segIndex + 1;
+    let maneuver = classifyTurn(activePath.coords, nextIdx);
+    while (!maneuver && nextIdx < activePath.coords.length - 1) {
+      nextIdx++;
+      maneuver = classifyTurn(activePath.coords, nextIdx);
+    }
+
+    const distToNext = haversine(snap.point, activePath.coords[nextIdx] || activePath.coords[activePath.coords.length - 1]);
+
+    const distToPark = haversine(userLatLng, ParkMap.getState().park.latlng);
+    const isArrived = distToPark <= ARRIVAL_THRESHOLD_M || remaining <= ARRIVAL_THRESHOLD_M;
+
+    const payload = {
+      userLatLng, heading,
+      onRoute, snapPoint: snap.point,
+      pathCoords: activePath.coords,
+      remainingMeters: remaining,
+      progress,
+      maneuver: isArrived ? { type: 'arrive', label: 'لقد وصلت', icon: '🏁' } : (maneuver || { type: 'straight', label: 'استمر مستقيمًا', icon: '↑' }),
+      distanceToManeuver: distToNext,
+      etaMinutes: Math.max(1, Math.round((remaining / 1.3) / 60)) // بافتراض سرعة مشي ~1.3م/ث
+    };
+
+    if (onUpdateCallback) onUpdateCallback(payload);
+
+    if (isArrived && !arrived) {
+      arrived = true;
+      if (onArriveCallback) onArriveCallback();
+    }
+  }
+
+  function getLastPosition() { return lastLatLng; }
+
+  return { start, stop, computeRoute, getLastPosition, ARRIVAL_THRESHOLD_M };
+})();
+
+/* ---------- امتداد لأداة إيجاد أقرب نقطة على مسار محدد (وليس الشبكة كاملة) ---------- */
+ParkUtils.nearestPointOnSegmentOfPath = function (coords, p) {
+  let best = null;
+  for (let i = 0; i < coords.length - 1; i++) {
+    const res = ParkUtils.nearestPointOnSegment(p, coords[i], coords[i + 1]);
+    if (!best || res.dist < best.dist) {
+      best = { point: res.point, dist: res.dist, segIndex: i };
+    }
+  }
+  return best;
 };
 
-/* map style menu */
-const styleBtn=document.getElementById('mapStyleBtn');
-const styleMenu=document.getElementById('mapStyleMenu');
-styleBtn.onclick=e=>{e.stopPropagation();closeAllPopups(styleMenu);styleMenu.classList.toggle('open')};
-styleMenu.querySelectorAll('button').forEach(b=>{
-  b.onclick=()=>{
-    styleMenu.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    const key=b.dataset.style;
-    map.removeLayer(currentTile);
-    currentTile=L.tileLayer(TILE_LAYERS[key].url,{attribution:TILE_LAYERS[key].attr,maxZoom:TILE_LAYERS[key].max,minZoom:12}).addTo(map);
-    styleMenu.classList.remove('open');
+</script>
+<script>
+/* ============================================================
+   ui.js
+   التنقل بين الصفحات، بيانات المرافق، بطاقات المرافق، نافذة التفاصيل
+   ============================================================ */
+'use strict';
+
+const ParkUI = (() => {
+
+  /* ---------- بيانات مرافق المنتزه ----------
+     ملاحظة: الصور والفيديوهات أدناه هي عناصر نائبة (Placeholder) لأغراض العرض.
+     يجب استبدالها بصور وفيديوهات حقيقية للمنتزه داخل مجلدي images/ و videos/. */
+  const FACILITIES = [
+    {
+      id: 'wedding-hall', icon: '💍', name: 'قاعة الأفراح',
+      short: 'قاعة مجهزة بالكامل لاستضافة الأفراح والمناسبات العائلية والاجتماعية.',
+      desc: 'تتسع قاعة الأفراح لعدد كبير من الضيوف وتم تجهيزها بديكورات عصرية وإضاءة مناسبة للمناسبات، مع إمكانية التنسيق المسبق لجميع الخدمات الملحقة بالمناسبة.',
+      tags: ['مناسبات', 'حجز مسبق'],
+      facts: [{ l: 'السعة', v: 'حتى 300 شخص' }, { l: 'التكييف', v: 'مركزي بالكامل' }, { l: 'الحجز', v: 'يتطلب حجزًا مسبقًا' }],
+      thumb: 'https://picsum.photos/seed/salfit-hall/800/600',
+      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-hall-${n}/800/600`),
+      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+    },
+    {
+      id: 'cafeteria', icon: '☕', name: 'الكافتيريا',
+      short: 'ركن مريح لتناول المشروبات والوجبات الخفيفة وسط أجواء المنتزه.',
+      desc: 'توفر كافتيريا المنتزه تشكيلة من المشروبات الساخنة والباردة والوجبات الخفيفة، بجلسات داخلية وخارجية تناسب جميع أفراد العائلة.',
+      tags: ['مشروبات', 'وجبات خفيفة'],
+      facts: [{ l: 'أوقات العمل', v: 'يوميًا 9ص - 11م' }, { l: 'الجلسات', v: 'داخلية وخارجية' }],
+      thumb: 'https://picsum.photos/seed/salfit-cafe/800/600',
+      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-cafe-${n}/800/600`),
+      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+    },
+    {
+      id: 'menu', icon: '📋', name: 'قائمة الكافتيريا',
+      short: 'اطّلع على قائمة المشروبات والوجبات المتوفرة وأسعارها.',
+      desc: 'قائمة طعام الكافتيريا محدثة بجميع الأصناف والأسعار المتوفرة حاليًا. سيتم عرض القائمة هنا بصيغة صور أو ملف PDF بمجرد رفعها في مجلد menu/.',
+      tags: ['قائمة الأسعار'],
+      facts: [{ l: 'الصيغة', v: 'PDF / صور' }, { l: 'التحديث', v: 'دوري' }],
+      thumb: 'https://picsum.photos/seed/salfit-menu/800/600',
+      gallery: [1,2].map(n => `https://picsum.photos/seed/salfit-menu-${n}/800/600`),
+      video: null
+    },
+    {
+      id: 'indoor-games', icon: '🎮', name: 'الألعاب الداخلية',
+      short: 'مساحة ألعاب داخلية آمنة ومسلية للأطفال في جميع الأجواء.',
+      desc: 'قسم الألعاب الداخلية مخصص للأطفال ويحتوي على ألعاب متنوعة وآمنة، مثالي للاستخدام في مختلف الفصول والأجواء الجوية.',
+      tags: ['أطفال', 'داخلي'],
+      facts: [{ l: 'الفئة العمرية', v: '3-12 سنة' }, { l: 'الإشراف', v: 'مطلوب مرافق بالغ' }],
+      thumb: 'https://picsum.photos/seed/salfit-indoor/800/600',
+      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-indoor-${n}/800/600`),
+      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+    },
+    {
+      id: 'outdoor-games', icon: '🛝', name: 'الألعاب الخارجية',
+      short: 'ألعاب خارجية متنوعة وسط المساحات الخضراء للمنتزه.',
+      desc: 'تضم منطقة الألعاب الخارجية مجموعة متنوعة من الألعاب المخصصة للأطفال واليافعين، محاطة بالمساحات الخضراء وأماكن جلوس لأولياء الأمور.',
+      tags: ['أطفال', 'خارجي'],
+      facts: [{ l: 'الفئة العمرية', v: 'جميع الأعمار' }, { l: 'أرضية آمنة', v: 'نعم' }],
+      thumb: 'https://picsum.photos/seed/salfit-outdoor/800/600',
+      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-outdoor-${n}/800/600`),
+      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+    },
+    {
+      id: 'pool', icon: '🏊', name: 'المسبح',
+      short: 'مسبح مخصص للعائلات مع إجراءات سلامة كاملة.',
+      desc: 'يوفر المسبح تجربة استجمام ممتعة وآمنة للعائلات، مع مواعيد عمل محددة وتعليمات سلامة واضحة يجب اتباعها من قبل جميع الزوار.',
+      tags: ['استجمام', 'موسمي'],
+      facts: [{ l: 'أوقات العمل', v: '10ص - 6م' }, { l: 'الإشراف', v: 'مُنقذ متواجد' }, { l: 'الموسم', v: 'الصيف' }],
+      thumb: 'https://picsum.photos/seed/salfit-pool/800/600',
+      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-pool-${n}/800/600`),
+      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+    },
+    {
+      id: 'family-sitting', icon: '👨‍👩‍👧‍👦', name: 'الجلسات العائلية',
+      short: 'جلسات مظللة ومريحة وسط الطبيعة مخصصة للعائلات.',
+      desc: 'تنتشر الجلسات العائلية في أرجاء المنتزه، وهي مصممة لتوفر أجواء هادئة ومريحة للعائلات لقضاء وقت ممتع وسط الأشجار والمساحات الخضراء.',
+      tags: ['عائلي', 'مظلل'],
+      facts: [{ l: 'الحجز', v: 'غير مطلوب' }, { l: 'السعة', v: '4-10 أشخاص لكل جلسة' }],
+      thumb: 'https://picsum.photos/seed/salfit-family/800/600',
+      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-family-${n}/800/600`),
+      video: null
+    },
+    {
+      id: 'restrooms', icon: '🚻', name: 'دورات المياه',
+      short: 'دورات مياه نظيفة وموزعة في أنحاء المنتزه.',
+      desc: 'تتوفر دورات مياه عامة نظيفة ومجهزة لذوي الاحتياجات الخاصة في عدة مواقع داخل المنتزه، ويتم تنظيفها وصيانتها بشكل دوري.',
+      tags: ['خدمات عامة'],
+      facts: [{ l: 'إمكانية الوصول', v: 'مهيأة لذوي الاحتياجات' }],
+      thumb: 'https://picsum.photos/seed/salfit-restroom/800/600',
+      gallery: [1,2].map(n => `https://picsum.photos/seed/salfit-restroom-${n}/800/600`),
+      video: null
+    },
+    {
+      id: 'parking', icon: '🚗', name: 'مواقف السيارات',
+      short: 'مواقف واسعة ومجانية قريبة من المدخل الرئيسي.',
+      desc: 'يوفر المنتزه مواقف سيارات واسعة ومجانية بالقرب من المدخل الرئيسي، مع إشارات توجيهية واضحة لتسهيل الوصول والمغادرة.',
+      tags: ['مجاني', 'قريب من المدخل'],
+      facts: [{ l: 'التكلفة', v: 'مجاني' }, { l: 'السعة', v: 'أكثر من 100 مركبة' }],
+      thumb: 'https://picsum.photos/seed/salfit-parking/800/600',
+      gallery: [1,2].map(n => `https://picsum.photos/seed/salfit-parking-${n}/800/600`),
+      video: null
+    }
+  ];
+
+  /* ---------- التنقل بين الصفحات ---------- */
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-' + name).classList.remove('hidden');
+    document.querySelectorAll('.main-nav button').forEach(b =>
+      b.classList.toggle('active', b.dataset.view === name)
+    );
+    if (name === 'map') ParkMap.invalidate();
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+
+  /* ---------- بطاقات المرافق ---------- */
+  function renderFacilities() {
+    const grid = document.getElementById('facility-grid');
+    grid.innerHTML = FACILITIES.map(f => `
+      <article class="facility-card" data-id="${f.id}">
+        <div class="facility-thumb" style="background-image:url('${f.thumb}')">
+          <span>${f.icon} ${f.name}</span>
+        </div>
+        <div class="facility-body">
+          <h3>${f.name}</h3>
+          <p>${f.short}</p>
+          <span class="facility-more">عرض المزيد</span>
+        </div>
+      </article>
+    `).join('');
+
+    grid.querySelectorAll('.facility-card').forEach(card => {
+      card.addEventListener('click', () => openFacilityModal(card.dataset.id));
+    });
+  }
+
+  /* ---------- نافذة تفاصيل المرفق ---------- */
+  function openFacilityModal(id) {
+    const f = FACILITIES.find(x => x.id === id);
+    if (!f) return;
+
+    document.getElementById('modal-hero').style.backgroundImage = `url('${f.thumb}')`;
+    document.getElementById('modal-title').textContent = `${f.icon} ${f.name}`;
+    document.getElementById('modal-tags').innerHTML = f.tags.map(t => `<span>${t}</span>`).join('');
+    document.getElementById('modal-desc').textContent = f.desc;
+    document.getElementById('modal-facts').innerHTML = f.facts.map(fa =>
+      `<div class="modal-fact"><strong>${fa.l}</strong><span>${fa.v}</span></div>`
+    ).join('');
+
+    const videoBtn = document.getElementById('modal-video-btn');
+    if (f.video) {
+      videoBtn.classList.remove('hidden');
+      videoBtn.onclick = () => ParkVideo.open(f.video, f.thumb);
+    } else {
+      videoBtn.classList.add('hidden');
+    }
+
+    ParkGallery.render(document.getElementById('modal-gallery'), f.gallery);
+
+    document.getElementById('facility-modal').classList.add('visible');
+  }
+
+  function closeFacilityModal() {
+    document.getElementById('facility-modal').classList.remove('visible');
+  }
+
+  /* ---------- بطاقة الملاحة ---------- */
+  function updateNavCard(payload) {
+    const card = document.getElementById('nav-card');
+    card.classList.add('visible');
+
+    if (payload.error) {
+      document.getElementById('nav-instruction').textContent = payload.error;
+      return;
+    }
+
+    const distEl = document.getElementById('nav-distance');
+    const instrEl = document.getElementById('nav-instruction');
+    const etaEl = document.getElementById('nav-eta');
+    const iconEl = document.getElementById('nav-maneuver-icon');
+    const fill = document.getElementById('trail-fill');
+    const pin = document.getElementById('trail-pin');
+
+    const m = payload.maneuver;
+    iconEl.textContent = m.icon;
+    iconEl.classList.toggle('arrived', m.type === 'arrive');
+
+    if (m.type === 'arrive') {
+      distEl.textContent = 'وصلت 🎉';
+      instrEl.textContent = 'أهلاً بكم في منتزه بلدية سلفيت';
+      etaEl.textContent = '';
+    } else {
+      const dist = Math.round(payload.distanceToManeuver);
+      distEl.textContent = (dist >= 1000 ? (dist / 1000).toFixed(1) + ' كم' : dist + ' م');
+      instrEl.textContent = m.junctionName ? `${m.label} عند ${m.junctionName}` : m.label;
+      etaEl.textContent = `الوصول خلال ~${payload.etaMinutes} دقيقة`;
+    }
+
+    const progress = Math.round(payload.progress || 0);
+    fill.style.width = progress + '%';
+    pin.style.left = progress + '%';
+  }
+
+  function hideNavCard() {
+    document.getElementById('nav-card').classList.remove('visible');
+  }
+
+  function showArrivalOverlay() {
+    document.getElementById('arrival-overlay').classList.add('visible');
+  }
+  function hideArrivalOverlay() {
+    document.getElementById('arrival-overlay').classList.remove('visible');
+  }
+
+  return {
+    FACILITIES, showView, renderFacilities, openFacilityModal, closeFacilityModal,
+    updateNavCard, hideNavCard, showArrivalOverlay, hideArrivalOverlay
   };
+})();
+
+</script>
+<script>
+/* ============================================================
+   gallery.js
+   معرض صور مصغّر داخل نافذة المرفق + عارض مكبّر (Lightbox)
+   ============================================================ */
+'use strict';
+
+const ParkGallery = (() => {
+  let images = [];
+  let currentIndex = 0;
+
+  function render(container, imgList) {
+    container.innerHTML = imgList.map((src, i) =>
+      `<img src="${src}" loading="lazy" alt="صورة المرفق ${i + 1}" data-index="${i}">`
+    ).join('');
+    container.querySelectorAll('img').forEach(img => {
+      img.addEventListener('click', () => open(imgList, +img.dataset.index));
+    });
+  }
+
+  function open(imgList, index) {
+    images = imgList;
+    currentIndex = index;
+    updateLightbox();
+    document.getElementById('lightbox').classList.add('visible');
+  }
+
+  function close() {
+    document.getElementById('lightbox').classList.remove('visible');
+  }
+
+  function updateLightbox() {
+    document.getElementById('lightbox-img').src = images[currentIndex];
+  }
+
+  function next() {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateLightbox();
+  }
+  function prev() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateLightbox();
+  }
+
+  function init() {
+    document.getElementById('lightbox-close').addEventListener('click', close);
+    document.getElementById('lightbox-next').addEventListener('click', next);
+    document.getElementById('lightbox-prev').addEventListener('click', prev);
+    document.getElementById('lightbox').addEventListener('click', e => {
+      if (e.target.id === 'lightbox') close();
+    });
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('lightbox').classList.contains('visible')) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') next();   // RTL: يسار = التالي بصريًا
+      if (e.key === 'ArrowRight') prev();
+    });
+  }
+
+  return { render, open, close, init };
+})();
+
+</script>
+<script>
+/* ============================================================
+   video.js
+   نافذة تشغيل الفيديو مع دعم ملء الشاشة
+   ============================================================ */
+'use strict';
+
+const ParkVideo = (() => {
+  function open(src, poster) {
+    const player = document.getElementById('video-player');
+    player.src = src;
+    if (poster) player.poster = poster;
+    document.getElementById('video-modal').classList.add('visible');
+    player.play().catch(() => {});
+  }
+
+  function close() {
+    const player = document.getElementById('video-player');
+    player.pause();
+    player.currentTime = 0;
+    document.getElementById('video-modal').classList.remove('visible');
+  }
+
+  function init() {
+    document.getElementById('video-close').addEventListener('click', close);
+    document.getElementById('video-modal').addEventListener('click', e => {
+      if (e.target.id === 'video-modal') close();
+    });
+  }
+
+  return { open, close, init };
+})();
+
+</script>
+<script>
+/* ============================================================
+   app.js
+   نقطة الدخول الرئيسية: تهيئة التطبيق وربط كل الوحدات ببعضها
+   ============================================================ */
+'use strict';
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+  ParkGallery.init();
+  ParkVideo.init();
+  ParkUI.renderFacilities();
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+  wireNav();
+  wireHomeButtons();
+  wireMapButtons();
+  wireModal();
+
+  try {
+    await ParkMap.loadData();
+    ParkMap.initMap();
+  } catch (err) {
+    console.error('تعذّر تحميل بيانات المسار:', err);
+  }
+
+  hideLoader();
+
+  // طلب إذن الموقع تلقائيًا عند دخول الموقع (بدون إظهار أي رسائل تنبيه للمستخدم)
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const latlng = [pos.coords.latitude, pos.coords.longitude];
+        ParkMap.setUserPosition(latlng);
+      },
+      () => { /* صامت: لا نظهر أي رسالة خطأ عند الرفض */ },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  /* ---------------- الشريط العلوي ---------------- */
+  function wireNav() {
+    document.querySelectorAll('.main-nav button').forEach(btn => {
+      btn.addEventListener('click', () => ParkUI.showView(btn.dataset.view));
+    });
+  }
+
+  /* ---------------- أزرار الصفحة الرئيسية ---------------- */
+  function wireHomeButtons() {
+    document.getElementById('btn-start-trip').addEventListener('click', () => {
+      goToMapAndNavigate();
+    });
+    document.getElementById('btn-start-nav').addEventListener('click', () => {
+      goToMapAndNavigate();
+    });
+    document.getElementById('btn-locate-me').addEventListener('click', () => {
+      ParkUI.showView('map');
+      locateOnce();
+    });
+    document.getElementById('btn-show-facilities').addEventListener('click', () => {
+      ParkUI.showView('facilities');
+    });
+    document.getElementById('arrival-explore-btn').addEventListener('click', () => {
+      ParkUI.hideArrivalOverlay();
+      ParkUI.showView('facilities');
+    });
+  }
+
+  /* ---------------- أزرار صفحة الخريطة ---------------- */
+  function wireMapButtons() {
+    document.getElementById('map-start-nav-btn').addEventListener('click', startFullNavigation);
+    document.getElementById('nav-card-close').addEventListener('click', ParkUI.hideNavCard);
+    document.getElementById('fab-locate').addEventListener('click', locateOnce);
+    document.getElementById('fab-zoom-in').addEventListener('click', () => ParkMap.getMap().zoomIn());
+    document.getElementById('fab-zoom-out').addEventListener('click', () => ParkMap.getMap().zoomOut());
+  }
+
+  /* ---------------- نافذة تفاصيل المرفق ---------------- */
+  function wireModal() {
+    document.getElementById('modal-close').addEventListener('click', ParkUI.closeFacilityModal);
+    document.getElementById('facility-modal').addEventListener('click', e => {
+      if (e.target.id === 'facility-modal') ParkUI.closeFacilityModal();
+    });
+  }
+
+  /* ---------------- تحديد الموقع لمرة واحدة وتوسيط الخريطة ---------------- */
+  function locateOnce() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(pos => {
+      const latlng = [pos.coords.latitude, pos.coords.longitude];
+      ParkMap.setUserPosition(latlng);
+      ParkMap.panTo(latlng, 17);
+    }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
+  }
+
+  /* ---------------- الانتقال للخريطة وبدء الملاحة الكاملة ---------------- */
+  function goToMapAndNavigate() {
+    ParkUI.showView('map');
+    startFullNavigation();
+  }
+
+  function startFullNavigation() {
+    ParkNav.start(handleNavUpdate, handleArrival);
+  }
+
+  function handleNavUpdate(payload) {
+    ParkUI.updateNavCard(payload);
+    if (payload.error) return;
+
+    ParkMap.setUserPosition(payload.userLatLng, payload.heading);
+    ParkMap.setActivePath(payload.pathCoords);
+
+    // خط الوصل من موقع المستخدم إلى أقرب نقطة على المسار عندما يكون خارج المسار
+    if (!payload.onRoute) {
+      ParkMap.setConnectorLine(payload.userLatLng, payload.snapPoint);
+    } else {
+      ParkMap.setConnectorLine(null, null);
+    }
+
+    ParkMap.panTo(payload.userLatLng);
+  }
+
+  function handleArrival() {
+    ParkMap.setConnectorLine(null, null);
+    ParkUI.showArrivalOverlay();
+  }
+
+  function hideLoader() {
+    document.getElementById('loader').classList.add('hidden');
+  }
 });
 
-/* settings menu */
-const settingsBtn=document.getElementById('settingsBtn');
-const settingsMenu=document.getElementById('settingsMenu');
-settingsBtn.onclick=e=>{e.stopPropagation();closeAllPopups(settingsMenu);settingsMenu.classList.toggle('open')};
-settingsMenu.querySelectorAll('.switch').forEach(sw=>{
-  sw.onclick=()=>{
-    sw.classList.toggle('on');
-    const key=sw.dataset.setting;
-    SETTINGS[key]=sw.classList.contains('on');
-    applySettings();
-  };
-});
-function applySettings(){
-  if(SETTINGS.transit){transitLine.addTo(map);transitHalo.addTo(map)}
-  else {map.removeLayer(transitLine);map.removeLayer(transitHalo)}
-  renderSmartLabels();
-}
-
-/* all paths menu */
-const allPathsBtn=document.getElementById('allPathsBtn');
-const allPathsMenu=document.getElementById('allPathsMenu');
-allPathsBtn.onclick=e=>{e.stopPropagation();closeAllPopups(allPathsMenu);allPathsMenu.classList.toggle('open')};
-function renderAllPathsList(){
-  const list=document.getElementById('allPathsList');
-  if(!list) return;
-  list.innerHTML=sites.map(s=>{
-    const sel=selected.includes(s.id);
-    return `<button style="display:flex;align-items:center;gap:.55rem;padding:.45rem .6rem;width:100%;background:${sel?'rgba(86,107,59,.1)':'transparent'};border:none;border-radius:6px;text-align:start;font-size:.82rem;color:var(--ink);cursor:pointer" data-id="${s.id}">
-      <span style="font-size:1.1rem">${s.emoji}</span>
-      <span style="flex:1"><b style="display:block;font-weight:700">${s.path}</b><span style="font-size:.7rem;color:var(--ink-soft)">${s.cat}</span></span>
-      <span style="font-size:1rem;color:${sel?'var(--olive)':'#c0bba6'}">${sel?'✓':'+'}</span>
-    </button>`;
-  }).join('');
-  list.querySelectorAll('button').forEach(b=>{
-    b.onclick=()=>{toggleSite(parseInt(b.dataset.id));allPathsMenu.classList.remove('open')};
-  });
-}
-
-/* popup closer */
-function closeAllPopups(except){
-  [styleMenu,settingsMenu,allPathsMenu].forEach(m=>{if(m!==except) m.classList.remove('open')});
-}
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.map-controls')&&!e.target.closest('.popup-menu')) closeAllPopups();
-});
-
-/* zoom buttons + reset */
-document.getElementById('resetBtn').onclick=()=>{selected=[...DEFAULT_ROUTE];render()};
-
-/* =====================================================================
-   18) TRANSPORT MODE BAR
-   ===================================================================== */
-function setMode(m){
-  travelMode=m;
-  document.querySelectorAll('#transportBar button, #sheetTransport button').forEach(b=>{
-    b.classList.toggle('active',b.dataset.mode===m);
-  });
-  render();
-}
-document.querySelectorAll('#transportBar button').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
-document.querySelectorAll('#sheetTransport button').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
-
-/* =====================================================================
-   19) DEVICE PREVIEW
-   ===================================================================== */
-const wrapper=document.getElementById('previewWrapper');
-document.querySelectorAll('.device-toggle button').forEach(b=>{
-  b.onclick=()=>{
-    document.querySelectorAll('.device-toggle button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    wrapper.classList.remove('preview-mobile','preview-tablet');
-    if(b.dataset.device==='mobile') wrapper.classList.add('preview-mobile');
-    if(b.dataset.device==='tablet') wrapper.classList.add('preview-tablet');
-    setTimeout(()=>map.invalidateSize(),350);
-  };
-});
-
-/* =====================================================================
-   20) INFO BAR TOGGLE
-   ===================================================================== */
-const infoBar=document.getElementById('infoBar');
-const infoToggle=document.getElementById('infoBarToggle');
-infoToggle.onclick=()=>{
-  infoBar.classList.toggle('collapsed');
-  infoToggle.textContent=infoBar.classList.contains('collapsed')?'إظهار ⌄':'إخفاء ⌃';
-};
-
-/* =====================================================================
-   21) BOTTOM SHEET DRAG
-   ===================================================================== */
-const sheet=document.getElementById('bottomSheet');
-const sheetHandle=document.getElementById('sheetHandle');
-let dragging=false,startY=0,startTransform=0;
-function currentSheetOffset(){
-  const m=window.getComputedStyle(sheet).transform;
-  if(m==='none') return 0;
-  const v=m.match(/matrix.*\((.+)\)/)[1].split(',');
-  return parseFloat(v[13]||v[5]||0);
-}
-function applySheetOffset(px){
-  // 0 = fully open, -85% = closed. Sheet hidden state = translateY(calc(100% - 76px))
-  // We'll just toggle 'open' class for simplicity
-}
-sheetHandle.addEventListener('click',()=>sheet.classList.toggle('open'));
-let sheetDragY=null;
-sheetHandle.addEventListener('pointerdown',e=>{
-  sheetDragY=e.clientY;sheet.classList.add('dragging');
-  const onMove=ev=>{if(sheetDragY===null)return;const dy=ev.clientY-sheetDragY;
-    if(dy<-30){sheet.classList.add('open')}
-    else if(dy>40){sheet.classList.remove('open')}
-  };
-  const onUp=()=>{sheet.classList.remove('dragging');sheetDragY=null;document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp)};
-  document.addEventListener('pointermove',onMove);document.addEventListener('pointerup',onUp);
-});
-
-/* =====================================================================
-   22) MAP MOVE / ZOOM HANDLER (refresh leader lines)
-   ===================================================================== */
-map.on('move zoom viewreset resize',()=>{
-  // Update SVG line endpoints
-  const lines=leaderOverlay.querySelectorAll('line');
-  lines.forEach(line=>{
-    const id=parseInt(line.dataset.id);
-    const site=sites.find(s=>s.id===id);
-    if(!site) return;
-    const off=labelOffset(sites.indexOf(site),sites.length);
-    const a=map.latLngToContainerPoint([site.lat,site.lon]);
-    const b=map.latLngToContainerPoint([site.lat,site.lon]).add([off.x,off.y]);
-    line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
-    line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
-  });
-});
-
-/* tag leader lines with site id for easy lookup during updates */
-const _origRender=renderSmartLabels;
-renderSmartLabels=function(){
-  _origRender();
-  leaderOverlay.querySelectorAll('line').forEach((line,i)=>{
-    line.setAttribute('data-id',sites[i].id);
-  });
-};
-
-/* =====================================================================
-   23) INIT
-   ===================================================================== */
-render();
-flyToAll();
-setTimeout(()=>map.invalidateSize(),300);
-window.addEventListener('load',()=>setTimeout(()=>map.invalidateSize(),200));
 </script>
 </body>
 </html>
