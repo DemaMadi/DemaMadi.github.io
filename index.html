@@ -26,7 +26,7 @@
   --c-green-200: #BFDCA9;
   --c-green-500: #6E9F55;
   --c-green-600: #557E40;
-  --c-green-800: #2F4A25;
+  --c-green-800: #6a8032;
   --c-gold:      #C9A15A;
   --c-gold-dark: #A47F3B;
   --c-white:     #FFFFFF;
@@ -420,7 +420,7 @@ h1,h2,h3,h4{font-family: var(--f-display);}
   </div>
   <nav class="main-nav">
     <button data-view="home" class="active">الرئيسية</button>
-    <button data-view="map">الملاحة</button>
+    <button data-view="map">الخريطة</button>
     <button data-view="facilities">المرافق</button>
   </nav>
 </header>
@@ -434,31 +434,10 @@ h1,h2,h3,h4{font-family: var(--f-display);}
       <p>دليل تفاعلي يقودكم خطوة بخطوة من موقعكم الحالي وحتى بوابة المنتزه، ويعرّفكم على جميع المرافق والخدمات المتوفرة داخله.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" id="btn-start-trip">ابدأ الرحلة</button>
-        <button class="btn btn-outline" id="btn-locate-me">تحديد موقعي</button>
-        <button class="btn btn-outline" id="btn-start-nav">ابدأ الملاحة</button>
+        <button class="btn btn-outline" id="btn-locate-me">تحديد موقع منتزه </button>
         <button class="btn btn-outline" id="btn-show-facilities">عرض مرافق المنتزه</button>
       </div>
     </div>
-  </section>
-
-  <section class="about-section">
-    <div class="container about-grid">
-      <div>
-        <div class="section-eyebrow">عن المنتزه</div>
-        <h2>مساحة خضراء تجمع العائلة والأصدقاء في قلب سلفيت</h2>
-        <p>
-          يوفر منتزه بلدية سلفيت تجربة ترفيهية متكاملة تجمع بين الجلسات العائلية، الألعاب الداخلية
-          والخارجية، المسبح، الكافتيريا، وقاعة الأفراح، ضمن بيئة آمنة ومهيأة لجميع أفراد العائلة على مدار العام.
-        </p>
-        <div class="about-stats">
-          <div><strong>9</strong><span>مرافق وخدمات</span></div>
-          <div><strong>1</strong><span>مسار رئيسي مباشر</span></div>
-          <div><strong>24/7</strong><span>ملاحة حية للزوار</span></div>
-        </div>
-      </div>
-      <div class="about-visual"></div>
-    </div>
-  </section>
 </main>
 
 <!-- ============= صفحة الخريطة والملاحة ============= -->
@@ -1437,29 +1416,55 @@ const ParkGallery = (() => {
 'use strict';
 
 const ParkVideo = (() => {
-  function open(src, poster) {
-    const player = document.getElementById('video-player');
-    player.src = src;
-    if (poster) player.poster = poster;
-    document.getElementById('video-modal').classList.add('visible');
-    player.play().catch(() => {});
-  }
+  async function open(src, poster) {
+  const player = document.getElementById('video-player');
 
-  function close() {
-    const player = document.getElementById('video-player');
-    player.pause();
-    player.currentTime = 0;
-    document.getElementById('video-modal').classList.remove('visible');
-  }
+  player.src = src;
+  if (poster) player.poster = poster;
 
-  function init() {
-    document.getElementById('video-close').addEventListener('click', close);
-    document.getElementById('video-modal').addEventListener('click', e => {
-      if (e.target.id === 'video-modal') close();
-    });
-  }
+  document.getElementById('video-modal').classList.add('visible');
 
-  return { open, close, init };
+  player.load();
+
+  try {
+    if (player.requestFullscreen) {
+      await player.requestFullscreen();
+    } else if (player.webkitRequestFullscreen) {
+      player.webkitRequestFullscreen();
+    }
+  } catch (e) {}
+
+  player.play().catch(() => {});
+}
+
+ function close() {
+  const player = document.getElementById('video-player');
+
+  player.pause();
+  player.currentTime = 0;
+
+  document.getElementById('video-modal').classList.remove('visible');
+
+  // الخروج من ملء الشاشة إن كان الفيديو فيها
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  }
+}
+
+ function init() {
+  const player = document.getElementById('video-player');
+
+  document.getElementById('video-close').addEventListener('click', close);
+
+  document.getElementById('video-modal').addEventListener('click', e => {
+    if (e.target.id === 'video-modal') close();
+  });
+
+  // إغلاق الفيديو تلقائياً عند انتهائه
+  player.addEventListener('ended', close);
+}
+
+return { open, close, init };
 })();
 
 </script>
@@ -1512,12 +1517,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /* ---------------- أزرار الصفحة الرئيسية ---------------- */
   function wireHomeButtons() {
-    document.getElementById('btn-start-trip').addEventListener('click', () => {
-      goToMapAndNavigate();
-    });
-    document.getElementById('btn-start-nav').addEventListener('click', () => {
-      goToMapAndNavigate();
-    });
+    document.getElementById('btn-start-trip').addEventListener('click', async () => {
+
+  const player = document.getElementById('video-player');
+
+  player.src = "mayor.mp4";
+
+  document.getElementById('video-modal').classList.add('visible');
+
+  player.load();
+
+  try {
+    if (player.requestFullscreen) {
+      await player.requestFullscreen();
+    } else if (player.webkitRequestFullscreen) {
+      player.webkitRequestFullscreen();
+    }
+  } catch (e) {}
+
+  player.play().catch(() => {});
+
+});
     document.getElementById('btn-locate-me').addEventListener('click', () => {
       ParkUI.showView('map');
       locateOnce();
