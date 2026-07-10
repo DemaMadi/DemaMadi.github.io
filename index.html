@@ -1463,7 +1463,7 @@ const ParkUI = (() => {
       short: 'ركن مريح لتناول المشروبات والوجبات  وسط أجواء المنتزه.',
       desc: 'توفر كافتيريا المنتزه تشكيلة من المشروبات الساخنة والباردة والوجبات و الحلويات بجلسات خارجية تناسب جميع أفراد العائلة.',
       tags: ['حلويات', 'مشروبات ساخنة', 'مشروبات باردة', 'وجبات '],
-      facts: [{ l: 'أوقات العمل', v: 'نستقبلكم يوميا   ' }, { l: 'الجلسات', v: ' خارجية' }],
+      facts: [{ l: 'أوقات العمل', v: ' من الساعة الخامسة مساءً حتى منتصف الليل.' }, { l: 'الجلسات', v: ' خارجية' }],
       thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res1.jpg',
       gallery: [
         'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res1.jpg',
@@ -1529,26 +1529,7 @@ const ParkUI = (() => {
       gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-family-${n}/800/600`),
       video: null
     },
-    {
-      id: 'restrooms', icon: '🚻', name: 'دورات المياه',
-      short: 'دورات مياه نظيفة وموزعة في أنحاء المنتزه.',
-      desc: 'تتوفر دورات مياه عامة نظيفة ومجهزة لذوي الاحتياجات الخاصة في عدة مواقع داخل المنتزه، ويتم تنظيفها وصيانتها بشكل دوري.',
-      tags: ['خدمات عامة'],
-      facts: [{ l: 'إمكانية الوصول', v: 'مهيأة لذوي الاحتياجات' }],
-      thumb: 'https://picsum.photos/seed/salfit-restroom/800/600',
-      gallery: [1,2].map(n => `https://picsum.photos/seed/salfit-restroom-${n}/800/600`),
-      video: null
-    },
-    {
-      id: 'parking', icon: '🚗', name: 'مواقف السيارات',
-      short: 'مواقف واسعة ومجانية قريبة من المدخل الرئيسي.',
-      desc: 'يوفر المنتزه مواقف سيارات واسعة ومجانية بالقرب من المدخل الرئيسي، مع إشارات توجيهية واضحة لتسهيل الوصول والمغادرة.',
-      tags: ['مجاني', 'قريب من المدخل'],
-      facts: [{ l: 'التكلفة', v: 'مجاني' }, { l: 'السعة', v: 'أكثر من 100 مركبة' }],
-      thumb: 'https://picsum.photos/seed/salfit-parking/800/600',
-      gallery: [1,2].map(n => `https://picsum.photos/seed/salfit-parking-${n}/800/600`),
-      video: null
-    }
+   
   ];
 
   function showView(name) {
