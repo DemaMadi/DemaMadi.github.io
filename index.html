@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>منتزه بلدية سلفيت | DM </title>
+  <title>منتزه بلدية سلفيت  </title>
   <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCl4deI84ZCCdkUD1yyM9GnKWayG_iIUuD5sjbGJlrmgrcwysQ3bnjpy5H&s=10">
   <meta name="description" content="الدليل التفاعلي الرسمي لمنتزه بلدية سلفيت — ملاحة حية، مرافق، وخدمات">
 
@@ -440,7 +440,7 @@
       <h1>منتزه <em>بلدية سلفيت</em><br>وجهتكم للراحة والطبيعة</h1>
       <p>دليل تفاعلي يقودكم خطوة بخطوة من موقعكم الحالي وحتى بوابة المنتزه، ويعرّفكم على جميع المرافق والخدمات المتوفرة داخله.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary" id="btn-start-trip">كلمة رئيس بلدية سلفيت </button>
+        <button class="btn btn-primary" id="btn-start-trip"> كلمة رئيس بلدية سلفيت</button>
         <button class="btn btn-outline" id="btn-locate-me">تحديد موقعي</button>
         <button class="btn btn-outline" id="btn-show-facilities">عرض مرافق المنتزه</button>
       </div>
@@ -1450,28 +1450,40 @@ const ParkUI = (() => {
       desc: 'تتسع قاعة الأفراح لعدد كبير من الضيوف وتم تجهيزها بديكورات عصرية وإضاءة مناسبة للمناسبات، مع إمكانية التنسيق المسبق لجميع الخدمات الملحقة بالمناسبة.',
       tags: ['مناسبات', 'حجز مسبق'],
       facts: [{ l: 'السعة', v: 'حتى 300 شخص' }, { l: 'التكييف', v: 'مركزي بالكامل' }, { l: 'الحجز', v: 'يتطلب حجزًا مسبقًا' }],
-      thumb: 'https://picsum.photos/seed/salfit-hall/800/600',
-      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-hall-${n}/800/600`),
-      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/sm2.jpg',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/sm1.jpg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/sm3.jpg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/sm4.jpg'
+      ],
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv1.mp4'
     },
     {
       id: 'cafeteria', icon: '☕', name: 'الكافتيريا',
-      short: 'ركن مريح لتناول المشروبات والوجبات الخفيفة وسط أجواء المنتزه.',
-      desc: 'توفر كافتيريا المنتزه تشكيلة من المشروبات الساخنة والباردة والوجبات الخفيفة، بجلسات داخلية وخارجية تناسب جميع أفراد العائلة.',
-      tags: ['مشروبات', 'وجبات خفيفة'],
-      facts: [{ l: 'أوقات العمل', v: 'يوميًا 9ص - 11م' }, { l: 'الجلسات', v: 'داخلية وخارجية' }],
-      thumb: 'https://picsum.photos/seed/salfit-cafe/800/600',
-      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-cafe-${n}/800/600`),
-      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+      short: 'ركن مريح لتناول المشروبات والوجبات  وسط أجواء المنتزه.',
+      desc: 'توفر كافتيريا المنتزه تشكيلة من المشروبات الساخنة والباردة والوجبات و الحلويات بجلسات خارجية تناسب جميع أفراد العائلة.',
+      tags: ['حلويات', 'مشروبات ساخنة', 'مشروبات باردة', 'وجبات '],
+      facts: [{ l: 'أوقات العمل', v: 'نستقبلكم يوميا   ' }, { l: 'الجلسات', v: ' خارجية' }],
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res1.jpg',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res1.jpg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res2.jpg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res3.jpg'
+      ],
+      video: null
     },
     {
       id: 'menu', icon: '📋', name: 'قائمة الكافتيريا',
       short: 'اطّلع على قائمة المشروبات والوجبات المتوفرة وأسعارها.',
-      desc: 'قائمة طعام الكافتيريا محدثة بجميع الأصناف والأسعار المتوفرة حاليًا. سيتم عرض القائمة هنا بصيغة صور أو ملف PDF بمجرد رفعها في مجلد menu/.',
+      desc: 'قائمة طعام الكافتيريا محدثة بجميع الأصناف والأسعار المتوفرة حاليًا.',
       tags: ['قائمة الأسعار'],
       facts: [{ l: 'الصيغة', v: 'PDF / صور' }, { l: 'التحديث', v: 'دوري' }],
-      thumb: 'https://picsum.photos/seed/salfit-menu/800/600',
-      gallery: [1,2].map(n => `https://picsum.photos/seed/salfit-menu-${n}/800/600`),
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food4.png',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food1.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food2.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food3.jpeg'
+      ],
       video: null
     },
     {
@@ -1480,9 +1492,12 @@ const ParkUI = (() => {
       desc: 'قسم الألعاب الداخلية مخصص للأطفال ويحتوي على ألعاب متنوعة وآمنة، مثالي للاستخدام في مختلف الفصول والأجواء الجوية.',
       tags: ['أطفال', 'داخلي'],
       facts: [{ l: 'الفئة العمرية', v: '3-12 سنة' }, { l: 'الإشراف', v: 'مطلوب مرافق بالغ' }],
-      thumb: 'https://picsum.photos/seed/salfit-indoor/800/600',
-      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-indoor-${n}/800/600`),
-      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in3.png',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in2.png',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in1.png',
+      ],
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv.mp4'
     },
     {
       id: 'outdoor-games', icon: '🛝', name: 'الألعاب الخارجية',
@@ -1492,7 +1507,7 @@ const ParkUI = (() => {
       facts: [{ l: 'الفئة العمرية', v: 'جميع الأعمار' }, { l: 'أرضية آمنة', v: 'نعم' }],
       thumb: 'https://picsum.photos/seed/salfit-outdoor/800/600',
       gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-outdoor-${n}/800/600`),
-      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv.mp4'
     },
     {
       id: 'pool', icon: '🏊', name: 'المسبح',
