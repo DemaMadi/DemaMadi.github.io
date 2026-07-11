@@ -153,7 +153,6 @@
       display:flex; align-items:center; justify-content:center; font-size:22px;
     }
     .nav-maneuver.arrived { background:var(--c-gold); color:#2A1F0C; }
-    .nav-maneuver.off-route { background:#FF6B6B; color:white; }
     .nav-info { flex:1; min-width:0; }
     .nav-distance { font-family:var(--f-display); font-weight:800; font-size:18px; color:var(--c-green-800); }
     .nav-instruction { font-size:12.5px; color:var(--c-text-soft); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -283,34 +282,6 @@
     @keyframes sway { 0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);} }
     .loader p { margin-top:12px; font-size:12px; letter-spacing:0.5px; color:rgba(255,255,255,.7); }
 
-    /* Off-route toast خاص */
-    #off-route-toast {
-      position: fixed;
-      bottom: 140px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255,107,107,0.95);
-      color: white;
-      padding: 10px 22px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      z-index: 9999;
-      box-shadow: 0 4px 20px rgba(255,107,107,0.4);
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      opacity: 0;
-      pointer-events: none;
-      font-family: 'Cairo', sans-serif;
-      max-width: 90vw;
-      text-align: center;
-      border: 2px solid rgba(255,255,255,0.3);
-    }
-    #off-route-toast.visible {
-      opacity: 1;
-      pointer-events: all;
-      transform: translateX(-50%) translateY(0);
-    }
-
     @media(max-width:600px) {
       .main-nav { display: none; }
       .brand-text strong { font-size:12px; }
@@ -325,7 +296,6 @@
       .facility-thumb span { font-size:10px; padding:3px 8px; }
       .facility-body h3 { font-size:14px; }
       .modal-hero { aspect-ratio:16/6; }
-      #off-route-toast { font-size:13px; padding:8px 16px; bottom:120px; }
     }
     @media(max-width:400px) {
       .facility-grid { grid-template-columns:1fr; }
@@ -398,7 +368,7 @@
 
     <div class="map-toolbar">
       <button class="map-btn" id="gpsBtn" title="بدء الملاحة">🧭</button>
-      <button class="map-btn" id="satBtn" title="قمر صناعي">🛰️</button>
+      <button class="map-btn" id="satBtn" title="قمر صناعي">🗺️</button>
       <button class="map-btn" id="zoomIn" title="تكبير">➕</button>
       <button class="map-btn" id="zoomOut" title="تصغير">➖</button>
       <button class="map-btn" id="homeBtn" title="الرئيسية">🏠</button>
@@ -478,8 +448,6 @@
   </div>
 </footer>
 
-<!-- Toast خاص بالخروج عن المسار -->
-<div id="off-route-toast">⚠️ أنت خارج المسار، جارٍ إعادة التوجيه...</div>
 <div id="custom-toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -578,7 +546,7 @@ const ParkMap = (() => {
     drawRoute(); drawJunctions(); drawPark(); fitToRoute();
     return map;
   }
-  function drawRoute(){ routeLinesLayer=L.layerGroup(state.routeLines.map(line=>L.polyline(line,{color:'#FF0000',weight:4,opacity:0.85,lineCap:'round'}))).addTo(map); }
+  function drawRoute(){ routeLinesLayer=L.layerGroup(state.routeLines.map(line=>L.polyline(line,{color:'#FF0000',weight:3,opacity:0.6,lineCap:'round'}))).addTo(map); }
   function drawJunctions(){
     state.junctions.forEach(j=>{
       const el = document.createElement('div');
@@ -593,8 +561,8 @@ const ParkMap = (() => {
   function drawPark(){ const icon=L.divIcon({html:'<div class="park-marker"><span>🌳</span></div>',className:'',iconSize:[30,30],iconAnchor:[15,26]}); L.marker(state.park.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:14px;color:#263120;">🌳 ${state.park.name}</strong>`,{permanent:true,direction:'top',offset:[0,-8],className:'custom-tooltip'}); }
   function fitToRoute(){ map.setView([32.0836,35.1806],14); }
   function setUserPosition(latlng,heading){ if(!userMarker){ const el=`<div class="user-marker"><div class="arrow"></div></div>`; const icon=L.divIcon({html:el,className:'',iconSize:[20,20],iconAnchor:[10,10]}); userMarker=L.marker(latlng,{icon,zIndexOffset:1000}).addTo(map); } else userMarker.setLatLng(latlng); if(typeof heading==='number'){ const el=userMarker.getElement(); if(el){ const inner=el.querySelector('.user-marker'); if(inner) inner.style.transform=`rotate(${heading}deg)`; } } }
-  function setConnectorLine(from,to){ if(connectorLine) map.removeLayer(connectorLine); if(!from||!to){ connectorLine=null; return; } connectorLine=L.polyline([from,to],{color:'#C9A15A',weight:4,dashArray:'3,10',lineCap:'round',opacity:0.9}).addTo(map); }
-  function setActivePath(coords){ if(activePathLine) map.removeLayer(activePathLine); if(!coords||!coords.length){ activePathLine=null; return; } activePathLine=L.polyline(coords,{color:'#2196F3',weight:5,opacity:0.9,dashArray:'6, 6', lineCap:'round'}).addTo(map); }
+  function setConnectorLine(from,to){ if(connectorLine) map.removeLayer(connectorLine); if(!from||!to){ connectorLine=null; return; } connectorLine=L.polyline([from,to],{color:'#C9A15A',weight:3,dashArray:'4,8',lineCap:'round',opacity:0.7}).addTo(map); }
+  function setActivePath(coords){ if(activePathLine) map.removeLayer(activePathLine); if(!coords||!coords.length){ activePathLine=null; return; } activePathLine=L.polyline(coords,{color:'#2196F3',weight:5,opacity:0.9,dashArray:'8, 6', lineCap:'round'}).addTo(map); }
   function panTo(latlng,zoom){ const targetZoom=zoom||Math.max(map.getZoom(),17); map.flyTo(latlng,Math.min(targetZoom,20),{duration:0.6}); }
   function invalidate(){ if(map) setTimeout(()=>map.invalidateSize(),200); }
   function getMap(){ return map; }
@@ -611,9 +579,8 @@ const ParkMap = (() => {
 'use strict';
 const ParkNav = (() => {
   const ARRIVAL_THRESHOLD_M=20;
-  const ON_ROUTE_THRESHOLD_M=30;
   const REROUTE_DRIFT_M=40;
-  let watchId=null, activePath=null, onRoute=false, arrived=false, lastLatLng=null;
+  let watchId=null, activePath=null, arrived=false, lastLatLng=null;
   let onUpdateCallback=null, onArriveCallback=null, onFirstFixCallback=null;
   let firstFixDone=false;
 
@@ -629,7 +596,7 @@ const ParkNav = (() => {
     const endKey=ParkUtils.attachVirtualNode(graph,parkSnap,'end');
     const result=ParkUtils.dijkstra(graph,startKey,endKey);
     if(!result) return null;
-    return { coords:result.coords, distance:result.distance, userSnapPoint:userSnap.point, userOffRoute:userSnap.dist>ON_ROUTE_THRESHOLD_M, userOffDistance:userSnap.dist };
+    return { coords:result.coords, distance:result.distance, userSnapPoint:userSnap.point };
   }
 
   function junctionNear(point){ const state=ParkMap.getState(); let best=null; state.junctions.forEach(j=>{ const d=ParkUtils.haversine(point,j.latlng); if(d<=35&&(!best||d<best.d)) best={j,d}; }); return best?best.j:null; }
@@ -658,7 +625,7 @@ const ParkNav = (() => {
     watchId=navigator.geolocation.watchPosition(handlePosition,handleError,{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
   }
 
-  function stop(){ if(watchId!==null) navigator.geolocation.clearWatch(watchId); watchId=null; activePath=null; onRoute=false; arrived=false; }
+  function stop(){ if(watchId!==null) navigator.geolocation.clearWatch(watchId); watchId=null; activePath=null; arrived=false; }
   function handleError(err){ if(onUpdateCallback) onUpdateCallback({error:'تعذّر الوصول لموقعك، يرجى تفعيل خدمة الموقع الجغرافي'}); }
   function handlePosition(pos){
     const userLatLng=[pos.coords.latitude,pos.coords.longitude];
@@ -683,7 +650,6 @@ const ParkNav = (() => {
     if (!activePath) return;
 
     const snap=ParkUtils.nearestPointOnSegmentOfPath(activePath.coords,userLatLng);
-    onRoute=snap.dist<=ON_ROUTE_THRESHOLD_M;
     const totalLen=ParkUtils.pathLength(activePath.coords);
     const remaining=ParkUtils.remainingFromPoint(activePath.coords,snap.segIndex,snap.point)+snap.dist;
     const traveled=Math.max(0,totalLen-remaining);
@@ -693,14 +659,13 @@ const ParkNav = (() => {
     while(!maneuver&&nextIdx<activePath.coords.length-1){ nextIdx++; maneuver=classifyTurn(activePath.coords,nextIdx); }
     const distToPark=ParkUtils.haversine(userLatLng,ParkMap.getState().park.latlng);
     const isArrived=distToPark<=ARRIVAL_THRESHOLD_M||remaining<=ARRIVAL_THRESHOLD_M;
-    const payload={ userLatLng, heading, onRoute, snapPoint:snap.point, pathCoords:activePath.coords, remainingMeters:remaining, progress, maneuver:isArrived?{type:'arrive',label:'لقد وصلت',icon:'🏁'}:(maneuver||{type:'straight',label:'استمر مستقيمًا',icon:'↑'}), distanceToManeuver:ParkUtils.haversine(snap.point,activePath.coords[nextIdx]||activePath.coords[activePath.coords.length-1]), etaMinutes:Math.max(1,Math.round((remaining/1.3)/60)), offRouteDistance:snap.dist };
+    const payload={ userLatLng, heading, snapPoint:snap.point, pathCoords:activePath.coords, remainingMeters:remaining, progress, maneuver:isArrived?{type:'arrive',label:'لقد وصلت',icon:'🏁'}:(maneuver||{type:'straight',label:'استمر مستقيمًا',icon:'↑'}), distanceToManeuver:ParkUtils.haversine(snap.point,activePath.coords[nextIdx]||activePath.coords[activePath.coords.length-1]), etaMinutes:Math.max(1,Math.round((remaining/1.3)/60)), distToPath:snap.dist };
     if(onUpdateCallback) onUpdateCallback(payload);
     if(isArrived&&!arrived){ arrived=true; if(onArriveCallback) onArriveCallback(); }
   }
   function getLastPosition(){ return lastLatLng; }
   function getActivePath(){ return activePath; }
-  function isOnRoute(){ return onRoute; }
-  return { start, stop, computeRoute, getLastPosition, getActivePath, isOnRoute, ARRIVAL_THRESHOLD_M };
+  return { start, stop, computeRoute, getLastPosition, getActivePath, ARRIVAL_THRESHOLD_M };
 })();
 </script>
 
@@ -721,7 +686,7 @@ const ParkUI = (() => {
   function renderFacilities(){ const grid=document.getElementById('facility-grid'); grid.innerHTML=FACILITIES.map(f=>`<article class="facility-card" data-id="${f.id}"><div class="facility-thumb" style="background-image:url('${f.thumb}')"><span>${f.icon} ${f.name}</span></div><div class="facility-body"><h3>${f.name}</h3><p>${f.short}</p><span class="facility-more">عرض المزيد</span></div></article>`).join(''); grid.querySelectorAll('.facility-card').forEach(card=>{ card.addEventListener('click',()=>{ openFacilityModal(card.dataset.id); }); }); }
   function openFacilityModal(id){ const f=FACILITIES.find(x=>x.id===id); if(!f) return; document.getElementById('modal-hero').style.backgroundImage=`url('${f.thumb}')`; document.getElementById('modal-title').textContent=`${f.icon} ${f.name}`; document.getElementById('modal-tags').innerHTML=f.tags.map(t=>`<span>${t}</span>`).join(''); document.getElementById('modal-desc').textContent=f.desc; document.getElementById('modal-facts').innerHTML=f.facts.map(fa=>`<div class="modal-fact"><strong>${fa.l}</strong><span>${fa.v}</span></div>`).join(''); const pdfBtn=document.getElementById('modal-pdf-btn'); if(f.hasPdf&&f.pdfUrl){ pdfBtn.classList.remove('hidden'); pdfBtn.onclick=()=>{ window.open(f.pdfUrl,'_blank'); }; } else { pdfBtn.classList.add('hidden'); } const videoBtn=document.getElementById('modal-video-btn'); if(f.video){ videoBtn.classList.remove('hidden'); videoBtn.onclick=()=>ParkVideo.open(f.video,f.thumb); } else { videoBtn.classList.add('hidden'); } ParkGallery.render(document.getElementById('modal-gallery'),f.gallery); document.getElementById('facility-modal').classList.add('visible'); }
   function closeFacilityModal(){ document.getElementById('facility-modal').classList.remove('visible'); }
-  function updateNavCard(payload){ const card=document.getElementById('nav-card'); card.classList.add('visible'); if(payload.error){ document.getElementById('nav-instruction').textContent=payload.error; return; } const distEl=document.getElementById('nav-distance'), instrEl=document.getElementById('nav-instruction'), etaEl=document.getElementById('nav-eta'), iconEl=document.getElementById('nav-maneuver-icon'), fill=document.getElementById('trail-fill'), pin=document.getElementById('trail-pin'); const m=payload.maneuver; iconEl.textContent=m.icon; iconEl.classList.toggle('arrived',m.type==='arrive'); iconEl.classList.toggle('off-route',!payload.onRoute && m.type!=='arrive'); if(m.type==='arrive'){ distEl.textContent='وصلت 🎉'; instrEl.textContent='أهلاً بكم في منتزه بلدية سلفيت'; etaEl.textContent=''; }else{ const dist=Math.round(payload.distanceToManeuver); distEl.textContent=(dist>=1000?(dist/1000).toFixed(1)+' كم':dist+' م'); if(!payload.onRoute){ instrEl.textContent=`⚠️ خارج المسار - ${m.label}${m.junctionName?' عند '+m.junctionName:''}`; } else { instrEl.textContent=m.junctionName?`${m.label} عند ${m.junctionName}`:m.label; } etaEl.textContent=`الوصول خلال ~${payload.etaMinutes} دقيقة`; } const progress=Math.round(payload.progress||0); fill.style.width=progress+'%'; pin.style.left=progress+'%'; }
+  function updateNavCard(payload){ const card=document.getElementById('nav-card'); card.classList.add('visible'); if(payload.error){ document.getElementById('nav-instruction').textContent=payload.error; return; } const distEl=document.getElementById('nav-distance'), instrEl=document.getElementById('nav-instruction'), etaEl=document.getElementById('nav-eta'), iconEl=document.getElementById('nav-maneuver-icon'), fill=document.getElementById('trail-fill'), pin=document.getElementById('trail-pin'); const m=payload.maneuver; iconEl.textContent=m.icon; iconEl.classList.toggle('arrived',m.type==='arrive'); if(m.type==='arrive'){ distEl.textContent='وصلت 🎉'; instrEl.textContent='أهلاً بكم في منتزه بلدية سلفيت'; etaEl.textContent=''; }else{ const dist=Math.round(payload.distanceToManeuver); distEl.textContent=(dist>=1000?(dist/1000).toFixed(1)+' كم':dist+' م'); instrEl.textContent=m.junctionName?`${m.label} عند ${m.junctionName}`:m.label; etaEl.textContent=`الوصول خلال ~${payload.etaMinutes} دقيقة`; } const progress=Math.round(payload.progress||0); fill.style.width=progress+'%'; pin.style.left=progress+'%'; }
   function hideNavCard(){ document.getElementById('nav-card').classList.remove('visible'); }
   function showArrivalOverlay(){ document.getElementById('arrival-overlay').classList.add('visible'); }
   function hideArrivalOverlay(){ document.getElementById('arrival-overlay').classList.remove('visible'); }
@@ -764,7 +729,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   try { await ParkMap.loadData(); ParkMap.initMap(); } catch(err){ console.error('تعذّر تحميل بيانات المسار:',err); }
   hideLoader();
 
-  // ========== نظام النطق (Speech) مع دعم الجوال ==========
+  // ========== نظام النطق (Speech) ==========
   const Speech = {
     voice: null,
     isSpeaking: false,
@@ -787,7 +752,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!chosen && arabicVoices.length > 1) chosen = arabicVoices[1];
         if (!chosen) chosen = arabicVoices[0];
         this.voice = chosen;
-        console.log('Voice selected:', this.voice ? this.voice.name : 'none');
       } catch(e) { console.warn('Voice selection error:', e); }
     },
     speak(text, rate=0.85, pitch=1.0, lang='ar-SA') {
@@ -804,7 +768,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         utter.onend = () => { this.isSpeaking = false; };
         utter.onerror = () => { this.isSpeaking = false; };
         window.speechSynthesis.speak(utter);
-        console.log('Speaking:', text);
         return utter;
       } catch(e) { console.warn('Speech error:', e); return null; }
     },
@@ -816,7 +779,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-  // تحميل الأصوات
   if (window.speechSynthesis) {
     if (window.speechSynthesis.getVoices().length > 0) {
       Speech.pickVoice();
@@ -828,8 +790,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   let navStarted = false;
   let navPromptSpoken = false;
   let arrivalSpoken = false;
-  let offRouteToastVisible = false;
-  let offRouteToastTimeout = null;
 
   function toastMessage(message) {
     let toast = document.getElementById('custom-toast');
@@ -842,28 +802,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     toast.style.opacity = '1';
     clearTimeout(toast._timeout);
     toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
-  }
-
-  function showOffRouteToast(message) {
-    const toast = document.getElementById('off-route-toast');
-    if (!toast) return;
-    toast.textContent = message || '⚠️ أنت خارج المسار، جارٍ إعادة التوجيه...';
-    toast.classList.add('visible');
-    offRouteToastVisible = true;
-    clearTimeout(offRouteToastTimeout);
-    offRouteToastTimeout = setTimeout(() => {
-      toast.classList.remove('visible');
-      offRouteToastVisible = false;
-    }, 6000);
-  }
-
-  function hideOffRouteToast() {
-    const toast = document.getElementById('off-route-toast');
-    if (toast) {
-      toast.classList.remove('visible');
-      offRouteToastVisible = false;
-    }
-    clearTimeout(offRouteToastTimeout);
   }
 
   function startNavigation() {
@@ -895,7 +833,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let lastSpokenInstruction = '';
   let lastSpokenTime = 0;
-  let lastOffRouteSpokenTime = 0;
 
   function handleNavUpdate(payload) {
     ParkUI.updateNavCard(payload);
@@ -906,37 +843,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     ParkMap.setUserPosition(payload.userLatLng, payload.heading);
     ParkMap.setActivePath(payload.pathCoords);
     
-    const isOffRoute = !payload.onRoute;
-    
-    if (isOffRoute) {
-      // رسم الخط الذهبي من الموقع إلى أقرب نقطة على المسار
+    // إذا كان المستخدم بعيداً عن المسار، نرسم خطاً ذهبياً يربطه بأقرب نقطة
+    if (payload.distToPath && payload.distToPath > 30) {
       ParkMap.setConnectorLine(payload.userLatLng, payload.snapPoint);
-      
-      // إظهار توست الخروج عن المسار
-      showOffRouteToast('⚠️ أنت خارج المسار، جارٍ إعادة التوجيه...');
-      
-      // توجيه صوتي للخروج عن المسار مع إرشادات للمسار الذهبي
-      const now = Date.now();
-      if (now - lastOffRouteSpokenTime > 10000) {
-        const distToPath = Math.round(payload.offRouteDistance || 0);
-        const direction = ParkUtils.getDirection(ParkUtils.bearing(payload.userLatLng, payload.snapPoint));
-        let msg = `أنت خارج المسار بمقدار ${distToPath} متر.`;
-        msg += ` تحرك نحو ${direction} للوصول إلى أقرب نقطة على الطريق الرئيسي.`;
-        msg += ' جارٍ إعادة حساب المسار.';
-        Speech.speak(msg, 0.8);
-        lastOffRouteSpokenTime = now;
-        lastSpokenInstruction = ''; // إعادة تعيين لتكرار التوجيهات
-      }
     } else {
-      // إخفاء التوست وإزالة الخط الذهبي
-      hideOffRouteToast();
       ParkMap.setConnectorLine(null, null);
     }
     
     ParkMap.panTo(payload.userLatLng);
 
     const m = payload.maneuver;
-    if (m && m.type !== 'arrive' && !isOffRoute) {
+    if (m && m.type !== 'arrive') {
       let instruction = m.label;
       if (m.junctionName) instruction += ` عند ${m.junctionName}`;
       const dist = Math.round(payload.distanceToManeuver);
@@ -954,7 +871,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function handleArrival() {
     ParkMap.setConnectorLine(null, null);
-    hideOffRouteToast();
     ParkUI.showArrivalOverlay();
     if (!arrivalSpoken) {
       arrivalSpoken = true;
