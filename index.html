@@ -1444,6 +1444,19 @@ const ParkNav = (() => {
 const ParkUI = (() => {
 
   const FACILITIES = [
+  {
+      id: 'indoor-games', icon: '🎮', name: 'الألعاب الداخلية',
+      short: 'مساحة ألعاب داخلية آمنة ومسلية للأطفال في جميع الأجواء.',
+      desc: 'قسم الألعاب الداخلية مخصص للأطفال ويحتوي على ألعاب متنوعة وآمنة، مثالي للاستخدام في مختلف الفصول والأجواء الجوية.',
+      tags: ['أطفال', 'داخلي'],
+      facts: [{ l: 'الفئة العمرية', v: '3-12 سنة' }, { l: 'الإشراف', v: 'مطلوب مرافق بالغ' }],
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in3.png',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in2.png',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in1.png',
+      ],
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv.mp4'
+    },
     {
       id: 'wedding-hall', icon: '💍', name: 'قاعة الأفراح',
       short: 'قاعة مجهزة بالكامل لاستضافة الأفراح والمناسبات العائلية والاجتماعية.',
@@ -1478,26 +1491,13 @@ const ParkUI = (() => {
       desc: 'قائمة طعام الكافتيريا محدثة بجميع الأصناف والأسعار المتوفرة حاليًا.',
       tags: ['قائمة الأسعار'],
       facts: [{ l: 'الصيغة', v: 'PDF / صور' }, { l: 'التحديث', v: 'دوري' }],
-      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food4.png',
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food4.jpeg',
       gallery: [
         'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food1.jpeg',
         'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food2.jpeg',
         'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food3.jpeg'
       ],
       video: null
-    },
-    {
-      id: 'indoor-games', icon: '🎮', name: 'الألعاب الداخلية',
-      short: 'مساحة ألعاب داخلية آمنة ومسلية للأطفال في جميع الأجواء.',
-      desc: 'قسم الألعاب الداخلية مخصص للأطفال ويحتوي على ألعاب متنوعة وآمنة، مثالي للاستخدام في مختلف الفصول والأجواء الجوية.',
-      tags: ['أطفال', 'داخلي'],
-      facts: [{ l: 'الفئة العمرية', v: '3-12 سنة' }, { l: 'الإشراف', v: 'مطلوب مرافق بالغ' }],
-      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in3.png',
-      gallery: [
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in2.png',
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in1.png',
-      ],
-      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv.mp4'
     },
     {
       id: 'outdoor-games', icon: '🛝', name: 'الألعاب الخارجية',
