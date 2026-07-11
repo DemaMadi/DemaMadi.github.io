@@ -337,7 +337,7 @@
     <div class="hero-content">
       <span class="hero-eyebrow">بلدية سلفيت ترحب بكم</span>
       <h1>منتزه <em>بلدية سلفيت</em><br>وجهتكم للراحة والطبيعة</h1>
-      <p>دليل تفاعلي صوتي يقودكم خطوة بخطوة من موقعكم الحالي وحتى بوابة المنتزه.</p>
+      <p>دليل تفاعلي يقودكم خطوة بخطوة من موقعكم الحالي وحتى بوابة المنتزه، ويعرّفكم على جميع المرافق والخدمات المتوفرة داخله.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" id="btn-start-trip">كلمة رئيس بلدية سلفيت</button>
         <button class="btn btn-outline" id="btn-locate-me">  تحديد الموقع </button>
@@ -353,7 +353,7 @@
 
     <div class="map-toolbar">
       <button class="map-btn" id="gpsBtn" title="تحديد موقعي">🧭<span class="tooltip-label">موقعي</span></button>
-      <button class="map-btn" id="satBtn" title="قمر صناعي">🛰️<span class="tooltip-label">قمر صناعي</span></button>
+      <button class="map-btn" id="satBtn" title="قمر صناعي">🗺️<span class="tooltip-label">قمر صناعي</span></button>
       <button class="map-btn" id="zoomIn" title="تكبير">➕<span class="tooltip-label">تكبير</span></button>
       <button class="map-btn" id="zoomOut" title="تصغير">➖<span class="tooltip-label">تصغير</span></button>
       <button class="map-btn" id="homeBtn" title="العودة للمنزل">🏠<span class="tooltip-label">الرئيسية</span></button>
@@ -686,6 +686,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ========== نظام النطق (Speech) ==========
   const Speech = {
+    voice: null,
+    // اختيار صوت عربي مختلف عن الصوت الافتراضي الذي يختاره المتصفح تلقائيًا
+    pickVoice() {
+      if (!window.speechSynthesis) return;
+      const voices = window.speechSynthesis.getVoices();
+      const arabicVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('ar'));
+      if (arabicVoices.length === 0) { this.voice = null; return; }
+      // قائمة أسماء أصوات عربية شائعة نُفضّلها (تختلف حسب النظام والمتصفح)
+      const preferredNames = ['Naayf', 'Hamed', 'Majed', 'Maged', 'Tarik', 'Salma', 'Laila', 'Hoda'];
+      let chosen = null;
+      for (const name of preferredNames) {
+        chosen = arabicVoices.find(v => v.name.includes(name));
+        if (chosen) break;
+      }
+      // إن لم نجد صوتًا مفضلاً وكان هناك أكثر من صوت عربي، نختار الثاني لضمان صوت مختلف عن الافتراضي
+      if (!chosen && arabicVoices.length > 1) chosen = arabicVoices[1];
+      if (!chosen) chosen = arabicVoices[0];
+      this.voice = chosen;
+    },
     speak(text, rate=0.9, pitch=1.0, lang='ar-SA') {
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
@@ -694,38 +713,45 @@ document.addEventListener('DOMContentLoaded', async () => {
       utter.rate = rate;
       utter.pitch = pitch;
       utter.volume = 1;
+      if (this.voice) utter.voice = this.voice;
       window.speechSynthesis.speak(utter);
       return utter;
     }
   };
+
+  // بعض المتصفحات تُحمّل قائمة الأصوات بشكل غير متزامن
+  Speech.pickVoice();
+  if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = () => Speech.pickVoice();
+  }
 
   let navStarted = false;
 
   // وصف دقيق للمنتزه سيتم نطقه فور الضغط على زر الملاحة
   const PARK_DESCRIPTION = `أهلًا وسهلًا بكم في الدليل التفاعلي لمنتزه بلدية سلفيت. يرحب بكم رئيس بلدية سلفيت، الأستاذ ضياء، ويتمنى لكم قضاء أوقاتٍ ممتعة في منتزه. يُرجى الضغط على أيقونة بوصلة لبدء تحديد موقعكم واختيار أفضل مسار للوصول إلى بوابة المنتزه`;
 
+  let navPromptSpoken = false;
+
+  // عرض الخريطة وتشغيل الرسالة الصوتية الترحيبية فقط - بدون بدء تحديد الموقع تلقائيًا
   function startNavigation() {
-    if (navStarted) return;
-    navStarted = true;
     ParkUI.showView('map');
-    
-    // نطق الوصف الدقيق للمنتزه فوراً
+    if (navPromptSpoken) return;
+    navPromptSpoken = true;
     Speech.speak(PARK_DESCRIPTION, 0.9);
-    
-    // بعد انتهاء الوصف، نطلب تحديد الموقع ونبدأ الملاحة
-    // نستخدم setTimeout لتأخير طلب الموقع قليلاً بعد انتهاء الكلام
-    setTimeout(() => {
-      // طلب تحديد الموقع
-      if (!navigator.geolocation) {
-        alert('المتصفح لا يدعم خدمة تحديد الموقع الجغرافي');
-        return;
-      }
-      
-      // نبدأ الملاحة مع إرسال رسالة عند أول تحديد للموقع
-      ParkNav.start(handleNavUpdate, handleArrival, (userLatLng) => {
-        Speech.speak('تم تحديد موقعكم بنجاح. جارٍ حساب المسار الأمثل إلى المنتزه.');
-      });
-    }, 2000); // تأخير 2 ثانية لترك وقت للوصف
+    // تحديد الموقع وبدء الملاحة يتمّان فقط عند ضغط المستخدم على زر البوصلة 🧭
+  }
+
+  // يبدأ تحديد الموقع الفعلي، ورسم المسار، والتوجيهات الصوتية خطوة بخطوة
+  function beginRealNavigation() {
+    if (navStarted) return;
+    if (!navigator.geolocation) {
+      alert('المتصفح لا يدعم خدمة تحديد الموقع الجغرافي');
+      return;
+    }
+    navStarted = true;
+    ParkNav.start(handleNavUpdate, handleArrival, (userLatLng) => {
+      Speech.speak('تم تحديد موقعكم بنجاح. جارٍ حساب المسار الأمثل إلى المنتزه.');
+    });
   }
 
   function handleNavUpdate(payload) {
@@ -775,18 +801,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('nav-card-close').addEventListener('click', ParkUI.hideNavCard);
 
     document.getElementById('gpsBtn').addEventListener('click', function() {
+      if (navStarted) { toastMessage('📍 الملاحة تعمل بالفعل'); return; }
       if (!navigator.geolocation) { alert('المتصفح لا يدعم خدمة تحديد الموقع'); return; }
-      navigator.geolocation.getCurrentPosition(
-        function(pos) {
-          const latlng = [pos.coords.latitude, pos.coords.longitude];
-          ParkMap.setUserPosition(latlng);
-          ParkMap.panTo(latlng, 18);
-          toastMessage('📍 تم تحديد موقعك بنجاح');
-          if (!navStarted) startNavigation();
-        },
-        function(err) { alert('تعذر تحديد الموقع: ' + err.message); },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-      );
+      toastMessage('📍 جارٍ تحديد موقعك...');
+      beginRealNavigation();
     });
 
     document.getElementById('satBtn').addEventListener('click', function() {
