@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>منتزه بلدية سلفيت  </title>
+  <title>منتزه بلدية سلفيت</title>
   <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCl4deI84ZCCdkUD1yyM9GnKWayG_iIUuD5sjbGJlrmgrcwysQ3bnjpy5H&s=10">
   <meta name="description" content="الدليل التفاعلي الرسمي لمنتزه بلدية سلفيت — ملاحة حية، مرافق، وخدمات">
 
@@ -146,6 +146,8 @@
     .btn-ghost{background:var(--c-green-50); color:var(--c-green-800);}
     .btn-ghost:hover{background:var(--c-green-200);}
     .btn-sm{padding:9px 16px; font-size:13px;}
+    .btn-pdf{background:#dc3545; color:white; box-shadow:0 10px 22px rgba(220,53,69,.35);}
+    .btn-pdf:hover{background:#b02a37;}
 
     /* ===================== خريطة ===================== */
     #view-map{padding-top:0;}
@@ -284,6 +286,7 @@
     .modal-fact strong{display:block; font-size:13px; color:var(--c-green-800); margin-bottom:3px;}
     .modal-fact span{font-size:12.5px; color:var(--c-text-soft);}
     .modal-video-btn{margin-top:6px;}
+    .modal-pdf-btn{width:100%; margin-top:10px; justify-content:center;}
 
     /* ===================== معرض الصور ===================== */
     .gallery-strip{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; margin-top:14px;}
@@ -515,6 +518,8 @@
       <div class="modal-tags" id="modal-tags"></div>
       <p id="modal-desc"></p>
       <div class="modal-facts" id="modal-facts"></div>
+      <!-- زر عرض قائمة الأسعار - خاص بعنصر menu -->
+      <button class="btn btn-pdf modal-pdf-btn hidden" id="modal-pdf-btn">📄 عرض قائمة الأسعار</button>
       <button class="btn btn-ghost modal-video-btn" id="modal-video-btn">▶ مشاهدة الفيديو</button>
       <div class="gallery-strip" id="modal-gallery"></div>
     </div>
@@ -1449,13 +1454,89 @@ const ParkUI = (() => {
       short: 'مساحة ألعاب داخلية آمنة ومسلية للأطفال في جميع الأجواء.',
       desc: 'قسم الألعاب الداخلية مخصص للأطفال ويحتوي على ألعاب متنوعة وآمنة، مثالي للاستخدام في مختلف الفصول والأجواء الجوية.',
       tags: ['أطفال', 'داخلي'],
-      facts: [{ l: 'الفئة العمرية', v: '3-12 سنة' }, { l: 'الإشراف', v: 'مطلوب مرافق بالغ' }],
+      facts: [{ l: 'الفئة العمرية', v: '12-3 سنة' }, { l: 'سعر دخولية', v: '15 شيقل' }],
       thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in3.png',
       gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in4.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in5.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in6.jpeg',
         'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in2.png',
         'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/in1.png',
       ],
-      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv.mp4'
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/inv.mp4'
+    },
+    {
+      id: 'outdoor-games', icon: '🛝', name: 'الألعاب الخارجية',
+      short: 'ألعاب خارجية متنوعة وسط المساحات الخضراء للمنتزه.',
+      desc: 'تضم منطقة الألعاب الخارجية مجموعة متنوعة من الألعاب المخصصة للأطفال ، محاطة بالمساحات الخضراء.',
+      tags: ['أطفال', 'خارجي'],
+      facts: [{ l: 'الفئة العمرية', v: 'لحد 5 سنوات ' }, { l: ' سعر الألعاب بالقرب من المسبح', v: '5 شيقل' }, { l: ' سعر الألعاب  عند مدخل منتزه  ', v: ' مجاني' }],
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/si1.jpeg',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/si6.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/si2.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/si3.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/si4.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/si5.jpeg'
+      ],
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/outv.mp4'
+    },
+    {
+      id: 'pool', icon: '🏊', name: 'المسبح',
+      short: 'مسبح مخصص للعائلات مع إجراءات سلامة كاملة.',
+      desc: 'يوفر المسبح تجربة ترفيهية ممتعة وآمنة لجميع أفراد العائلة، مع الالتزام بتعليمات وإرشادات السلامة المعتمدة لضمان راحة وأمان جميع الزوار.',
+      tags: ['استجمام', 'موسمي'],
+      facts: [{ l: 'سعر دخولية', v: ' 10 شيقل' }, { l: 'الموسم', v: 'الصيف' }],
+         thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/swim1.jpeg',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/swim2.jpeg',
+      ],
+      video: null
+    },
+    {
+      id: 'family-sitting', icon: '👨‍👩‍👧‍👦', name: 'الجلسات العائلية',
+      short: 'جلسات مظللة ومريحة وسط الطبيعة مخصصة للعائلات.',
+      desc: 'تنتشر الجلسات العائلية في أرجاء المنتزه، وهي مصممة لتوفر أجواء هادئة ومريحة للعائلات لقضاء وقت ممتع وسط الأشجار والمساحات الخضراء.',
+      tags: ['عائلي', 'مظلل'],
+      facts: [{ l: 'الحجز', v: 'غير مطلوب' }, { l: 'السعة', v: '4-10 أشخاص لكل جلسة' }],
+         thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/s5.jpeg',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/s1.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/s2.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/s3.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/s4.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/sit1.jpeg'
+      ],
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/sitv.mp4'
+    },
+    {
+      id: 'cafeteria', icon: '☕', name: 'الكافتيريا',
+      short: 'ركن مريح لتناول المشروبات والوجبات  وسط أجواء المنتزه.',
+      desc: 'توفر كافتيريا المنتزه تشكيلة من المشروبات الساخنة والباردة والوجبات و الحلويات بجلسات خارجية تناسب جميع أفراد العائلة.',
+      tags: ['حلويات', 'مشروبات ساخنة', 'مشروبات باردة', 'وجبات '],
+      facts: [{ l: 'أوقات العمل', v: ' من الساعة الخامسة مساءً حتى منتصف الليل.' }, { l: 'الجلسات', v: ' خارجية' }],
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/out1.jpeg',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res1.jpg',
+      ],
+      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/swv.mp4'
+    },
+    {
+      id: 'menu', icon: '📋', name: 'قائمة الكافتيريا',
+      short: 'اطّلع على قائمة المشروبات والوجبات المتوفرة وأسعارها.',
+      desc: 'قائمة طعام الكافتيريا محدثة بجميع الأصناف والأسعار المتوفرة حاليًا.',
+      tags: ['قائمة الأسعار'],
+      facts: [{ l:  'الاسعار', v: '🔴⬇️ اضغط على عرض قائمة الأسعار للاطلاع على جميع الخدمات التي نقدمها وأسعارهاا' }],
+      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food4.jpeg',
+      gallery: [
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food1.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food2.jpeg',
+        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food3.jpeg'
+      ],
+      video: null,
+      // إضافة خاصية للتعرف على أن هذا العنصر له زر PDF
+      hasPdf: true,
+      pdfUrl: 'https://raw.githubusercontent.com/DemaMadi/DemaMadi.github.io/main/Pricing.pdf'
     },
     {
       id: 'wedding-hall', icon: '💍', name: 'قاعة الأفراح',
@@ -1471,65 +1552,6 @@ const ParkUI = (() => {
       ],
       video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv1.mp4'
     },
-    {
-      id: 'cafeteria', icon: '☕', name: 'الكافتيريا',
-      short: 'ركن مريح لتناول المشروبات والوجبات  وسط أجواء المنتزه.',
-      desc: 'توفر كافتيريا المنتزه تشكيلة من المشروبات الساخنة والباردة والوجبات و الحلويات بجلسات خارجية تناسب جميع أفراد العائلة.',
-      tags: ['حلويات', 'مشروبات ساخنة', 'مشروبات باردة', 'وجبات '],
-      facts: [{ l: 'أوقات العمل', v: ' من الساعة الخامسة مساءً حتى منتصف الليل.' }, { l: 'الجلسات', v: ' خارجية' }],
-      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res1.jpg',
-      gallery: [
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res1.jpg',
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res2.jpg',
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/res3.jpg'
-      ],
-      video: null
-    },
-    {
-      id: 'menu', icon: '📋', name: 'قائمة الكافتيريا',
-      short: 'اطّلع على قائمة المشروبات والوجبات المتوفرة وأسعارها.',
-      desc: 'قائمة طعام الكافتيريا محدثة بجميع الأصناف والأسعار المتوفرة حاليًا.',
-      tags: ['قائمة الأسعار'],
-      facts: [{ l: 'الصيغة', v: 'PDF / صور' }, { l: 'التحديث', v: 'دوري' }],
-      thumb: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food4.jpeg',
-      gallery: [
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food1.jpeg',
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food2.jpeg',
-        'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/food3.jpeg'
-      ],
-      video: null
-    },
-    {
-      id: 'outdoor-games', icon: '🛝', name: 'الألعاب الخارجية',
-      short: 'ألعاب خارجية متنوعة وسط المساحات الخضراء للمنتزه.',
-      desc: 'تضم منطقة الألعاب الخارجية مجموعة متنوعة من الألعاب المخصصة للأطفال واليافعين، محاطة بالمساحات الخضراء وأماكن جلوس لأولياء الأمور.',
-      tags: ['أطفال', 'خارجي'],
-      facts: [{ l: 'الفئة العمرية', v: 'جميع الأعمار' }, { l: 'أرضية آمنة', v: 'نعم' }],
-      thumb: 'https://picsum.photos/seed/salfit-outdoor/800/600',
-      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-outdoor-${n}/800/600`),
-      video: 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/smv.mp4'
-    },
-    {
-      id: 'pool', icon: '🏊', name: 'المسبح',
-      short: 'مسبح مخصص للعائلات مع إجراءات سلامة كاملة.',
-      desc: 'يوفر المسبح تجربة استجمام ممتعة وآمنة للعائلات، مع مواعيد عمل محددة وتعليمات سلامة واضحة يجب اتباعها من قبل جميع الزوار.',
-      tags: ['استجمام', 'موسمي'],
-      facts: [{ l: 'أوقات العمل', v: '10ص - 6م' }, { l: 'الإشراف', v: 'مُنقذ متواجد' }, { l: 'الموسم', v: 'الصيف' }],
-      thumb: 'https://picsum.photos/seed/salfit-pool/800/600',
-      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-pool-${n}/800/600`),
-      video: 'https://www.w3schools.com/html/mov_bbb.mp4'
-    },
-    {
-      id: 'family-sitting', icon: '👨‍👩‍👧‍👦', name: 'الجلسات العائلية',
-      short: 'جلسات مظللة ومريحة وسط الطبيعة مخصصة للعائلات.',
-      desc: 'تنتشر الجلسات العائلية في أرجاء المنتزه، وهي مصممة لتوفر أجواء هادئة ومريحة للعائلات لقضاء وقت ممتع وسط الأشجار والمساحات الخضراء.',
-      tags: ['عائلي', 'مظلل'],
-      facts: [{ l: 'الحجز', v: 'غير مطلوب' }, { l: 'السعة', v: '4-10 أشخاص لكل جلسة' }],
-      thumb: 'https://picsum.photos/seed/salfit-family/800/600',
-      gallery: [1,2,3].map(n => `https://picsum.photos/seed/salfit-family-${n}/800/600`),
-      video: null
-    },
-   
   ];
 
   function showView(name) {
@@ -1558,7 +1580,10 @@ const ParkUI = (() => {
     `).join('');
 
     grid.querySelectorAll('.facility-card').forEach(card => {
-      card.addEventListener('click', () => openFacilityModal(card.dataset.id));
+      card.addEventListener('click', () => {
+        const id = card.dataset.id;
+        openFacilityModal(id);
+      });
     });
   }
 
@@ -1573,6 +1598,17 @@ const ParkUI = (() => {
     document.getElementById('modal-facts').innerHTML = f.facts.map(fa =>
       `<div class="modal-fact"><strong>${fa.l}</strong><span>${fa.v}</span></div>`
     ).join('');
+
+    // إظهار/إخفاء زر PDF
+    const pdfBtn = document.getElementById('modal-pdf-btn');
+    if (f.hasPdf && f.pdfUrl) {
+      pdfBtn.classList.remove('hidden');
+      pdfBtn.onclick = () => {
+        window.open(f.pdfUrl, '_blank');
+      };
+    } else {
+      pdfBtn.classList.add('hidden');
+    }
 
     const videoBtn = document.getElementById('modal-video-btn');
     if (f.video) {
