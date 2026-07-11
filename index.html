@@ -529,12 +529,27 @@ const ParkMap = (() => {
     return map;
   }
   function drawRoute(){ routeLinesLayer=L.layerGroup(state.routeLines.map(line=>L.polyline(line,{color:'#FF0000',weight:5,opacity:0.90,lineCap:'round'}))).addTo(map); }
-  function drawJunctions(){ state.junctions.forEach(j=>{ const el=document.createElement('div'); el.className='junction-marker'; const icon=L.divIcon({html:el.outerHTML,className:'',iconSize:[14,14]}); L.marker(j.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:13px;color:#263120;">📍 ${j.name||'مفترق'}</strong>`,{permanent:true,direction:'top',offset:[0,-8],className:'junction-tooltip'}); }); }
+  function drawJunctions(){
+    state.junctions.forEach(j=>{
+      // إنشاء عنصر HTML للعلامة
+      const el = document.createElement('div');
+      el.className = 'junction-marker';
+      const icon = L.divIcon({ html: el.outerHTML, className: '', iconSize: [14, 14] });
+      
+      // إنشاء تسمية (Label) كنص منفصل لضمان ظهورها
+      const labelHtml = `<div style="background: rgba(255,255,255,0.9); color: #263120; padding: 2px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; border: 1.5px solid #557E40; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">📍 ${j.name||'مفترق'}</div>`;
+      
+      // إضافة العلامة مع التسمية كـ Tooltip دائم
+      L.marker(j.latlng, { icon })
+        .addTo(map)
+        .bindTooltip(labelHtml, { permanent: true, direction: 'top', offset: [0, -12], className: '' });
+    });
+  }
   function drawPark(){ const icon=L.divIcon({html:'<div class="park-marker"><span>🌳</span></div>',className:'',iconSize:[34,34],iconAnchor:[17,30]}); L.marker(state.park.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:16px;color:#263120;">🌳 ${state.park.name}</strong>`,{permanent:true,direction:'top',offset:[0,-10],className:'custom-tooltip'}); }
   function fitToRoute(){ map.setView([32.0836,35.1806],15); }
   function setUserPosition(latlng,heading){ if(!userMarker){ const el=`<div class="user-marker"><div class="arrow"></div></div>`; const icon=L.divIcon({html:el,className:'',iconSize:[22,22],iconAnchor:[11,11]}); userMarker=L.marker(latlng,{icon,zIndexOffset:1000}).addTo(map); } else userMarker.setLatLng(latlng); if(typeof heading==='number'){ const el=userMarker.getElement(); if(el){ const inner=el.querySelector('.user-marker'); if(inner) inner.style.transform=`rotate(${heading}deg)`; } } }
   function setConnectorLine(from,to){ if(connectorLine) map.removeLayer(connectorLine); if(!from||!to){ connectorLine=null; return; } connectorLine=L.polyline([from,to],{color:'#C9A15A',weight:4,dashArray:'2,10',lineCap:'round'}).addTo(map); }
-  function setActivePath(coords){ if(activePathLine) map.removeLayer(activePathLine); if(!coords||!coords.length){ activePathLine=null; return; } activePathLine=L.polyline(coords,{color:'#2F4A25',weight:6,opacity:0.9,lineCap:'round'}).addTo(map); }
+  function setActivePath(coords){ if(activePathLine) map.removeLayer(activePathLine); if(!coords||!coords.length){ activePathLine=null; return; } activePathLine=L.polyline(coords,{color:'#2196F3',weight:6,opacity:0.9,dashArray:'8, 8', lineCap:'round'}).addTo(map); }
   function panTo(latlng,zoom){ const targetZoom=zoom||Math.max(map.getZoom(),17); map.flyTo(latlng,Math.min(targetZoom,20),{duration:0.8}); }
   function invalidate(){ if(map) setTimeout(()=>map.invalidateSize(),200); }
   function getMap(){ return map; }
@@ -550,13 +565,16 @@ const ParkMap = (() => {
 <script>
 'use strict';
 const ParkNav = (() => {
-  const ARRIVAL_THRESHOLD_M=18, ON_ROUTE_THRESHOLD_M=25, JUNCTION_MATCH_M=35, REROUTE_DRIFT_M=60;
+  const ARRIVAL_THRESHOLD_M=18;
+  // زيادة عتبة إعادة حساب المسار لتحسين العمل على الجوال
+  const ON_ROUTE_THRESHOLD_M=25, JUNCTION_MATCH_M=35, REROUTE_DRIFT_M=150;
   let watchId=null, activePath=null, onRoute=false, arrived=false, lastLatLng=null;
   let onUpdateCallback=null, onArriveCallback=null, onFirstFixCallback=null;
   let firstFixDone=false;
 
   function computeRoute(userLatLng){
     const state=ParkMap.getState();
+    if (!state || !state.graph) return null;
     const graph={ nodes:new Map(state.graph.nodes), adj:new Map(), allEdges:state.graph.allEdges };
     state.graph.adj.forEach((v,k)=>graph.adj.set(k,[...v]));
     const userSnap=ParkUtils.nearestPointOnGraph(graph,userLatLng);
@@ -603,8 +621,26 @@ const ParkNav = (() => {
     lastLatLng=userLatLng;
     if(!firstFixDone && onFirstFixCallback){ firstFixDone=true; onFirstFixCallback(userLatLng); }
     if(arrived) return;
-    const needsRoute=!activePath || (ParkUtils.nearestPointOnSegmentOfPath(activePath.coords,userLatLng).dist>REROUTE_DRIFT_M);
-    if(needsRoute){ const route=computeRoute(userLatLng); if(!route) return; activePath=route; }
+    // التحقق من وجود مسار وحساب المسافة قبل إعادة الحساب
+    let needsRoute = false;
+    if (!activePath) {
+        needsRoute = true;
+    } else {
+        const snap = ParkUtils.nearestPointOnSegmentOfPath(activePath.coords, userLatLng);
+        if (snap && snap.dist > REROUTE_DRIFT_M) needsRoute = true;
+    }
+
+    if(needsRoute){ 
+        const route=computeRoute(userLatLng); 
+        if(!route) {
+            // إذا لم يتم حساب المسار، نحاول مرة أخرى في المرة القادمة
+            return;
+        }
+        activePath=route; 
+    }
+    // إذا لم يكن هناك مسار حتى الآن، نخرج
+    if (!activePath) return;
+
     const snap=ParkUtils.nearestPointOnSegmentOfPath(activePath.coords,userLatLng);
     onRoute=snap.dist<=ON_ROUTE_THRESHOLD_M;
     const totalLen=ParkUtils.pathLength(activePath.coords);
@@ -687,20 +723,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ========== نظام النطق (Speech) ==========
   const Speech = {
     voice: null,
-    // اختيار صوت عربي مختلف عن الصوت الافتراضي الذي يختاره المتصفح تلقائيًا
     pickVoice() {
       if (!window.speechSynthesis) return;
       const voices = window.speechSynthesis.getVoices();
       const arabicVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('ar'));
       if (arabicVoices.length === 0) { this.voice = null; return; }
-      // قائمة أسماء أصوات عربية شائعة نُفضّلها (تختلف حسب النظام والمتصفح)
       const preferredNames = ['Naayf', 'Hamed', 'Majed', 'Maged', 'Tarik', 'Salma', 'Laila', 'Hoda'];
       let chosen = null;
       for (const name of preferredNames) {
         chosen = arabicVoices.find(v => v.name.includes(name));
         if (chosen) break;
       }
-      // إن لم نجد صوتًا مفضلاً وكان هناك أكثر من صوت عربي، نختار الثاني لضمان صوت مختلف عن الافتراضي
       if (!chosen && arabicVoices.length > 1) chosen = arabicVoices[1];
       if (!chosen) chosen = arabicVoices[0];
       this.voice = chosen;
@@ -719,29 +752,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-  // بعض المتصفحات تُحمّل قائمة الأصوات بشكل غير متزامن
   Speech.pickVoice();
   if (window.speechSynthesis) {
     window.speechSynthesis.onvoiceschanged = () => Speech.pickVoice();
   }
 
   let navStarted = false;
-
-  // وصف دقيق للمنتزه سيتم نطقه فور الضغط على زر الملاحة
   const PARK_DESCRIPTION = `أهلًا وسهلًا بكم في الدليل التفاعلي لمنتزه بلدية سلفيت. يرحب بكم رئيس بلدية سلفيت، الأستاذ ضياء، ويتمنى لكم قضاء أوقاتٍ ممتعة في منتزه. يُرجى الضغط على أيقونة بوصلة لبدء تحديد موقعكم واختيار أفضل مسار للوصول إلى بوابة المنتزه`;
-
   let navPromptSpoken = false;
 
-  // عرض الخريطة وتشغيل الرسالة الصوتية الترحيبية فقط - بدون بدء تحديد الموقع تلقائيًا
   function startNavigation() {
     ParkUI.showView('map');
     if (navPromptSpoken) return;
     navPromptSpoken = true;
     Speech.speak(PARK_DESCRIPTION, 0.9);
-    // تحديد الموقع وبدء الملاحة يتمّان فقط عند ضغط المستخدم على زر البوصلة 🧭
   }
 
-  // يبدأ تحديد الموقع الفعلي، ورسم المسار، والتوجيهات الصوتية خطوة بخطوة
   function beginRealNavigation() {
     if (navStarted) return;
     if (!navigator.geolocation) {
@@ -796,8 +822,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function wireMapButtons() {
-    // تم حذف زر "ابدأ الملاحة الصوتية" من على الخريطة
-    
     document.getElementById('nav-card-close').addEventListener('click', ParkUI.hideNavCard);
 
     document.getElementById('gpsBtn').addEventListener('click', function() {
