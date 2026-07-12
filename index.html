@@ -263,8 +263,32 @@
     .site-footer { background:var(--c-green-800); color:rgba(255,255,255,.85); padding:32px 0 20px; text-align:center; }
     .site-footer p { font-size:12px; line-height:1.8; }
 
-    .custom-tooltip { background:rgba(255,255,255,0.95) !important; border:2px solid var(--c-gold) !important; border-radius:10px !important; padding:4px 12px !important; font-family:var(--f-body) !important; box-shadow:0 2px 12px rgba(0,0,0,0.15) !important; font-size:13px !important; }
-    .junction-tooltip { background:rgba(255,255,255,0.92) !important; border:1.5px solid var(--c-green-500) !important; border-radius:6px !important; padding:3px 10px !important; font-family:var(--f-body) !important; box-shadow:0 2px 8px rgba(0,0,0,0.12) !important; font-size:11px !important; }
+    /* تصغير حجم صناديق التسميات (Labels) */
+    .custom-tooltip { 
+      background:rgba(255,255,255,0.95) !important; 
+      border:2px solid var(--c-gold) !important; 
+      border-radius:8px !important; 
+      padding:2px 8px !important; 
+      font-family:var(--f-body) !important; 
+      box-shadow:0 2px 8px rgba(0,0,0,0.12) !important; 
+      font-size:11px !important; 
+      line-height:1.4 !important;
+      white-space: nowrap !important;
+    }
+    .junction-tooltip { 
+      background:rgba(255,255,255,0.92) !important; 
+      border:1.5px solid var(--c-green-500) !important; 
+      border-radius:5px !important; 
+      padding:1px 6px !important; 
+      font-family:var(--f-body) !important; 
+      box-shadow:0 1px 4px rgba(0,0,0,0.10) !important; 
+      font-size:10px !important;
+      line-height:1.3 !important;
+      white-space: nowrap !important;
+    }
+    .custom-tooltip strong, .junction-tooltip strong {
+      font-size: inherit !important;
+    }
 
     .user-marker { width:20px; height:20px; border-radius:50%; background:var(--c-gold); border:3px solid var(--c-white); box-shadow:0 0 0 5px rgba(201,161,90,.25); transition: transform .3s linear; position:relative; }
     .user-marker .arrow { position:absolute; top:-10px; right:50%; transform:translateX(50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:10px solid var(--c-green-800); }
@@ -675,8 +699,8 @@ const ParkMap = (() => {
 
   function initMap(){
     map=L.map('leaflet-map',{zoomControl:false,attributionControl:true});
-    normalLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:20,attribution:'© OpenStreetMap contributors'});
-    satelliteLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'Imagery © Esri'});
+    normalLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:22,attribution:'© OpenStreetMap contributors'});
+    satelliteLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:22,attribution:'Imagery © Esri'});
     normalLayer.addTo(map);
     drawRoute(); drawJunctions(); drawPark(); fitToRoute();
     return map;
@@ -690,7 +714,7 @@ const ParkMap = (() => {
 L.marker(j.latlng, { icon })
   .addTo(map)
   .bindTooltip(
-    `<strong style="font-size:14px;color:#263120;">📍 ${j.name || 'مفترق'}</strong>`,
+    `<strong style="font-size:12px;color:#263120;">📍 ${j.name || 'مفترق'}</strong>`,
     {
       permanent: true,
       direction: 'right',
@@ -700,8 +724,8 @@ L.marker(j.latlng, { icon })
   );
     });
   }
-  function drawPark(){ const icon=L.divIcon({html:'<div class="park-marker"><span>🌳</span></div>',className:'',iconSize:[30,30],iconAnchor:[15,26]}); L.marker(state.park.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:14px;color:#263120;"> ${state.park.name}</strong>`,{permanent:true,direction:'right',offset:[0,5],className:'custom-tooltip'}); }
-  function fitToRoute(){ map.setView([32.0836,35.1806],13); }
+  function drawPark(){ const icon=L.divIcon({html:'<div class="park-marker"><span>🌳</span></div>',className:'',iconSize:[30,30],iconAnchor:[15,26]}); L.marker(state.park.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:13px;color:#263120;"> ${state.park.name}</strong>`,{permanent:true,direction:'right',offset:[0,5],className:'custom-tooltip'}); }
+  function fitToRoute(){ map.setView([32.0836,35.1806],15); }
   function setUserPosition(latlng,heading){ 
     if(!userMarker){ 
       const el=`<div class="user-marker"><div class="arrow"></div></div>`; 
