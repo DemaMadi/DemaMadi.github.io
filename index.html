@@ -266,7 +266,7 @@
     .custom-tooltip { background:rgba(255,255,255,0.95) !important; border:2px solid var(--c-gold) !important; border-radius:10px !important; padding:4px 12px !important; font-family:var(--f-body) !important; box-shadow:0 2px 12px rgba(0,0,0,0.15) !important; font-size:13px !important; }
     .junction-tooltip { background:rgba(255,255,255,0.92) !important; border:1.5px solid var(--c-green-500) !important; border-radius:6px !important; padding:3px 10px !important; font-family:var(--f-body) !important; box-shadow:0 2px 8px rgba(0,0,0,0.12) !important; font-size:11px !important; }
 
-    .user-marker { width:20px; height:20px; border-radius:50%; background:var(--c-gold); border:3px solid var(--c-white); box-shadow:0 0 0 5px rgba(201,161,90,.25); transition: transform .3s linear; }
+    .user-marker { width:20px; height:20px; border-radius:50%; background:var(--c-gold); border:3px solid var(--c-white); box-shadow:0 0 0 5px rgba(201,161,90,.25); transition: transform .3s linear; position:relative; }
     .user-marker .arrow { position:absolute; top:-10px; right:50%; transform:translateX(50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:10px solid var(--c-green-800); }
     .junction-marker { width:12px; height:12px; border-radius:50%; background:var(--c-green-600); border:2px solid var(--c-white); box-shadow:0 2px 6px rgba(0,0,0,.2); }
     .park-marker { width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); background:var(--c-gold); border:3px solid var(--c-white); box-shadow:0 3px 8px rgba(0,0,0,.25); }
@@ -321,6 +321,21 @@
       max-width: 90vw;
       text-align: center;
     }
+
+    .street-route {
+      stroke: #2196F3;
+      stroke-width: 5;
+      opacity: 0.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .recalculating {
+      animation: pulse 1s ease-in-out 3;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
   </style>
 </head>
 <body>
@@ -372,6 +387,7 @@
       <button class="map-btn" id="zoomIn" title="تكبير">➕</button>
       <button class="map-btn" id="zoomOut" title="تصغير">➖</button>
       <button class="map-btn" id="homeBtn" title="الرئيسية">🏠</button>
+      <button class="map-btn" id="rerouteBtn" title="إعادة حساب المسار">🔄</button>
     </div>
 
     <div class="nav-card" id="nav-card">
@@ -516,14 +532,133 @@ const ParkUtils = (() => {
   function remainingFromPoint(coords,fromIndex,snapPoint){ let total=haversine(snapPoint,coords[fromIndex+1]||coords[fromIndex]); for(let i=fromIndex+1;i<coords.length-1;i++) total+=haversine(coords[i],coords[i+1]); return total; }
   function nearestPointOnSegmentOfPath(coords,p){ let best=null; for(let i=0;i<coords.length-1;i++){ const res=nearestPointOnSegment(p,coords[i],coords[i+1]); if(!best||res.dist<best.dist) best={point:res.point,dist:res.dist,segIndex:i}; } return best; }
   function getDirection(angle){ const dirs=['شمال','شمال شرق','شرق','جنوب شرق','جنوب','جنوب غرب','غرب','شمال غرب']; const idx=Math.round(((angle%360+360)%360)/45)%8; return dirs[idx]; }
-  return {toLatLng,haversine,bearing,toRad,toDeg,nearestPointOnSegment,buildGraph,nearestPointOnGraph,dijkstra,attachVirtualNode,pathLength,remainingFromPoint,keyOf,nearestPointOnSegmentOfPath,getDirection};
+  function findNearestRoadSegment(graph, point, maxDistance=500) {
+    let best = null;
+    graph.allEdges.forEach(line => {
+      for (let i = 0; i < line.length - 1; i++) {
+        const res = nearestPointOnSegment(point, line[i], line[i+1]);
+        if (res.dist < maxDistance && (!best || res.dist < best.dist)) {
+          best = {
+            point: res.point,
+            dist: res.dist,
+            a: line[i],
+            b: line[i+1],
+            keyA: keyOf(line[i]),
+            keyB: keyOf(line[i+1]),
+            distToA: haversine(res.point, line[i]),
+            distToB: haversine(res.point, line[i+1])
+          };
+        }
+      }
+    });
+    return best;
+  }
+  // دالة لحساب المسار من موقع المستخدم عبر الشوارع إلى المنتزه
+  function findPathFromUserToPark(userLatLng, parkLatLng, graph) {
+    // 1. البحث عن أقرب شارع من موقع المستخدم (مسافة بحث 500 متر)
+    const userRoadSnap = findNearestRoadSegment(graph, userLatLng, 500);
+    if (!userRoadSnap) return null;
+    
+    // 2. البحث عن أقرب نقطة على المسار الرئيسي للمنتزه
+    const parkSnap = nearestPointOnGraph(graph, parkLatLng);
+    if (!parkSnap) return null;
+    
+    // 3. إنشاء نسخة من الرسم البياني
+    const graphCopy = { nodes: new Map(graph.nodes), adj: new Map(), allEdges: graph.allEdges };
+    graph.adj.forEach((v, k) => graphCopy.adj.set(k, [...v]));
+    
+    // 4. إضافة نقاط افتراضية للمستخدم والمنتزه على الشبكة
+    const startKey = attachVirtualNode(graphCopy, userRoadSnap, 'user');
+    const endKey = attachVirtualNode(graphCopy, parkSnap, 'park');
+    
+    // 5. حساب أقصر مسار عبر الشوارع باستخدام خوارزمية ديكسترا
+    const result = dijkstra(graphCopy, startKey, endKey);
+    if (!result) return null;
+    
+    return {
+      coords: result.coords,      // إحداثيات المسار الكامل
+      distance: result.distance,   // المسافة الكلية
+      userRoadPoint: userRoadSnap.point,  // نقطة الوصول إلى الطريق
+      userDistToRoad: userRoadSnap.dist   // المسافة من المستخدم إلى الطريق
+    };
+  }
+
+  // ===== الوصلة الحقيقية بين موقع المستخدم وشبكة الطرق المعروفة (بدون خطوط مستقيمة) =====
+  // نستخدم خادم OSRM عام لحساب مسار مشاة حقيقي يتبع الشوارع الفعلية
+  async function fetchOSRMFootRoute(a, b, signal) {
+    try {
+      const url = `https://routing.openstreetmap.de/routed-foot/route/v1/foot/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=false`;
+      const res = await fetch(url, { signal });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!data.routes || !data.routes[0]) return null;
+      const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+      return { coords, distance: data.routes[0].distance };
+    } catch (e) {
+      console.warn('تعذّر الاتصال بخدمة توجيه الشوارع (OSRM)، سيتم استخدام الوصلة المباشرة كحل بديل:', e);
+      return null;
+    }
+  }
+
+  // النسخة المحسّنة: تربط موقع المستخدم الفعلي بشبكة طرق المنتزه عبر مسار شوارع حقيقي (وليس خطاً مستقيماً)
+  async function findPathFromUserToParkStreetBased(userLatLng, parkLatLng, graph) {
+    // 1. أقرب نقطة على شبكة الطرق المعروفة (بلا حد أقصى للمسافة، لأن الوصلة الفعلية ستُرسم عبر شوارع حقيقية)
+    const networkSnap = nearestPointOnGraph(graph, userLatLng);
+    if (!networkSnap) return null;
+
+    // 2. أقرب نقطة على الشبكة بالنسبة للمنتزه
+    const parkSnap = nearestPointOnGraph(graph, parkLatLng);
+    if (!parkSnap) return null;
+
+    // 3. طلب مسار مشاة حقيقي (يتبع الشوارع) من موقع المستخدم إلى نقطة الدخول على الشبكة
+    let controller = null, timeoutId = null;
+    if (typeof AbortController !== 'undefined') {
+      controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 8000);
+    }
+    const osrm = await fetchOSRMFootRoute(userLatLng, networkSnap.point, controller ? controller.signal : undefined);
+    if (timeoutId) clearTimeout(timeoutId);
+
+    let lastMileCoords, lastMileDist, usedRealStreets;
+    if (osrm && osrm.coords && osrm.coords.length > 1) {
+      lastMileCoords = osrm.coords;
+      lastMileDist = osrm.distance;
+      usedRealStreets = true;
+    } else {
+      // حل بديل فقط عند تعذّر الوصول لخدمة التوجيه (لا اتصال إنترنت مثلاً)
+      lastMileCoords = [userLatLng, networkSnap.point];
+      lastMileDist = haversine(userLatLng, networkSnap.point);
+      usedRealStreets = false;
+    }
+
+    // 4. حساب المسار عبر شبكة طرق المنتزه المعروفة من نقطة الدخول وحتى المنتزه
+    const graphCopy = { nodes: new Map(graph.nodes), adj: new Map(), allEdges: graph.allEdges };
+    graph.adj.forEach((v, k) => graphCopy.adj.set(k, [...v]));
+    const startKey = attachVirtualNode(graphCopy, networkSnap, 'entry');
+    const endKey = attachVirtualNode(graphCopy, parkSnap, 'park');
+    const result = dijkstra(graphCopy, startKey, endKey);
+    if (!result) return null;
+
+    // 5. دمج وصلة الشوارع الحقيقية مع مسار الشبكة الداخلي (بدون تكرار نقطة الالتقاء)
+    const mergedCoords = lastMileCoords.concat(result.coords.slice(1));
+
+    return {
+      coords: mergedCoords,
+      distance: lastMileDist + result.distance,
+      userRoadPoint: networkSnap.point,
+      userDistToRoad: lastMileDist,
+      usedRealStreets
+    };
+  }
+
+  return {toLatLng,haversine,bearing,toRad,toDeg,nearestPointOnSegment,buildGraph,nearestPointOnGraph,dijkstra,attachVirtualNode,pathLength,remainingFromPoint,keyOf,nearestPointOnSegmentOfPath,getDirection,findNearestRoadSegment,findPathFromUserToPark,fetchOSRMFootRoute,findPathFromUserToParkStreetBased};
 })();
 </script>
 
 <script>
 'use strict';
 const ParkMap = (() => {
-  let map=null, userMarker=null, connectorLine=null, activePathLine=null, routeLinesLayer=null;
+  let map=null, userMarker=null, activePathLine=null, routeLinesLayer=null;
   const state={ routeLines:[], junctions:[], park:null, graph:null };
   let normalLayer=null, satelliteLayer=null, currentLayer="normal";
 
@@ -560,9 +695,34 @@ const ParkMap = (() => {
   }
   function drawPark(){ const icon=L.divIcon({html:'<div class="park-marker"><span>🌳</span></div>',className:'',iconSize:[30,30],iconAnchor:[15,26]}); L.marker(state.park.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:14px;color:#263120;">🌳 ${state.park.name}</strong>`,{permanent:true,direction:'top',offset:[0,-8],className:'custom-tooltip'}); }
   function fitToRoute(){ map.setView([32.0836,35.1806],14); }
-  function setUserPosition(latlng,heading){ if(!userMarker){ const el=`<div class="user-marker"><div class="arrow"></div></div>`; const icon=L.divIcon({html:el,className:'',iconSize:[20,20],iconAnchor:[10,10]}); userMarker=L.marker(latlng,{icon,zIndexOffset:1000}).addTo(map); } else userMarker.setLatLng(latlng); if(typeof heading==='number'){ const el=userMarker.getElement(); if(el){ const inner=el.querySelector('.user-marker'); if(inner) inner.style.transform=`rotate(${heading}deg)`; } } }
-  function setConnectorLine(from,to){ if(connectorLine) map.removeLayer(connectorLine); if(!from||!to){ connectorLine=null; return; } connectorLine=L.polyline([from,to],{color:'#C9A15A',weight:3,dashArray:'4,8',lineCap:'round',opacity:0.7}).addTo(map); }
-  function setActivePath(coords){ if(activePathLine) map.removeLayer(activePathLine); if(!coords||!coords.length){ activePathLine=null; return; } activePathLine=L.polyline(coords,{color:'#2196F3',weight:5,opacity:0.9,dashArray:'8, 6', lineCap:'round'}).addTo(map); }
+  function setUserPosition(latlng,heading){ 
+    if(!userMarker){ 
+      const el=`<div class="user-marker"><div class="arrow"></div></div>`; 
+      const icon=L.divIcon({html:el,className:'',iconSize:[20,20],iconAnchor:[10,10]}); 
+      userMarker=L.marker(latlng,{icon,zIndexOffset:1000}).addTo(map); 
+    } else userMarker.setLatLng(latlng); 
+    if(typeof heading==='number'){ 
+      const el=userMarker.getElement(); 
+      if(el){ 
+        const inner=el.querySelector('.user-marker'); 
+        if(inner) inner.style.transform=`rotate(${heading}deg)`; 
+      } 
+    } 
+  }
+  
+  function setActivePath(coords){ 
+    if(activePathLine) { map.removeLayer(activePathLine); activePathLine=null; }
+    if(!coords||!coords.length){ return; } 
+    // مسار أزرق سميك يتبع الشوارع الفعلية (سواء عبر OSRM أو شبكة المنتزه المعروفة)
+    activePathLine=L.polyline(coords,{
+      color:'#2196F3',
+      weight:5,
+      opacity:0.95,
+      lineCap:'round',
+      lineJoin:'round',
+      className:'street-route'
+    }).addTo(map); 
+  }
   function panTo(latlng,zoom){ const targetZoom=zoom||Math.max(map.getZoom(),17); map.flyTo(latlng,Math.min(targetZoom,20),{duration:0.6}); }
   function invalidate(){ if(map) setTimeout(()=>map.invalidateSize(),200); }
   function getMap(){ return map; }
@@ -571,35 +731,49 @@ const ParkMap = (() => {
   function switchToNormal(){ if(satelliteLayer&&map.hasLayer(satelliteLayer)) map.removeLayer(satelliteLayer); if(normalLayer&&!map.hasLayer(normalLayer)) normalLayer.addTo(map); currentLayer="normal"; }
   function toggleLayer(){ if(currentLayer==="normal") switchToSatellite(); else switchToNormal(); }
   function getCurrentLayer(){ return currentLayer; }
-  return {loadData,initMap,setUserPosition,setConnectorLine,setActivePath,panTo,invalidate,getMap,getState,switchToSatellite,switchToNormal,toggleLayer,getCurrentLayer};
+  return {loadData,initMap,setUserPosition,setActivePath,panTo,invalidate,getMap,getState,switchToSatellite,switchToNormal,toggleLayer,getCurrentLayer};
 })();
 </script>
 
 <script>
 'use strict';
 const ParkNav = (() => {
-  const ARRIVAL_THRESHOLD_M=20;
-  const REROUTE_DRIFT_M=40;
+  const ARRIVAL_THRESHOLD_M = 25;
+  const REROUTE_DRIFT_M = 40;
   let watchId=null, activePath=null, arrived=false, lastLatLng=null;
   let onUpdateCallback=null, onArriveCallback=null, onFirstFixCallback=null;
   let firstFixDone=false;
+  let isRecalculating = false;
+  let recalcToken = 0;
 
-  function computeRoute(userLatLng){
+  async function computeFullRoute(userLatLng){
     const state=ParkMap.getState();
     if (!state || !state.graph) return null;
-    const graph={ nodes:new Map(state.graph.nodes), adj:new Map(), allEdges:state.graph.allEdges };
-    state.graph.adj.forEach((v,k)=>graph.adj.set(k,[...v]));
-    const userSnap=ParkUtils.nearestPointOnGraph(graph,userLatLng);
-    const parkSnap=ParkUtils.nearestPointOnGraph(graph,state.park.latlng);
-    if(!userSnap||!parkSnap) return null;
-    const startKey=ParkUtils.attachVirtualNode(graph,userSnap,'start');
-    const endKey=ParkUtils.attachVirtualNode(graph,parkSnap,'end');
-    const result=ParkUtils.dijkstra(graph,startKey,endKey);
-    if(!result) return null;
-    return { coords:result.coords, distance:result.distance, userSnapPoint:userSnap.point };
+
+    // حساب مسار كامل يتبع شوارع حقيقية من موقع المستخدم وحتى المنتزه
+    const result = await ParkUtils.findPathFromUserToParkStreetBased(
+      userLatLng,
+      state.park.latlng,
+      state.graph
+    );
+
+    if (!result) {
+      console.warn('لا يمكن حساب المسار عبر الشوارع');
+      return null;
+    }
+
+    return result;
   }
 
-  function junctionNear(point){ const state=ParkMap.getState(); let best=null; state.junctions.forEach(j=>{ const d=ParkUtils.haversine(point,j.latlng); if(d<=35&&(!best||d<best.d)) best={j,d}; }); return best?best.j:null; }
+  function junctionNear(point){ 
+    const state=ParkMap.getState(); 
+    let best=null; 
+    state.junctions.forEach(j=>{ 
+      const d=ParkUtils.haversine(point,j.latlng); 
+      if(d<=35&&(!best||d<best.d)) best={j,d}; 
+    }); 
+    return best?best.j:null; 
+  }
 
   function classifyTurn(coords,index){
     if(index<=0||index>=coords.length-1) return null;
@@ -621,51 +795,154 @@ const ParkNav = (() => {
   function start(onUpdate,onArrive,onFirstFix){
     onUpdateCallback=onUpdate; onArriveCallback=onArrive; onFirstFixCallback=onFirstFix;
     arrived=false; firstFixDone=false;
-    if(!navigator.geolocation){ onUpdate({error:'المتصفح لا يدعم تحديد الموقع الجغرافي'}); return; }
-    watchId=navigator.geolocation.watchPosition(handlePosition,handleError,{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
+    
+    if(!navigator.geolocation){ 
+      if(onUpdate) onUpdate({error:'المتصفح لا يدعم تحديد الموقع الجغرافي'});
+      return; 
+    }
+    
+    const options = {
+      enableHighAccuracy: true,
+      maximumAge: 5000,
+      timeout: 15000
+    };
+    
+    watchId=navigator.geolocation.watchPosition(handlePosition,handleError,options);
   }
 
-  function stop(){ if(watchId!==null) navigator.geolocation.clearWatch(watchId); watchId=null; activePath=null; arrived=false; }
-  function handleError(err){ if(onUpdateCallback) onUpdateCallback({error:'تعذّر الوصول لموقعك، يرجى تفعيل خدمة الموقع الجغرافي'}); }
-  function handlePosition(pos){
+  function startWithManualLocation(latlng, onUpdate, onArrive, onFirstFix){
+    onUpdateCallback=onUpdate; onArriveCallback=onArrive; onFirstFixCallback=onFirstFix;
+    arrived=false; firstFixDone=false;
+    if(onFirstFix) onFirstFix(latlng);
+    handlePosition({ coords: { latitude: latlng[0], longitude: latlng[1], heading: 0 } });
+  }
+
+  function stop(){ 
+    if(watchId!==null) navigator.geolocation.clearWatch(watchId); 
+    watchId=null; 
+    activePath=null; 
+    arrived=false; 
+  }
+  
+  function handleError(err){ 
+    console.warn('Geolocation error:', err);
+    if(onUpdateCallback) onUpdateCallback({error:'تعذّر الوصول لموقعك، يرجى تفعيل خدمة الموقع الجغرافي'});
+  }
+  
+  async function handlePosition(pos){
     const userLatLng=[pos.coords.latitude,pos.coords.longitude];
-    const heading=pos.coords.heading;
+    const heading=pos.coords.heading || 0;
     lastLatLng=userLatLng;
-    if(!firstFixDone && onFirstFixCallback){ firstFixDone=true; onFirstFixCallback(userLatLng); }
+    
+    if(!firstFixDone && onFirstFixCallback){ 
+      firstFixDone=true; 
+      onFirstFixCallback(userLatLng); 
+    }
+    
     if(arrived) return;
 
     let needsRoute = false;
     if (!activePath) {
-        needsRoute = true;
+      needsRoute = true;
     } else {
-        const snap = ParkUtils.nearestPointOnSegmentOfPath(activePath.coords, userLatLng);
-        if (snap && snap.dist > REROUTE_DRIFT_M) needsRoute = true;
+      const snap = ParkUtils.nearestPointOnSegmentOfPath(activePath.coords, userLatLng);
+      if (snap && snap.dist > REROUTE_DRIFT_M) {
+        needsRoute = true;
+        console.log(`المستخدم بعيد عن المسار (${Math.round(snap.dist)}م)، إعادة حساب المسار...`);
+      }
     }
 
-    if(needsRoute){ 
-        const route=computeRoute(userLatLng); 
-        if(!route) return;
-        activePath=route; 
+    if(needsRoute && !isRecalculating){ 
+      isRecalculating = true;
+      const myToken = ++recalcToken;
+      if(onUpdateCallback) onUpdateCallback({ 
+        status: 'recalculating',
+        message: '🔄 جارٍ حساب المسار عبر الشوارع الفعلية...' 
+      });
+      
+      const route = await computeFullRoute(userLatLng);
+      isRecalculating = false;
+
+      // إن وصل تحديث موقع أحدث أثناء الحساب، تجاهل هذه النتيجة المتأخرة
+      if (myToken !== recalcToken) return;
+
+      if(!route) {
+        if(onUpdateCallback) onUpdateCallback({error:'لا يمكن حساب المسار من موقعك الحالي، تأكد من وجود شارع قريب'});
+        return;
+      }
+
+      if (route.usedRealStreets === false && onUpdateCallback) {
+        onUpdateCallback({ status:'fallback', message:'⚠️ تعذّر الوصول لخدمة الشوارع، تم استخدام أقرب تقدير مؤقت' });
+      }
+
+      activePath = route; 
     }
+    
     if (!activePath) return;
 
-    const snap=ParkUtils.nearestPointOnSegmentOfPath(activePath.coords,userLatLng);
+    const snap = ParkUtils.nearestPointOnSegmentOfPath(activePath.coords,userLatLng);
     const totalLen=ParkUtils.pathLength(activePath.coords);
     const remaining=ParkUtils.remainingFromPoint(activePath.coords,snap.segIndex,snap.point)+snap.dist;
     const traveled=Math.max(0,totalLen-remaining);
     const progress=totalLen>0?Math.min(100,Math.max(0,(traveled/totalLen)*100)):0;
+    
     let nextIdx=snap.segIndex+1;
     let maneuver=classifyTurn(activePath.coords,nextIdx);
-    while(!maneuver&&nextIdx<activePath.coords.length-1){ nextIdx++; maneuver=classifyTurn(activePath.coords,nextIdx); }
+    while(!maneuver&&nextIdx<activePath.coords.length-1){ 
+      nextIdx++; 
+      maneuver=classifyTurn(activePath.coords,nextIdx); 
+    }
+    
     const distToPark=ParkUtils.haversine(userLatLng,ParkMap.getState().park.latlng);
     const isArrived=distToPark<=ARRIVAL_THRESHOLD_M||remaining<=ARRIVAL_THRESHOLD_M;
-    const payload={ userLatLng, heading, snapPoint:snap.point, pathCoords:activePath.coords, remainingMeters:remaining, progress, maneuver:isArrived?{type:'arrive',label:'لقد وصلت',icon:'🏁'}:(maneuver||{type:'straight',label:'استمر مستقيمًا',icon:'↑'}), distanceToManeuver:ParkUtils.haversine(snap.point,activePath.coords[nextIdx]||activePath.coords[activePath.coords.length-1]), etaMinutes:Math.max(1,Math.round((remaining/1.3)/60)), distToPath:snap.dist };
+    
+    const payload={ 
+      userLatLng, 
+      heading, 
+      snapPoint:snap.point, 
+      pathCoords:activePath.coords, 
+      remainingMeters:remaining, 
+      progress, 
+      maneuver:isArrived?{type:'arrive',label:'لقد وصلت',icon:'🏁'}:(maneuver||{type:'straight',label:'استمر مستقيمًا',icon:'↑'}), 
+      distanceToManeuver:ParkUtils.haversine(snap.point,activePath.coords[nextIdx]||activePath.coords[activePath.coords.length-1]), 
+      etaMinutes:Math.max(1,Math.round((remaining/1.3)/60)), 
+      distToPath:snap.dist,
+      distToPark: distToPark,
+      userRoadPoint: activePath.userRoadPoint,
+      userDistToRoad: activePath.userDistToRoad
+    };
+    
     if(onUpdateCallback) onUpdateCallback(payload);
-    if(isArrived&&!arrived){ arrived=true; if(onArriveCallback) onArriveCallback(); }
+    
+    if(isArrived&&!arrived){ 
+      arrived=true; 
+      if(onArriveCallback) onArriveCallback(); 
+    }
   }
+  
   function getLastPosition(){ return lastLatLng; }
   function getActivePath(){ return activePath; }
-  return { start, stop, computeRoute, getLastPosition, getActivePath, ARRIVAL_THRESHOLD_M };
+  async function forceReroute(){
+    if(lastLatLng) {
+      const route = await computeFullRoute(lastLatLng);
+      if(route) {
+        activePath = route;
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  return { 
+    start, 
+    stop, 
+    computeFullRoute, 
+    getLastPosition, 
+    getActivePath, 
+    ARRIVAL_THRESHOLD_M,
+    startWithManualLocation,
+    forceReroute
+  };
 })();
 </script>
 
@@ -686,7 +963,53 @@ const ParkUI = (() => {
   function renderFacilities(){ const grid=document.getElementById('facility-grid'); grid.innerHTML=FACILITIES.map(f=>`<article class="facility-card" data-id="${f.id}"><div class="facility-thumb" style="background-image:url('${f.thumb}')"><span>${f.icon} ${f.name}</span></div><div class="facility-body"><h3>${f.name}</h3><p>${f.short}</p><span class="facility-more">عرض المزيد</span></div></article>`).join(''); grid.querySelectorAll('.facility-card').forEach(card=>{ card.addEventListener('click',()=>{ openFacilityModal(card.dataset.id); }); }); }
   function openFacilityModal(id){ const f=FACILITIES.find(x=>x.id===id); if(!f) return; document.getElementById('modal-hero').style.backgroundImage=`url('${f.thumb}')`; document.getElementById('modal-title').textContent=`${f.icon} ${f.name}`; document.getElementById('modal-tags').innerHTML=f.tags.map(t=>`<span>${t}</span>`).join(''); document.getElementById('modal-desc').textContent=f.desc; document.getElementById('modal-facts').innerHTML=f.facts.map(fa=>`<div class="modal-fact"><strong>${fa.l}</strong><span>${fa.v}</span></div>`).join(''); const pdfBtn=document.getElementById('modal-pdf-btn'); if(f.hasPdf&&f.pdfUrl){ pdfBtn.classList.remove('hidden'); pdfBtn.onclick=()=>{ window.open(f.pdfUrl,'_blank'); }; } else { pdfBtn.classList.add('hidden'); } const videoBtn=document.getElementById('modal-video-btn'); if(f.video){ videoBtn.classList.remove('hidden'); videoBtn.onclick=()=>ParkVideo.open(f.video,f.thumb); } else { videoBtn.classList.add('hidden'); } ParkGallery.render(document.getElementById('modal-gallery'),f.gallery); document.getElementById('facility-modal').classList.add('visible'); }
   function closeFacilityModal(){ document.getElementById('facility-modal').classList.remove('visible'); }
-  function updateNavCard(payload){ const card=document.getElementById('nav-card'); card.classList.add('visible'); if(payload.error){ document.getElementById('nav-instruction').textContent=payload.error; return; } const distEl=document.getElementById('nav-distance'), instrEl=document.getElementById('nav-instruction'), etaEl=document.getElementById('nav-eta'), iconEl=document.getElementById('nav-maneuver-icon'), fill=document.getElementById('trail-fill'), pin=document.getElementById('trail-pin'); const m=payload.maneuver; iconEl.textContent=m.icon; iconEl.classList.toggle('arrived',m.type==='arrive'); if(m.type==='arrive'){ distEl.textContent='وصلت 🎉'; instrEl.textContent='أهلاً بكم في منتزه بلدية سلفيت'; etaEl.textContent=''; }else{ const dist=Math.round(payload.distanceToManeuver); distEl.textContent=(dist>=1000?(dist/1000).toFixed(1)+' كم':dist+' م'); instrEl.textContent=m.junctionName?`${m.label} عند ${m.junctionName}`:m.label; etaEl.textContent=`الوصول خلال ~${payload.etaMinutes} دقيقة`; } const progress=Math.round(payload.progress||0); fill.style.width=progress+'%'; pin.style.left=progress+'%'; }
+  function updateNavCard(payload){ 
+    const card=document.getElementById('nav-card'); 
+    card.classList.add('visible'); 
+    
+    if(payload.error){ 
+      document.getElementById('nav-instruction').textContent=payload.error; 
+      return; 
+    }
+    
+    if(payload.status === 'recalculating') {
+      document.getElementById('nav-instruction').textContent = payload.message || '🔄 جارٍ حساب المسار عبر الشوارع...';
+      document.getElementById('nav-distance').textContent = '...';
+      document.getElementById('nav-maneuver-icon').textContent = '🔄';
+      return;
+    }
+
+    if(payload.status === 'fallback') {
+      document.getElementById('nav-instruction').textContent = payload.message || '⚠️ تم استخدام أقرب تقدير مؤقت';
+      return;
+    }
+    
+    const distEl=document.getElementById('nav-distance'), 
+          instrEl=document.getElementById('nav-instruction'), 
+          etaEl=document.getElementById('nav-eta'), 
+          iconEl=document.getElementById('nav-maneuver-icon'), 
+          fill=document.getElementById('trail-fill'), 
+          pin=document.getElementById('trail-pin'); 
+          
+    const m=payload.maneuver; 
+    iconEl.textContent=m.icon; 
+    iconEl.classList.toggle('arrived',m.type==='arrive'); 
+    
+    if(m.type==='arrive'){ 
+      distEl.textContent='وصلت 🎉'; 
+      instrEl.textContent='أهلاً بكم في منتزه بلدية سلفيت'; 
+      etaEl.textContent=''; 
+    } else { 
+      const dist=Math.round(payload.distanceToManeuver); 
+      distEl.textContent=(dist>=1000?(dist/1000).toFixed(1)+' كم':dist+' م'); 
+      instrEl.textContent=m.junctionName?`${m.label} عند ${m.junctionName}`:m.label; 
+      etaEl.textContent=`الوصول خلال ~${payload.etaMinutes} دقيقة`; 
+    } 
+    
+    const progress=Math.round(payload.progress||0); 
+    fill.style.width=progress+'%'; 
+    pin.style.left=progress+'%'; 
+  }
   function hideNavCard(){ document.getElementById('nav-card').classList.remove('visible'); }
   function showArrivalOverlay(){ document.getElementById('arrival-overlay').classList.add('visible'); }
   function hideArrivalOverlay(){ document.getElementById('arrival-overlay').classList.remove('visible'); }
@@ -801,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     toast.textContent = message;
     toast.style.opacity = '1';
     clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+    toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
   }
 
   function startNavigation() {
@@ -819,16 +1142,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (!navigator.geolocation) {
       toastMessage('⚠️ المتصفح لا يدعم تحديد الموقع');
-      alert('المتصفح لا يدعم خدمة تحديد الموقع الجغرافي');
+      requestManualLocation();
       return;
     }
     navStarted = true;
-    toastMessage('📍 جارٍ تحديد موقعك...');
-    Speech.speak('جارٍ تحديد موقعكم وحساب المسار الأمثل.', 0.8);
+    toastMessage('📍 جارٍ تحديد موقعك وحساب المسار عبر الشوارع...');
+    Speech.speak('جارٍ تحديد موقعكم وحساب المسار عبر أقرب الطرق.', 0.8);
     
     ParkNav.start(handleNavUpdate, handleArrival, (userLatLng) => {
-      Speech.speak('تم تحديد موقعكم بنجاح. جارٍ حساب المسار الأمثل إلى المنتزه.', 0.8);
+      toastMessage('✅ تم تحديد موقعكم، جارٍ حساب المسار  ');
+      Speech.speak('تم تحديد موقعكم. جارٍ حساب المسار عبر الشوارع إلى المنتزه.', 0.8);
     });
+    
+    setTimeout(() => {
+      if (!ParkNav.getLastPosition()) {
+        toastMessage('⏳ لم يتم تحديد الموقع بعد، جارٍ المحاولة...');
+      }
+    }, 8000);
+  }
+
+  function requestManualLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const latlng = [pos.coords.latitude, pos.coords.longitude];
+          toastMessage('✅ تم تحديد موقعك');
+          ParkNav.startWithManualLocation(latlng, handleNavUpdate, handleArrival, (userLatLng) => {
+            Speech.speak('تم تحديد موقعكم. جارٍ حساب المسار عبر الشوارع.', 0.8);
+          });
+          navStarted = true;
+        },
+        (err) => {
+          toastMessage('⚠️ تعذر تحديد الموقع، يرجى تفعيل GPS أو تحديد موقع يدوي');
+          showManualLocationDialog();
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
+      );
+    } else {
+      showManualLocationDialog();
+    }
+  }
+
+  function showManualLocationDialog() {
+    const userConfirmed = confirm('تعذر تحديد موقعك تلقائياً. هل ترغب بتحديد موقعك يدوياً على الخريطة؟');
+    if (userConfirmed) {
+      toastMessage('📍 اضغط على الخريطة لتحديد موقعك');
+      const map = ParkMap.getMap();
+      if (map) {
+        map.once('click', function(e) {
+          const latlng = [e.latlng.lat, e.latlng.lng];
+          toastMessage('✅ تم تحديد موقعك يدوياً، جارٍ حساب المسار عبر الشوارع');
+          ParkNav.startWithManualLocation(latlng, handleNavUpdate, handleArrival, (userLatLng) => {
+            Speech.speak('تم تحديد موقعكم يدوياً. جارٍ حساب المسار عبر الشوارع.', 0.8);
+          });
+          navStarted = true;
+        });
+      }
+    }
   }
 
   let lastSpokenInstruction = '';
@@ -840,16 +1210,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       toastMessage('⚠️ ' + payload.error);
       return;
     }
-    ParkMap.setUserPosition(payload.userLatLng, payload.heading);
-    ParkMap.setActivePath(payload.pathCoords);
     
-    // إذا كان المستخدم بعيداً عن المسار، نرسم خطاً ذهبياً يربطه بأقرب نقطة
-    if (payload.distToPath && payload.distToPath > 30) {
-      ParkMap.setConnectorLine(payload.userLatLng, payload.snapPoint);
-    } else {
-      ParkMap.setConnectorLine(null, null);
+    if (payload.status === 'recalculating') {
+      toastMessage('🔄 جارٍ حساب المسار عبر الشوارع...');
+      return;
+    }
+
+    if (payload.status === 'fallback') {
+      toastMessage(payload.message || '⚠️ تم استخدام أقرب تقدير مؤقت');
+      return;
     }
     
+    ParkMap.setUserPosition(payload.userLatLng, payload.heading);
+    ParkMap.setActivePath(payload.pathCoords);
     ParkMap.panTo(payload.userLatLng);
 
     const m = payload.maneuver;
@@ -870,7 +1243,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function handleArrival() {
-    ParkMap.setConnectorLine(null, null);
     ParkUI.showArrivalOverlay();
     if (!arrivalSpoken) {
       arrivalSpoken = true;
@@ -919,12 +1291,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         return; 
       }
+      
       if (!navigator.geolocation) { 
         toastMessage('⚠️ المتصفح لا يدعم تحديد الموقع');
-        alert('المتصفح لا يدعم خدمة تحديد الموقع الجغرافي');
+        requestManualLocation();
         return; 
       }
-      toastMessage('📍 جارٍ تحديد موقعك...');
+      toastMessage('📍 جارٍ تحديد موقعك وحساب المسار عبر الشوارع...');
       beginRealNavigation();
     });
 
@@ -949,6 +1322,45 @@ document.addEventListener('DOMContentLoaded', async () => {
       toastMessage('🏠 العودة للخريطة العامة');
       Speech.speak('تم العودة إلى العرض العام للخريطة.', 0.7);
     });
+
+    document.getElementById('rerouteBtn').addEventListener('click', async function() {
+      if (!navStarted) {
+        toastMessage('⚠️ يرجى بدء الملاحة أولاً');
+        return;
+      }
+      toastMessage('🔄 جارٍ إعادة حساب المسار عبر الشوارع...');
+      const success = await ParkNav.forceReroute();
+      if (success) {
+        toastMessage('✅ تم إعادة حساب المسار عبر الشوارع');
+        Speech.speak('تم إعادة حساب المسار عبر الشوارع بناءً على موقعكم الحالي.', 0.8);
+        const lastPos = ParkNav.getLastPosition();
+        if (lastPos) {
+          const activePath = ParkNav.getActivePath();
+          if (activePath) {
+            ParkMap.setActivePath(activePath.coords);
+            const snap = ParkUtils.nearestPointOnSegmentOfPath(activePath.coords, lastPos);
+            if (snap) {
+              const remaining = ParkUtils.remainingFromPoint(activePath.coords, snap.segIndex, snap.point) + snap.dist;
+              const payload = {
+                userLatLng: lastPos,
+                heading: 0,
+                snapPoint: snap.point,
+                pathCoords: activePath.coords,
+                remainingMeters: remaining,
+                progress: 0,
+                maneuver: {type:'straight', label:'تابع المسار الجديد عبر الشوارع', icon:'🔄'},
+                distanceToManeuver: ParkUtils.haversine(snap.point, activePath.coords[snap.segIndex+1] || activePath.coords[activePath.coords.length-1]),
+                etaMinutes: Math.max(1, Math.round((remaining/1.3)/60)),
+                distToPath: snap.dist
+              };
+              ParkUI.updateNavCard(payload);
+            }
+          }
+        }
+      } else {
+        toastMessage('⚠️ تعذر إعادة حساب المسار، تأكد من وجود شارع قريب');
+      }
+    });
   }
 
   function wireModal() {
@@ -961,6 +1373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
   
   window.toastMessage = toastMessage;
+  window.retryLocation = requestManualLocation;
 });
 </script>
 </body>
