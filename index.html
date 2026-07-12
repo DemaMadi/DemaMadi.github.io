@@ -687,14 +687,21 @@ const ParkMap = (() => {
       const el = document.createElement('div');
       el.className = 'junction-marker';
       const icon = L.divIcon({ html: el.outerHTML, className: '', iconSize: [12, 12] });
-      const labelHtml = `<div style="background: rgba(255,255,255,0.9); color: #263120; padding: 2px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1.5px solid #557E40; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">📍 ${j.name||'مفترق'}</div>`;
-      L.marker(j.latlng, { icon })
-        .addTo(map)
-        .bindTooltip(labelHtml, { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+L.marker(j.latlng, { icon })
+  .addTo(map)
+  .bindTooltip(
+    `<strong style="font-size:14px;color:#263120;">📍 ${j.name || 'مفترق'}</strong>`,
+    {
+      permanent: true,
+      direction: 'right',
+      offset: [0,5],
+      className: 'custom-tooltip'
+    }
+  );
     });
   }
-  function drawPark(){ const icon=L.divIcon({html:'<div class="park-marker"><span>🌳</span></div>',className:'',iconSize:[30,30],iconAnchor:[15,26]}); L.marker(state.park.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:14px;color:#263120;">🌳 ${state.park.name}</strong>`,{permanent:true,direction:'top',offset:[0,-8],className:'custom-tooltip'}); }
-  function fitToRoute(){ map.setView([32.0836,35.1806],14); }
+  function drawPark(){ const icon=L.divIcon({html:'<div class="park-marker"><span>🌳</span></div>',className:'',iconSize:[30,30],iconAnchor:[15,26]}); L.marker(state.park.latlng,{icon}).addTo(map).bindTooltip(`<strong style="font-size:14px;color:#263120;"> ${state.park.name}</strong>`,{permanent:true,direction:'right',offset:[0,5],className:'custom-tooltip'}); }
+  function fitToRoute(){ map.setView([32.0836,35.1806],13); }
   function setUserPosition(latlng,heading){ 
     if(!userMarker){ 
       const el=`<div class="user-marker"><div class="arrow"></div></div>`; 
@@ -1150,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     Speech.speak('جارٍ تحديد موقعكم وحساب المسار عبر أقرب الطرق.', 0.8);
     
     ParkNav.start(handleNavUpdate, handleArrival, (userLatLng) => {
-      toastMessage('✅ تم تحديد موقعكم، جارٍ حساب المسار  ');
+      toastMessage('✅ تم تحديد موقعكم، جارٍ حساب المسار عبر الشوارع');
       Speech.speak('تم تحديد موقعكم. جارٍ حساب المسار عبر الشوارع إلى المنتزه.', 0.8);
     });
     
