@@ -68,8 +68,8 @@
     .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
     .brand-text strong { font-family: var(--f-display); font-size: 13px; color: var(--c-green-800); }
     .brand-text span { font-size: 9px; color: var(--c-text-soft); }
-    .main-nav { display: flex; gap: 9px; }
-    .main-nav button { padding: 8px 12px; border-radius: 999px; background: transparent; font-weight: 700; font-size: 12px; color: var(--c-text-soft); transition: .25s; }
+    .main-nav { display: flex; gap: 12px; }
+    .main-nav button { padding: 8px 12px; border-radius: 999px; background: transparent; font-weight: 700; font-size: 16px; color: var(--c-text-soft); transition: .25s; }
     .main-nav button.active, .main-nav button:hover { background: var(--c-green-50); color: var(--c-green-800); }
 
     .view { padding-top: var(--header-h); min-height: 100vh; }
@@ -887,7 +887,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function wireHomeButtons() {
     document.getElementById('btn-start-trip').addEventListener('click', () => {
-      Speech.speak('كلمة رئيس بلدية سلفيت، الأستاذ ضياء بني نمرة.', 0.8);
       ParkVideo.playMayorVideo();
     });
     document.getElementById('btn-locate-me').addEventListener('click', startNavigation);
