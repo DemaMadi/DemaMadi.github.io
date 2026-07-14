@@ -1174,12 +1174,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
   }
 
+  // ========== رسالة الترحيب المسجّلة (صوت حقيقي بدل النطق الآلي) ==========
+  const WELCOME_AUDIO_URL = 'https://github.com/DemaMadi/DemaMadi.github.io/raw/main/WelcomeMessage.mp3';
+  let welcomeAudioEl = null;
+
+  function playWelcomeRecording() {
+    try {
+      if (!welcomeAudioEl) {
+        welcomeAudioEl = new Audio(WELCOME_AUDIO_URL);
+      }
+      welcomeAudioEl.currentTime = 0;
+      welcomeAudioEl.play().catch(err => {
+        console.warn('تعذر تشغيل التسجيل الصوتي، سيتم استخدام النطق الآلي كبديل:', err);
+        speakWelcomeFallback();
+      });
+    } catch (e) {
+      console.warn('خطأ أثناء تشغيل التسجيل الصوتي:', e);
+      speakWelcomeFallback();
+    }
+  }
+
+  function speakWelcomeFallback() {
+    const fallbackMsg = 'أهلًا وسهلًا بكم في الدليل التفاعلي لمنتزه بلدية سلفيت. يرحب بكم رئيس بلدية سلفيت، الأستاذ ضياء، ويتمنى لكم قضاء أوقاتٍ ممتعة في المنتزه. يُرجى الضغط على أيقونة البوصلة لبدء تحديد موقعكم واختيار أفضل مسار للوصول إلى بوابة المنتزه';
+    Speech.speak(fallbackMsg, 0.8);
+  }
+
   function startNavigation() {
     ParkUI.showView('map');
     if (navPromptSpoken) return;
     navPromptSpoken = true;
-    const msg = 'أهلًا وسهلًا بكم في الدليل التفاعلي لمنتزه بلدية سلفيت. يرحب بكم رئيس بلدية سلفيت، الأستاذ ضياء، ويتمنى لكم قضاء أوقاتٍ ممتعة في منتزه. يُرجى الضغط على أيقونة بوصلة لبدء تحديد موقعكم واختيار أفضل مسار للوصول إلى بوابة المنتزه';
-    setTimeout(() => { Speech.speak(msg, 0.8); }, 300);
+    setTimeout(() => { playWelcomeRecording(); }, 300);
   }
 
   function beginRealNavigation() {
